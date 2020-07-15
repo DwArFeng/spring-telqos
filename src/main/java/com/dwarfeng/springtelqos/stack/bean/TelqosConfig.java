@@ -18,18 +18,21 @@ public class TelqosConfig implements Serializable {
     private String password = "";
     private String charset = "UTF-8";
     private int soBacklog = 1024;
+    private String bannerUrl = "classpath:telqos/banner.txt";
 
     public TelqosConfig() {
     }
 
     public TelqosConfig(
-            int port, String whitelistRegex, String blacklistRegex, String password, String charset, int soBacklog) {
+            int port, String whitelistRegex, String blacklistRegex, String password, String charset, int soBacklog,
+            String bannerUrl) {
         this.port = port;
         this.whitelistRegex = whitelistRegex;
         this.blacklistRegex = blacklistRegex;
         this.password = password;
         this.charset = charset;
         this.soBacklog = soBacklog;
+        this.bannerUrl = bannerUrl;
     }
 
     public int getPort() {
@@ -80,6 +83,14 @@ public class TelqosConfig implements Serializable {
         this.soBacklog = soBacklog;
     }
 
+    public String getBannerUrl() {
+        return bannerUrl;
+    }
+
+    public void setBannerUrl(String bannerUrl) {
+        this.bannerUrl = bannerUrl;
+    }
+
     @Override
     public String toString() {
         return "TelqosConfig{" +
@@ -89,6 +100,7 @@ public class TelqosConfig implements Serializable {
                 ", password='" + password + '\'' +
                 ", charset='" + charset + '\'' +
                 ", soBacklog=" + soBacklog +
+                ", bannerUrl='" + bannerUrl + '\'' +
                 '}';
     }
 }

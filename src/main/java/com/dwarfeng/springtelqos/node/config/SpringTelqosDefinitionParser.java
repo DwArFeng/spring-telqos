@@ -51,6 +51,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             builder.addPropertyValue("password", element.getAttribute("password"));
             builder.addPropertyValue("charset", element.getAttribute("charset"));
             builder.addPropertyValue("soBacklog", element.getAttribute("so-backlog"));
+            builder.addPropertyValue("bannerUrl", element.getAttribute("banner-url"));
         }
         builder.setScope(BeanDefinition.SCOPE_SINGLETON);
         builder.setLazyInit(false);

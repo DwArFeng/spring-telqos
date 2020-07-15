@@ -103,6 +103,15 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
+                        <xsd:attribute name="banner-url" type="xsd:string" default="classpath:telqos/banner.txt">
+                            <xsd:annotation>
+                                <xsd:appinfo>
+                                    <tool:annotation>
+                                        <tool:expected-type type="java.lang.String"/>
+                                    </tool:annotation>
+                                </xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
                 <xsd:element name="cli-handler" minOccurs="0">

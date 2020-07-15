@@ -13,17 +13,29 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
-public class TelqosServiceImpl implements TelqosService, InitializingBean, DisposableBean {
+public class TelqosServiceImpl implements TelqosService, InitializingBean, DisposableBean, ApplicationContextAware {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TelqosServiceImpl.class);
 
     private TelqosConfig telqosConfig;
     private CliHandler cliHandler;
     private Serializer serializer;
     private Deserializer deserializer;
+    private ApplicationContext applicationContext;
 
     private NioEventLoopGroup bossGroup;
     private NioEventLoopGroup workerGroup;
@@ -34,10 +46,17 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
 
     public TelqosServiceImpl(
             TelqosConfig telqosConfig, CliHandler cliHandler, Serializer serializer, Deserializer deserializer) {
+        this(telqosConfig, cliHandler, serializer, deserializer, null);
+    }
+
+    public TelqosServiceImpl(
+            TelqosConfig telqosConfig, CliHandler cliHandler, Serializer serializer, Deserializer deserializer,
+            ApplicationContext applicationContext) {
         this.telqosConfig = telqosConfig;
         this.cliHandler = cliHandler;
         this.serializer = serializer;
         this.deserializer = deserializer;
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -105,6 +124,15 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         this.deserializer = deserializer;
     }
 
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     /**
      * Telqos 管道初始化处理器。
      *
@@ -143,39 +171,76 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             Object remoteAddress = channel.remoteAddress();
 
             //TODO
+
+            System.out.println(message);
+            channel.writeAndFlush(ChannelUtil.line("message"));
         }
 
         @Override
-        public void handlerAdded(ChannelHandlerContext ctx) {
-            // 获取管道处理器上下文中的管道地址和管道本身，并将其添加进入管道映射中进行维护。
-//            Channel channel = ctx.channel();
-//            Object remoteAddress = channel.remoteAddress();
-//            channelMap.put(remoteAddress, channel);
-//
-//            // 处理器进行客户端连接调度。
-//            sconnProcessor.onClientConnected(remoteAddress);
+        public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+            Channel channel = ctx.channel();
+            String address = ChannelUtil.getAddress(channel);
+            showBanner(channel);
+            channel.writeAndFlush(ChannelUtil.line("欢迎您 " + address));
+            if (!checkAddress(address)) {
+                LOGGER.info("设备 " + address + " 尝试访问本服务，由于黑/白名单规则被禁止");
+                channel.writeAndFlush(ChannelUtil.line("该服务设置了黑/白名单，您所在的设备禁止访问此服务")).get();
+                ctx.channel().writeAndFlush(ChannelUtil.line("再见!")).get();
+                channel.close();
+            }
+        }
+
+        private void showBanner(Channel channel) throws Exception {
+            Resource resource = applicationContext.getResource(telqosConfig.getBannerUrl());
+            try (
+                    InputStreamReader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8);
+                    Scanner scanner = new Scanner(reader)
+            ) {
+                while (scanner.hasNextLine()) {
+                    channel.write(ChannelUtil.line(scanner.nextLine()));
+                }
+            }
+            channel.flush();
+        }
+
+        private boolean checkAddress(String address) {
+            String blacklistRegex = telqosConfig.getBlacklistRegex();
+            String whitelistRegex = telqosConfig.getWhitelistRegex();
+
+            // 先做一个大概率情形判断。
+            if (StringUtils.isEmpty(blacklistRegex) && StringUtils.isEmpty(whitelistRegex)) {
+                return true;
+            }
+
+            // 判断标准化地址是否能通过黑白名单。
+            if (StringUtils.isNotEmpty(blacklistRegex) && address.matches(blacklistRegex)) {
+                return false;
+            }
+            if (StringUtils.isEmpty(whitelistRegex)) {
+                return true;
+            }
+            return address.matches(whitelistRegex);
         }
 
         @Override
         public void handlerRemoved(ChannelHandlerContext ctx) {
-//            SyncMapModel<Object, Channel> channelMap = nettySconn.getChannelMap();
-//            ServerSconnProcessor sconnProcessor = nettySconn.getServerContext().getSconnProcessor();
-//
-//            // 获取管道处理器上下文中的管道地址和管道本身，并将其添加进入管道映射中进行维护。
-//            Channel channel = ctx.channel();
-//            Object remoteAddress = channel.remoteAddress();
-//            channelMap.remove(remoteAddress);
-//
-//            // 处理器进行客户端连接调度。
-//            sconnProcessor.onClientDisconnected(remoteAddress);
+            ctx.channel().writeAndFlush(ChannelUtil.line("再见!"));
         }
 
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) throws Exception {
-//            // TODO 临时方法，需要更改。
-//            Channel channel = ctx.channel();
-//            System.out.println("[" + channel.remoteAddress() + "] leave the room");
-//            ctx.close().sync();
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
+            Channel channel = ctx.channel();
+            String address = ChannelUtil.getAddress(channel);
+
+            LOGGER.warn("设备 " + address + " 在通讯时发生异常，将中断连接，异常信息如下:", e);
+            try {
+                channel.writeAndFlush(ChannelUtil.line("不小心发生异常了，将连接终端, 请留意服务端日志")).get();
+                ctx.channel().writeAndFlush(ChannelUtil.line("再见!")).get();
+            } catch (Exception ex) {
+                LOGGER.warn("向设备 " + address + " 发送消息时发生异常，异常信息如下:", ex);
+            } finally {
+                channel.close();
+            }
         }
     }
 }

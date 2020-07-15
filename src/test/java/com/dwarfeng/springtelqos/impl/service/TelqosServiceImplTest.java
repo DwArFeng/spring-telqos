@@ -9,5 +9,4 @@ public class TelqosServiceImplTest {
     public void test() {
         ApplicationUtil.launch("classpath:spring/application-context*.xml");
     }
-
 }
