@@ -49,7 +49,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="port" type="xsd:positiveInteger" default="23">
+                        <xsd:attribute name="port" type="xsd:token" default="23">
                             <xsd:annotation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -58,7 +58,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="whitelist-regex" type="xsd:string" default="">
+                        <xsd:attribute name="whitelist-regex" type="xsd:token" default="">
                             <xsd:annotation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -67,7 +67,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="blacklist-regex" type="xsd:string" default="">
+                        <xsd:attribute name="blacklist-regex" type="xsd:token" default="">
                             <xsd:annotation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -76,7 +76,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="charset" type="xsd:string" default="UTF-8">
+                        <xsd:attribute name="charset" type="xsd:token" default="UTF-8">
                             <xsd:annotation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -85,7 +85,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="password" type="xsd:string" default="">
+                        <xsd:attribute name="password" type="xsd:token" default="">
                             <xsd:annotation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -94,7 +94,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="so-backlog" type="xsd:positiveInteger" default="1024">
+                        <xsd:attribute name="so-backlog" type="xsd:token" default="1024">
                             <xsd:annotation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -103,7 +103,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="banner-url" type="xsd:string" default="classpath:telqos/banner.txt">
+                        <xsd:attribute name="banner-url" type="xsd:token" default="classpath:telqos/banner.txt">
                             <xsd:annotation>
                                 <xsd:appinfo>
                                     <tool:annotation>

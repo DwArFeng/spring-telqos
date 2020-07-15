@@ -41,17 +41,24 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
     private String parseTelqosConfig(Element element, ParserContext parserContext) {
         element = (Element) element.getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "config").item(0);
         String id = Objects.isNull(element) ?
-                DEFAULT_TELQOS_CONFIG_ID : element.getAttribute("id");
+                DEFAULT_TELQOS_CONFIG_ID : ParserUtil.mayResolve(parserContext, element.getAttribute("id"));
         checkBeanDuplicated(parserContext, id);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TelqosConfig.class);
         if (Objects.nonNull(element)) {
-            builder.addPropertyValue("port", element.getAttribute("port"));
-            builder.addPropertyValue("whitelistRegex", element.getAttribute("whitelist-regex"));
-            builder.addPropertyValue("blacklistRegex", element.getAttribute("blacklist-regex"));
-            builder.addPropertyValue("password", element.getAttribute("password"));
-            builder.addPropertyValue("charset", element.getAttribute("charset"));
-            builder.addPropertyValue("soBacklog", element.getAttribute("so-backlog"));
-            builder.addPropertyValue("bannerUrl", element.getAttribute("banner-url"));
+            builder.addPropertyValue("port", ParserUtil.mayResolve(
+                    parserContext, element.getAttribute("port")));
+            builder.addPropertyValue("whitelistRegex", ParserUtil.mayResolve(
+                    parserContext, element.getAttribute("whitelist-regex")));
+            builder.addPropertyValue("blacklistRegex", ParserUtil.mayResolve(
+                    parserContext, element.getAttribute("blacklist-regex")));
+            builder.addPropertyValue("password", ParserUtil.mayResolve(
+                    parserContext, element.getAttribute("password")));
+            builder.addPropertyValue("charset", ParserUtil.mayResolve(
+                    parserContext, element.getAttribute("charset")));
+            builder.addPropertyValue("soBacklog", ParserUtil.mayResolve(
+                    parserContext, element.getAttribute("so-backlog")));
+            builder.addPropertyValue("bannerUrl", ParserUtil.mayResolve(
+                    parserContext, element.getAttribute("banner-url")));
         }
         builder.setScope(BeanDefinition.SCOPE_SINGLETON);
         builder.setLazyInit(false);
@@ -77,10 +84,12 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
     private String parseCommonBean(
             Element element, ParserContext parserContext, String defaultBeanId, String defaultBeanClass) {
         if (Objects.nonNull(element) && StringUtils.isNotEmpty(element.getAttribute("ref"))) {
-            return element.getAttribute("ref");
+            return ParserUtil.mayResolve(parserContext, element.getAttribute("ref"));
         }
-        String id = Objects.isNull(element) ? defaultBeanId : element.getAttribute("id");
-        String clazz = Objects.isNull(element) ? defaultBeanClass : element.getAttribute("class");
+        String id = Objects.isNull(element) ? defaultBeanId :
+                ParserUtil.mayResolve(parserContext, element.getAttribute("id"));
+        String clazz = Objects.isNull(element) ? defaultBeanClass :
+                ParserUtil.mayResolve(parserContext, element.getAttribute("class"));
         checkBeanDuplicated(parserContext, id);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(clazz);
         builder.setScope(BeanDefinition.SCOPE_SINGLETON);
@@ -92,7 +101,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
     private void parseTelqosService(
             Element element, ParserContext parserContext, String telqosConfigId, String cliHandlerId,
             String serializerId, String deserializerId) {
-        String id = element.getAttribute("id");
+        String id = ParserUtil.mayResolve(parserContext, element.getAttribute("id"));
         checkBeanDuplicated(parserContext, id);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TelqosServiceImpl.class);
         builder.addPropertyReference("telqosConfig", telqosConfigId);
