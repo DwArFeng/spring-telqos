@@ -12,6 +12,6 @@ public class SpringTelqosNamespaceHandler extends NamespaceHandlerSupport {
 
     @Override
     public void init() {
-        registerBeanDefinitionParser("service", new SpringTelqosDefinitionParser());
+        registerBeanDefinitionParser("config", new SpringTelqosDefinitionParser());
     }
 }

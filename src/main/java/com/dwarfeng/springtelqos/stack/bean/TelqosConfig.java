@@ -1,38 +1,45 @@
 package com.dwarfeng.springtelqos.stack.bean;
 
-import java.io.Serializable;
+import com.dwarfeng.springtelqos.stack.command.Command;
+import com.dwarfeng.springtelqos.stack.serialize.Deserializer;
+import com.dwarfeng.springtelqos.stack.serialize.Serializer;
+
+import java.util.Collection;
 
 /**
- * Telqos 的设置 bean。
+ * Telqos配置。
  *
  * @author DwArFeng
  * @since 1.0.0
  */
-public class TelqosConfig implements Serializable {
+public class TelqosConfig {
 
-    private static final long serialVersionUID = 3485734126485661953L;
-
-    private int port = 22;
-    private String whitelistRegex = "";
-    private String blacklistRegex = "";
-    private String password = "";
-    private String charset = "UTF-8";
-    private int soBacklog = 1024;
-    private String bannerUrl = "classpath:telqos/banner.txt";
+    private int port;
+    private String whitelistRegex;
+    private String blacklistRegex;
+    private String charset;
+    private String bannerUrl;
+    private Serializer serializer;
+    private Deserializer deserializer;
+    private String defaultNamespace;
+    private Collection<Command> commands;
 
     public TelqosConfig() {
     }
 
     public TelqosConfig(
-            int port, String whitelistRegex, String blacklistRegex, String password, String charset, int soBacklog,
-            String bannerUrl) {
+            int port, String whitelistRegex, String blacklistRegex, String charset, String bannerUrl,
+            Serializer serializer, Deserializer deserializer, String defaultNamespace,
+            Collection<Command> commands) {
         this.port = port;
         this.whitelistRegex = whitelistRegex;
         this.blacklistRegex = blacklistRegex;
-        this.password = password;
         this.charset = charset;
-        this.soBacklog = soBacklog;
         this.bannerUrl = bannerUrl;
+        this.serializer = serializer;
+        this.deserializer = deserializer;
+        this.defaultNamespace = defaultNamespace;
+        this.commands = commands;
     }
 
     public int getPort() {
@@ -59,28 +66,12 @@ public class TelqosConfig implements Serializable {
         this.blacklistRegex = blacklistRegex;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getCharset() {
         return charset;
     }
 
     public void setCharset(String charset) {
         this.charset = charset;
-    }
-
-    public int getSoBacklog() {
-        return soBacklog;
-    }
-
-    public void setSoBacklog(int soBacklog) {
-        this.soBacklog = soBacklog;
     }
 
     public String getBannerUrl() {
@@ -91,16 +82,50 @@ public class TelqosConfig implements Serializable {
         this.bannerUrl = bannerUrl;
     }
 
+    public Serializer getSerializer() {
+        return serializer;
+    }
+
+    public void setSerializer(Serializer serializer) {
+        this.serializer = serializer;
+    }
+
+    public Deserializer getDeserializer() {
+        return deserializer;
+    }
+
+    public void setDeserializer(Deserializer deserializer) {
+        this.deserializer = deserializer;
+    }
+
+    public String getDefaultNamespace() {
+        return defaultNamespace;
+    }
+
+    public void setDefaultNamespace(String defaultNamespace) {
+        this.defaultNamespace = defaultNamespace;
+    }
+
+    public Collection<Command> getCommands() {
+        return commands;
+    }
+
+    public void setCommands(Collection<Command> commands) {
+        this.commands = commands;
+    }
+
     @Override
     public String toString() {
         return "TelqosConfig{" +
                 "port=" + port +
                 ", whitelistRegex='" + whitelistRegex + '\'' +
                 ", blacklistRegex='" + blacklistRegex + '\'' +
-                ", password='" + password + '\'' +
                 ", charset='" + charset + '\'' +
-                ", soBacklog=" + soBacklog +
                 ", bannerUrl='" + bannerUrl + '\'' +
+                ", serializer=" + serializer +
+                ", deserializer=" + deserializer +
+                ", defaultNamespace='" + defaultNamespace + '\'' +
+                ", commands=" + commands +
                 '}';
     }
 }

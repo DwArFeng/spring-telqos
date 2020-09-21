@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xsd:schema xmlns="http://dwarfeng.com/schema/spring-telqos"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-            vc:minVersion="1.1"
             xmlns:tool="http://www.springframework.org/schema/tool"
             targetNamespace="http://dwarfeng.com/schema/spring-telqos"
             elementFormDefault="qualified">
@@ -12,45 +10,35 @@
 
     <xsd:annotation>
         <xsd:documentation>
-            <![CDATA[ Namespace support for the spring-telqos services provided by dwarfeng. ]]></xsd:documentation>
+            <![CDATA[DwArFeng spring-telqos 项目的命名空间支持。]]></xsd:documentation>
     </xsd:annotation>
 
-    <!-- 根元素 -->
-    <xsd:element name="service">
+    <xsd:element name="config">
         <xsd:annotation>
-            <xsd:documentation source="java:com.dwarfeng.springtelqos.stack.bean.TelqosConfig">
-                <![CDATA[ Container for <telqos:service> and other elements, typically the root element in the telqos document. ]]>
+            <xsd:documentation>
+                <![CDATA[通过该元素配置项目的连接属性以及连接服务。]]>
             </xsd:documentation>
             <xsd:appinfo>
                 <tool:annotation>
                     <tool:exports type="com.dwarfeng.springtelqos.stack.bean.TelqosConfig"/>
-                    <tool:exports type="com.dwarfeng.springtelqos.stack.handler.CliHandler"/>
-                    <tool:exports type="com.dwarfeng.springtelqos.stack.serialize.Serializer"/>
-                    <tool:exports type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
                     <tool:exports type="com.dwarfeng.springtelqos.stack.service.TelqosService"/>
                 </tool:annotation>
             </xsd:appinfo>
         </xsd:annotation>
         <xsd:complexType>
             <xsd:all>
-                <xsd:element name="config" minOccurs="0">
+                <xsd:element name="connection-setting" minOccurs="0">
                     <xsd:annotation>
-                        <xsd:documentation><![CDATA[ Export telqos config ]]></xsd:documentation>
+                        <xsd:documentation>
+                            <![CDATA[连接设置。]]>
+                        </xsd:documentation>
                     </xsd:annotation>
                     <xsd:complexType>
-                        <xsd:attribute name="id" type="xsd:token" default="telqosConfig">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[ Defines the telqosConfig's bean name. ]]></xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
                         <xsd:attribute name="port" type="xsd:token" default="23">
                             <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[Telnet服务开放的端口，默认是 23。]]>
+                                </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
                                         <tool:expected-type type="java.lang.Integer"/>
@@ -60,6 +48,9 @@
                         </xsd:attribute>
                         <xsd:attribute name="whitelist-regex" type="xsd:token" default="">
                             <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[连接白名单，默认是空字符串，意味着没有白名单。]]>
+                                </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
                                         <tool:expected-type type="java.lang.String"/>
@@ -69,6 +60,9 @@
                         </xsd:attribute>
                         <xsd:attribute name="blacklist-regex" type="xsd:token" default="">
                             <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[连接黑名单，默认是空字符串，意味着没有黑名单。]]>
+                                </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
                                         <tool:expected-type type="java.lang.String"/>
@@ -78,85 +72,26 @@
                         </xsd:attribute>
                         <xsd:attribute name="charset" type="xsd:token" default="UTF-8">
                             <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[字符集，服务端返回的字符串的字符集，默认是UTF-8，对于中文windows系统，
+                                    可能需要把该值改成 GBK。]]>
+                                </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
                                         <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="password" type="xsd:token" default="">
-                            <xsd:annotation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="so-backlog" type="xsd:token" default="1024">
-                            <xsd:annotation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.Integer"/>
                                     </tool:annotation>
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
                         <xsd:attribute name="banner-url" type="xsd:token" default="classpath:telqos/banner.txt">
                             <xsd:annotation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                    </xsd:complexType>
-                </xsd:element>
-                <xsd:element name="cli-handler" minOccurs="0">
-                    <xsd:annotation>
-                        <xsd:documentation>
-                            <![CDATA[ Defines the telnet command line handler. ]]>
-                            <tool:annotation>
-                                <tool:exports type="com.dwarfeng.springtelqos.stack.handler.CliHandler"/>
-                            </tool:annotation>
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:complexType>
-                        <xsd:attribute name="id" type="xsd:token" default="telqosCliHandler">
-                            <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[ Defines the cliHandler's bean name. ]]></xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="class" type="xsd:string"
-                                       default="com.dwarfeng.springtelqos.impl.handler.ApplicationContextCliHandler">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[ Defines the cliHandler's bean class.
-The class will initialize with no-parameter constructor method.]]>
+                                    <![CDATA[Banner的地址，新连接接入时向客户端发送的欢迎文本，默认值是该项目自带的字符画，
+                                    可以改成其它项目的banner，或者改成空字符串取消banner输出。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
-                                        <tool:expected-type type="com.dwarfeng.springtelqos.stack.handler.CliHandler"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="ref" type="xsd:token" default="">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[ Defines the cliHandler's bean reference. ]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation kind="ref">
-                                        <tool:expected-type type="com.dwarfeng.springtelqos.stack.handler.CliHandler"/>
+                                        <tool:expected-type type="java.lang.String"/>
                                     </tool:annotation>
                                 </xsd:appinfo>
                             </xsd:annotation>
@@ -166,33 +101,23 @@ The class will initialize with no-parameter constructor method.]]>
                 <xsd:element name="serializer" minOccurs="0">
                     <xsd:annotation>
                         <xsd:documentation>
-                            <![CDATA[ Defines the telnet serializer. ]]>
+                            <![CDATA[序列化配置.]]>
+                        </xsd:documentation>
+                        <xsd:appinfo>
                             <tool:annotation>
                                 <tool:exports type="com.dwarfeng.springtelqos.stack.serialize.Serializer"/>
                             </tool:annotation>
-                        </xsd:documentation>
+                        </xsd:appinfo>
                     </xsd:annotation>
                     <xsd:complexType>
                         <xsd:attribute name="id" type="xsd:token" default="telqosSerializer">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[ Defines the serializer's bean name. ]]></xsd:documentation>
+                                    <![CDATA[序列化器的 bean id。]]>
+                                </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
                                         <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="ref" type="xsd:string">
-                            <xsd:annotation>
-                                <xsd:documentation source="com.dwarfeng.springtelqos.stack.serialize.Serializer">
-                                    <![CDATA[ Defines the serializer's bean reference. ]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation kind="ref">
-                                        <tool:expected-type
-                                                type="com.dwarfeng.springtelqos.stack.serialize.Serializer"/>
                                     </tool:annotation>
                                 </xsd:appinfo>
                             </xsd:annotation>
@@ -201,8 +126,20 @@ The class will initialize with no-parameter constructor method.]]>
                                        default="com.dwarfeng.springtelqos.sdk.serialize.FastJsonSerializer">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[ Defines the serializer's bean class.
-The class will initialize with no-parameter constructor method.]]>
+                                    <![CDATA[序列化器的 class 名称，使用该类的无参数构造方法构造对象。]]>
+                                </xsd:documentation>
+                                <xsd:appinfo>
+                                    <tool:annotation>
+                                        <tool:expected-type
+                                                type="com.dwarfeng.springtelqos.stack.serialize.Serializer"/>
+                                    </tool:annotation>
+                                </xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                        <xsd:attribute name="ref" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[序列化器的 bean 引用名称。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -217,29 +154,18 @@ The class will initialize with no-parameter constructor method.]]>
                 <xsd:element name="deserializer" minOccurs="0">
                     <xsd:annotation>
                         <xsd:documentation>
-                            <![CDATA[ Defines the telnet deserializer. ]]>
-                            <tool:annotation>
-                                <tool:exports
-                                        type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
-                            </tool:annotation>
+                            <![CDATA[反序列化配置.]]>
                         </xsd:documentation>
+                        <xsd:appinfo>
+                            <tool:exports
+                                    type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
+                        </xsd:appinfo>
                     </xsd:annotation>
                     <xsd:complexType>
                         <xsd:attribute name="id" type="xsd:token" default="telqosDeserializer">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[ Defines the deserializer's bean name. ]]></xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="ref" type="xsd:string">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[ Defines the deserializer's bean reference. ]]>
+                                    <![CDATA[反序列化器的 bean id。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -252,8 +178,7 @@ The class will initialize with no-parameter constructor method.]]>
                                        default="com.dwarfeng.springtelqos.sdk.serialize.FastJsonDeserializer">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[ Defines the deserializer's bean class.
-The class will initialize with no-parameter constructor method.]]>
+                                    <![CDATA[反序列化器的 class 名称，使用该类的无参数构造方法构造对象。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -262,13 +187,112 @@ The class will initialize with no-parameter constructor method.]]>
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
+                        <xsd:attribute name="ref" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[序列化器的 bean 引用名称。]]>
+                                </xsd:documentation>
+                                <xsd:appinfo>
+                                    <tool:annotation>
+                                        <tool:expected-type
+                                                type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
+                                    </tool:annotation>
+                                </xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="command" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            <![CDATA[命令配置.]]>
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="command-impl" minOccurs="0" maxOccurs="unbounded">
+                                <xsd:annotation>
+                                    <xsd:documentation>
+                                        <![CDATA[Command的实现类.]]>
+                                    </xsd:documentation>
+                                    <xsd:appinfo>
+                                        <tool:exports
+                                                type="com.dwarfeng.springtelqos.stack.command.Command"/>
+                                    </xsd:appinfo>
+                                </xsd:annotation>
+                                <xsd:complexType>
+                                    <xsd:attribute name="id" type="xsd:token">
+                                        <xsd:annotation>
+                                            <xsd:documentation>
+                                                <![CDATA[Command 的 bean id。]]>
+                                            </xsd:documentation>
+                                            <xsd:appinfo>
+                                                <tool:annotation>
+                                                    <tool:expected-type type="java.lang.String"/>
+                                                </tool:annotation>
+                                            </xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:attribute>
+                                    <xsd:attribute name="class" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:documentation>
+                                                <![CDATA[Command 的 class 名称，使用该类的无参数构造方法构造对象。]]>
+                                            </xsd:documentation>
+                                            <xsd:appinfo>
+                                                <tool:annotation>
+                                                    <tool:expected-type type="java.lang.String"/>
+                                                </tool:annotation>
+                                            </xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:attribute>
+                                    <xsd:attribute name="ref" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:documentation>
+                                                <![CDATA[Command 的 bean 引用名称。]]>
+                                            </xsd:documentation>
+                                            <xsd:appinfo>
+                                                <tool:annotation>
+                                                    <tool:expected-type
+                                                            type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
+                                                </tool:annotation>
+                                            </xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:attribute>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="use-default" type="xsd:boolean" default="true">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[是否启用默认的命令。]]>
+                                </xsd:documentation>
+                                <xsd:appinfo>
+                                    <tool:annotation>
+                                        <tool:expected-type type="java.lang.Boolean"/>
+                                    </tool:annotation>
+                                </xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
             </xsd:all>
-            <xsd:attribute name="id" type="xsd:token" default="telqosService">
+            <xsd:attribute name="config-id" type="xsd:token" default="telqosConfig">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[ Defines the telqosService's bean name. ]]></xsd:documentation>
+                        <![CDATA[配置的 bean id，默认是 telqosConfig。]]>
+                    </xsd:documentation>
+                    <xsd:appinfo>
+                        <tool:annotation>
+                            <tool:expected-type type="java.lang.String"/>
+                        </tool:annotation>
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="service-id" type="xsd:token" default="telqosService">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Telqos服务的 bean id，默认是 telqosService。]]>
+                    </xsd:documentation>
                     <xsd:appinfo>
                         <tool:annotation>
                             <tool:expected-type type="java.lang.String"/>

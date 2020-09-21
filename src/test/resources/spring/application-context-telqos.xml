@@ -7,11 +7,7 @@
         http://dwarfeng.com/schema/spring-telqos
         http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd">
 
-    <bean id="aaa" class="com.dwarfeng.springtelqos.sdk.serialize.FastJsonSerializer">
-    </bean>
-    <telqos:service>
-        <telqos:config charset="UTF-8" so-backlog="1011"/>
-        <telqos:serializer ref="aaa"/>
-        <telqos:deserializer id="ccc" class="com.dwarfeng.springtelqos.sdk.serialize.FastJsonDeserializer"/>
-    </telqos:service>
+    <telqos:config>
+        <telqos:connection-setting charset="GBK"/>
+    </telqos:config>
 </beans>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 设置配置文件的路径 -->
+    <context:property-placeholder
+            location="classpath:telqos/*.properties"
+            local-override="true"
+            properties-ref="refProperties"/>
+
+    <!-- 设置本地文件覆盖的路径 -->
+    <bean id="refProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <!--suppress SpringXmlModelInspection -->
+                <value>file:conf/test.telqos/*.properties</value>
+            </list>
+        </property>
+    </bean>
+</beans>
