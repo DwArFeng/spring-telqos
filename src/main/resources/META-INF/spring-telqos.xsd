@@ -275,6 +275,76 @@
                         </xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element name="task-pool" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            <![CDATA[后台任务池配置，类型为ThreadPoolTaskExecutor.]]>
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:attribute name="id" type="xsd:token" default="telqosExecutor">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[反序列化器的 bean id。]]>
+                                </xsd:documentation>
+                                <xsd:appinfo>
+                                    <tool:annotation>
+                                        <tool:expected-type type="java.lang.String"/>
+                                    </tool:annotation>
+                                </xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                        <xsd:attribute name="ref" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[序列化器的 bean 引用名称。]]>
+                                </xsd:documentation>
+                                <xsd:appinfo>
+                                    <tool:annotation>
+                                        <tool:expected-type
+                                                type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
+                                    </tool:annotation>
+                                </xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                        <xsd:attribute name="pool-size" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[与spring-task用法相同]]>
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                        <xsd:attribute name="queue-capacity" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[与spring-task用法相同]]>
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                        <xsd:attribute name="keep-alive" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[与spring-task用法相同]]>
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                        <xsd:attribute name="rejection-policy">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <![CDATA[与spring-task用法相同]]>
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="ABORT"/>
+                                    <xsd:enumeration value="CALLER_RUNS"/>
+                                    <xsd:enumeration value="DISCARD"/>
+                                    <xsd:enumeration value="DISCARD_OLDEST"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
             </xsd:all>
             <xsd:attribute name="config-id" type="xsd:token" default="telqosConfig">
                 <xsd:annotation>

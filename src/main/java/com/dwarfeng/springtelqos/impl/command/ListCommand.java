@@ -1,6 +1,9 @@
 package com.dwarfeng.springtelqos.impl.command;
 
+import com.dwarfeng.springtelqos.stack.command.Cio;
 import com.dwarfeng.springtelqos.stack.command.Command;
+import com.dwarfeng.springtelqos.stack.exception.ConnectionTerminatedException;
+import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import com.dwarfeng.springtelqos.stack.service.TelqosService;
 
 import java.util.ArrayList;
@@ -31,21 +34,18 @@ public class ListCommand implements Command {
     }
 
     @Override
-    public Object execute(TelqosService telqosService, String address, Object[] params) {
+    public Object execute(
+            TelqosService telqosService, String address, Cio cio, String option) throws TelqosException, ConnectionTerminatedException {
         List<Command> commands = new ArrayList<>(telqosService.getCommands());
         commands.sort(CommandIdentityComparator.INSTANCE);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0, commandsSize = commands.size(); i < commandsSize; i++) {
-            Command command = commands.get(i);
-            sb
-                    .append(command.getIdentify())
-                    .append("\t")
-                    .append(command.getDescription());
-            if (i < commandsSize - 1) {
-                sb.append(System.lineSeparator());
-            }
+        for (Command command : commands) {
+            String sb = command.getIdentify() + "\t" + command.getDescription();
+            cio.send(sb);
         }
-        return sb.toString();
+        cio.send("随便说点啥。。。");
+        String receive = cio.receive();
+        cio.send("你刚才说的是: " + receive);
+        return null;
     }
 
     private static final class CommandIdentityComparator implements Comparator<Command> {

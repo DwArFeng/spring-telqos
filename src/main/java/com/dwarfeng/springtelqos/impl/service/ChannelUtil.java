@@ -13,7 +13,7 @@ import java.net.InetSocketAddress;
  * @author DwArFeng
  * @since 1.0.0
  */
-public final class ChannelUtil {
+final class ChannelUtil {
 
     /**
      * 获取指定 Channel 的地址。
@@ -34,13 +34,7 @@ public final class ChannelUtil {
         }
     }
 
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
-
-    public static String lineSeparator() {
-        return LINE_SEPARATOR;
-    }
-
     public static String line(String message) {
-        return message + LINE_SEPARATOR;
+        return message + System.lineSeparator();
     }
 }

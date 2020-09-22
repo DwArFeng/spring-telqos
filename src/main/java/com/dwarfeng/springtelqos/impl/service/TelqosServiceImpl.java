@@ -2,7 +2,9 @@ package com.dwarfeng.springtelqos.impl.service;
 
 import com.dwarfeng.springtelqos.sdk.util.Constants;
 import com.dwarfeng.springtelqos.stack.bean.TelqosConfig;
+import com.dwarfeng.springtelqos.stack.command.Cio;
 import com.dwarfeng.springtelqos.stack.command.Command;
+import com.dwarfeng.springtelqos.stack.exception.ConnectionTerminatedException;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import com.dwarfeng.springtelqos.stack.service.TelqosService;
 import io.netty.bootstrap.ServerBootstrap;
@@ -48,6 +50,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     private final Map<String, Map<String, Object>> variableMap = new HashMap<>();
     private final Map<String, StringBuilder> commandBufferMap = new HashMap<>();
     private final Map<String, Channel> channelMap = new HashMap<>();
+    private final Map<String, InteractionInfo> interactionMap = new HashMap<>();
     private final Lock lock = new ReentrantLock();
 
     private boolean onlineFlag = false;
@@ -192,7 +195,8 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     }
 
     private boolean identityInvalid(String identity) {
-        return false;
+        if (Objects.isNull(identity)) return false;
+        return !identity.matches(Constants.COMMAND_IDENTITY_FORMAT);
     }
 
     @Override
@@ -250,12 +254,23 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         channelMap.put(address, channel);
         commandBufferMap.put(address, new StringBuilder());
         variableMap.put(address, new HashMap<>());
+        Lock lock = new ReentrantLock();
+        interactionMap.put(address, new InteractionInfo(lock, lock.newCondition(),
+                InteractionStatus.WAITING_COMMAND, null, false));
     }
 
     private void sweepUpChannelInfo(String address) {
         channelMap.remove(address);
         commandBufferMap.remove(address);
         variableMap.remove(address);
+        InteractionInfo interactionInfo = interactionMap.remove(address);
+        interactionInfo.getLock().lock();
+        try {
+            interactionInfo.setTermination(true);
+            interactionInfo.getCondition().signalAll();
+        } finally {
+            interactionInfo.getLock().unlock();
+        }
     }
 
     public TelqosConfig getTelqosConfig() {
@@ -307,7 +322,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     private class TelqosChannelHandler extends SimpleChannelInboundHandler<String> {
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, String commandLine) throws Exception {
+        protected void channelRead0(ChannelHandlerContext ctx, String commandLine) {
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
@@ -337,115 +352,92 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
 
                 //构造命令，并且重置 StringBuilder。
                 commandLine = commandBufferMap.getOrDefault(address, new StringBuilder()).toString();
-                variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_INPUT, commandLine);
                 commandBufferMap.put(address, new StringBuilder());
-                LOGGER.info("设备 " + address + " 尝试执行指令: " + commandLine);
 
-                //解析命令，获取命令结构。
-                CommandStruct commandStruct = parseCommandLine(commandLine);
-                //命令非法时执行拒绝动作。
-                if (!commandStruct.isValidFlag()) {
-                    String[] invalidDescriptions = commandStruct.getInvalidDescriptions();
-                    int total = invalidDescriptions.length;
-                    channel.writeAndFlush(ChannelUtil.line("输入的命令不合法，共 " + total + " 处错误"));
-                    for (int i = 0; i < total; i++) {
-                        channel.writeAndFlush(ChannelUtil.line(String.format("%d/%d: %s", i + 1, total, invalidDescriptions[i])));
-                    }
-                    return;
-                }
-
-                //命令合法时，搜索相应的Command。
-                String identity = commandStruct.getIdentity();
-                Object[] params = commandStruct.getParams();
-                Command command = commandMap.get(identity);
-                //Command不存在时执行拒绝动作。
-                if (Objects.isNull(command)) {
-                    channel.writeAndFlush(ChannelUtil.line("未知的命令: " + identity));
-                    return;
-                }
-
-                //执行指令，将结果通过反序列化器输出，并妥善处理异常。
-                try {
-                    long spentTime = -System.currentTimeMillis();
-                    Object lastResult = command.execute(TelqosServiceImpl.this, address, params);
-                    spentTime += System.currentTimeMillis();
-                    variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_RESULT, lastResult);
-                    String lastResultString = telqosConfig.getDeserializer().deserialize(lastResult);
-                    channel.writeAndFlush(ChannelUtil.line("OK, " + spentTime + "ms."));
-                    channel.writeAndFlush(ChannelUtil.line("Last result:"));
-                    channel.writeAndFlush(ChannelUtil.line(lastResultString));
-                    channel.writeAndFlush(ChannelUtil.line(""));
-                } catch (Exception e) {
-                    LOGGER.warn("执行指令时发生异常，异常信息如下", e);
-                    variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_RESULT, null);
-                    try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
-                        e.printStackTrace(pw);
-                        channel.writeAndFlush(ChannelUtil.line("Exception"));
-                        channel.writeAndFlush(ChannelUtil.line(sw.toString()));
-                        channel.writeAndFlush(ChannelUtil.line(""));
-                    }
-                }
+                //获取交互信息并交互。
+                InteractionInfo interactionInfo = interactionMap.get(address);
+                interaction(address, channel, interactionInfo, commandLine);
             } finally {
                 lock.unlock();
+            }
+        }
+
+        private void interaction(String address, Channel channel, InteractionInfo interactionInfo, String commandLine) {
+            //通过交互信息中的交互状态分别执行不同的指令。
+            interactionInfo.getLock().lock();
+            try {
+                switch (interactionInfo.getInteractionStatus()) {
+                    case WAITING_COMMAND:
+                        CommandStruct commandStruct = parseCommandLine(commandLine);
+                        //命令非法时执行拒绝动作。
+                        if (!commandStruct.isValidFlag()) {
+                            String[] invalidDescriptions = commandStruct.getInvalidDescriptions();
+                            int total = invalidDescriptions.length;
+                            channel.writeAndFlush(ChannelUtil.line("输入的命令不合法，共 " + total + " 处错误"));
+                            for (int i = 0; i < total; i++) {
+                                channel.writeAndFlush(ChannelUtil.line(String.format("%d/%d: %s", i + 1, total, invalidDescriptions[i])));
+                            }
+                            channel.writeAndFlush(ChannelUtil.line(""));
+                            return;
+                        }
+                        //命令合法时，搜索相应的Command。
+                        String identity = commandStruct.getIdentity();
+                        String option = commandStruct.getOption();
+                        Command command = commandMap.get(identity);
+                        //Command不存在时执行拒绝动作。
+                        if (Objects.isNull(command)) {
+                            channel.writeAndFlush(ChannelUtil.line("未知的命令: " + identity));
+                            channel.writeAndFlush(ChannelUtil.line(""));
+                            return;
+                        }
+                        //同步执行交互任务。
+                        telqosConfig.getExecutor().execute(new CommandExecutionTask(
+                                interactionInfo, command,
+                                address,
+                                new CioImpl(interactionMap.get(address), channel),
+                                option,
+                                commandLine,
+                                channel));
+                        break;
+                    case WAITING_MESSAGE:
+                        interactionInfo.setNextMessage(commandLine);
+                        interactionInfo.getCondition().signalAll();
+                        break;
+                    case BUSY:
+                        channel.writeAndFlush(ChannelUtil.line("系统正忙，请稍候"));
+                        break;
+                }
+            } finally {
+                interactionInfo.getLock().unlock();
             }
         }
 
         private CommandStruct parseCommandLine(String commandLine) {
             CommandStruct commandStruct = new CommandStruct();
 
-            final List<String> invalidDescriptions = new ArrayList<>();
-            final List<Object> params = new ArrayList<>();
+            String identity;
+            String option;
 
-            boolean quoteFlag = false;
-            boolean backQuoteFlag = false;
-            boolean escapeFlag = false;
-            boolean numericFlag = false;
-            boolean variableFlag = false;
-            boolean textFlag = false;
-            int argIndex = -1;
-            StringBuilder sb = new StringBuilder();
+            int firstSpaceIndex = commandLine.indexOf(' ');
+            if (firstSpaceIndex == -1) {
+                identity = commandLine;
+                option = "";
+            } else {
+                identity = commandLine.substring(0, firstSpaceIndex);
+                option = commandLine.substring(firstSpaceIndex + 1);
+            }
 
-//            for (int i = 0; i < commandLine.toCharArray().length; i++) {
-//                char ch = commandLine.charAt(i);
-//
-//                //出现空格时的判定逻辑。
-//                if (ch == ' ' && !quoteFlag && !backQuoteFlag) {
-//                    String aimString = sb.toString();
-//                    sb = new StringBuilder();
-//                    //如果空格前跟着转义字符，则不合法。
-//                    if (escapeFlag) {
-//                        commandStruct.setValidFlag(false);
-//                        invalidDescriptions.add(String.format("第%d个字符: 不完整的转义字符", i - 1));
-//                    }
-//                    if(argIndex == -1){
-//                        commandStruct.setIdentity(aimString);
-//                    }else{
-//
-//                    }
-//                }
-//
-//                //CommandIdentify的提取与合法判定。
-//                if (argIndex == -1) {
-//                    if (
-//                        // 首位不允许是数字，且任何部位不能是
-//                            (sb.length() == 0 && !Character.isLetter(ch)) ||
-//                                    (!Character.isLetter(ch) && !Character.isDigit(ch) && ch != '_')) {
-//
-//                    }
-//                }
-//
-//                //前一位字符是转义字符是的判定逻辑。
-//
-//            }
+            commandStruct.setIdentity(identity);
+            commandStruct.setOption(option);
 
-            //TODO
-            commandStruct.setIdentity("list");
-            commandStruct.setValidFlag(false);
-            commandStruct.setInvalidDescriptions(new String[]{
-                    "我故意的",
-                    "用来测试效果的",
-                    "看看是否可行"
-            });
+            if (identityInvalid(identity)) {
+                commandStruct.setValidFlag(false);
+                commandStruct.setInvalidDescriptions(new String[]{"非法的指令标识符: " + identity});
+            } else {
+                commandStruct.setValidFlag(true);
+                commandStruct.setInvalidDescriptions(new String[0]);
+            }
+
             return commandStruct;
         }
 
@@ -550,6 +542,133 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 channel.close();
                 sweepUpChannelInfo(address);
                 lock.unlock();
+            }
+        }
+    }
+
+    /**
+     * 指令执行任务。
+     *
+     * @author DwArFeng
+     * @since 1.0.0
+     */
+    private class CommandExecutionTask implements Runnable {
+
+        private final InteractionInfo interactionInfo;
+        private final Command command;
+        private final String address;
+        private final Cio cio;
+        private final String option;
+        private final String commandLine;
+        private final Channel channel;
+
+        public CommandExecutionTask(
+                InteractionInfo interactionInfo, Command command, String address, Cio cio, String option,
+                String commandLine, Channel channel) {
+            this.interactionInfo = interactionInfo;
+            this.command = command;
+            this.address = address;
+            this.cio = cio;
+            this.option = option;
+            this.commandLine = commandLine;
+            this.channel = channel;
+        }
+
+        @Override
+        public void run() {
+            //执行指令，将结果通过反序列化器输出，并妥善处理异常。
+            try {
+                //变量记录、输出日志。
+                variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_COMMAND, commandLine);
+                commandBufferMap.put(address, new StringBuilder());
+                LOGGER.info("设备 " + address + " 尝试执行指令: " + commandLine);
+
+                //变更交互状态。
+                interactionInfo.getLock().lock();
+                try {
+                    interactionInfo.setInteractionStatus(InteractionStatus.BUSY);
+                } finally {
+                    interactionInfo.getLock().unlock();
+                }
+
+                Object lastResult = command.execute(TelqosServiceImpl.this, address, cio, option);
+                lock.lock();
+                try {
+                    variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_RESULT, lastResult);
+                } finally {
+                    lock.unlock();
+                }
+                String lastResultString = telqosConfig.getDeserializer().deserialize(lastResult);
+                channel.writeAndFlush(ChannelUtil.line("OK, last result:"));
+                channel.writeAndFlush(ChannelUtil.line(lastResultString));
+                channel.writeAndFlush(ChannelUtil.line(""));
+            } catch (ConnectionTerminatedException ignored) {
+            } catch (Exception e) {
+                LOGGER.warn("执行指令时发生异常，异常信息如下", e);
+                lock.lock();
+                try {
+                    variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_RESULT, null);
+                } finally {
+                    lock.unlock();
+                }
+                try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
+                    e.printStackTrace(pw);
+                    channel.writeAndFlush(ChannelUtil.line("Exception"));
+                    channel.writeAndFlush(ChannelUtil.line(sw.toString()));
+                    channel.writeAndFlush(ChannelUtil.line(""));
+                } catch (Exception e1) {
+                    LOGGER.warn("获取异常 StackTrace 时发生异常，异常信息如下", e);
+                }
+            } finally {
+                //变更交互状态。
+                interactionInfo.getLock().lock();
+                try {
+                    interactionInfo.setInteractionStatus(InteractionStatus.WAITING_COMMAND);
+                } finally {
+                    interactionInfo.getLock().unlock();
+                }
+
+            }
+        }
+    }
+
+    private static class CioImpl implements Cio {
+
+        private final InteractionInfo interactionInfo;
+        private final Channel channel;
+
+        public CioImpl(InteractionInfo interactionInfo, Channel channel) {
+            this.interactionInfo = interactionInfo;
+            this.channel = channel;
+        }
+
+        @Override
+        public void send(String message) {
+            channel.writeAndFlush(ChannelUtil.line(message));
+        }
+
+        @Override
+        public String receive() throws ConnectionTerminatedException {
+            interactionInfo.getLock().lock();
+            try {
+                interactionInfo.setInteractionStatus(InteractionStatus.WAITING_MESSAGE);
+                interactionInfo.setNextMessage(null);
+
+                while (Objects.isNull(interactionInfo.getNextMessage()) && !interactionInfo.isTermination()) {
+                    try {
+                        interactionInfo.getCondition().await();
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+
+                if (interactionInfo.isTermination()) {
+                    throw new ConnectionTerminatedException();
+                }
+
+                interactionInfo.setInteractionStatus(InteractionStatus.BUSY);
+                return interactionInfo.getNextMessage();
+            } finally {
+                interactionInfo.getLock().unlock();
             }
         }
     }

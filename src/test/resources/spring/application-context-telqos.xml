@@ -9,5 +9,6 @@
 
     <telqos:config>
         <telqos:connection-setting charset="GBK"/>
+        <telqos:task-pool rejection-policy="ABORT"/>
     </telqos:config>
 </beans>

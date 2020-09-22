@@ -3,6 +3,7 @@ package com.dwarfeng.springtelqos.stack.bean;
 import com.dwarfeng.springtelqos.stack.command.Command;
 import com.dwarfeng.springtelqos.stack.serialize.Deserializer;
 import com.dwarfeng.springtelqos.stack.serialize.Serializer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.Collection;
 
@@ -23,6 +24,7 @@ public class TelqosConfig {
     private Deserializer deserializer;
     private String defaultNamespace;
     private Collection<Command> commands;
+    private ThreadPoolTaskExecutor executor;
 
     public TelqosConfig() {
     }
@@ -30,7 +32,7 @@ public class TelqosConfig {
     public TelqosConfig(
             int port, String whitelistRegex, String blacklistRegex, String charset, String bannerUrl,
             Serializer serializer, Deserializer deserializer, String defaultNamespace,
-            Collection<Command> commands) {
+            Collection<Command> commands, ThreadPoolTaskExecutor executor) {
         this.port = port;
         this.whitelistRegex = whitelistRegex;
         this.blacklistRegex = blacklistRegex;
@@ -40,6 +42,7 @@ public class TelqosConfig {
         this.deserializer = deserializer;
         this.defaultNamespace = defaultNamespace;
         this.commands = commands;
+        this.executor = executor;
     }
 
     public int getPort() {
@@ -114,6 +117,14 @@ public class TelqosConfig {
         this.commands = commands;
     }
 
+    public ThreadPoolTaskExecutor getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(ThreadPoolTaskExecutor executor) {
+        this.executor = executor;
+    }
+
     @Override
     public String toString() {
         return "TelqosConfig{" +
@@ -126,6 +137,7 @@ public class TelqosConfig {
                 ", deserializer=" + deserializer +
                 ", defaultNamespace='" + defaultNamespace + '\'' +
                 ", commands=" + commands +
+                ", executor=" + executor +
                 '}';
     }
 }

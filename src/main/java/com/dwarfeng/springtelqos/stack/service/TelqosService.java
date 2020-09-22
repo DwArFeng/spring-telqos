@@ -13,14 +13,23 @@ import java.util.Collection;
  */
 public interface TelqosService {
 
+    /**
+     * 返回服务是否在线。
+     *
+     * @return 服务是否在线。
+     */
     boolean isOnline();
 
     /**
+     * 上线服务。
+     *
      * @throws TelqosException Telqos异常。
      */
     void online() throws TelqosException;
 
     /**
+     * 下线服务。
+     *
      * @throws TelqosException Telqos异常。
      */
     void offline() throws TelqosException;

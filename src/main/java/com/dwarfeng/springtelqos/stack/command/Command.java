@@ -1,5 +1,6 @@
 package com.dwarfeng.springtelqos.stack.command;
 
+import com.dwarfeng.springtelqos.stack.exception.ConnectionTerminatedException;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import com.dwarfeng.springtelqos.stack.service.TelqosService;
 
@@ -33,11 +34,17 @@ public interface Command {
     String getManual();
 
     /**
-     * 命令执行。
+     * 执行指令。
      *
-     * @param params 执行命令所需的参数。
-     * @return 命令返回的结果。
-     * @throws TelqosException Telqos异常。
+     * @param telqosService telqos服务上下文。
+     * @param address       执行指令的客户端地址。
+     * @param cio           命令IO，用于交互。
+     * @param option        指令的选项。
+     * @return 指令返回的结果。
+     * @throws TelqosException               Telqos异常。
+     * @throws ConnectionTerminatedException 连接中断异常。
      */
-    Object execute(TelqosService telqosService, String address, Object[] params) throws TelqosException;
+    Object execute(
+            TelqosService telqosService, String address, Cio cio, String option)
+            throws TelqosException, ConnectionTerminatedException;
 }

@@ -11,16 +11,16 @@ import java.util.Arrays;
 class CommandStruct {
 
     private String identity;
-    private Object[] params;
+    private String option;
     private boolean validFlag;
     private String[] invalidDescriptions;
 
     public CommandStruct() {
     }
 
-    public CommandStruct(String identity, Object[] params, boolean validFlag, String[] invalidDescriptions) {
+    public CommandStruct(String identity, String option, boolean validFlag, String[] invalidDescriptions) {
         this.identity = identity;
-        this.params = params;
+        this.option = option;
         this.validFlag = validFlag;
         this.invalidDescriptions = invalidDescriptions;
     }
@@ -33,12 +33,12 @@ class CommandStruct {
         this.identity = identity;
     }
 
-    public Object[] getParams() {
-        return params;
+    public String getOption() {
+        return option;
     }
 
-    public void setParams(Object[] params) {
-        this.params = params;
+    public void setOption(String option) {
+        this.option = option;
     }
 
     public boolean isValidFlag() {
@@ -61,7 +61,7 @@ class CommandStruct {
     public String toString() {
         return "CommandStruct{" +
                 "identity='" + identity + '\'' +
-                ", params=" + Arrays.toString(params) +
+                ", option='" + option + '\'' +
                 ", validFlag=" + validFlag +
                 ", invalidDescriptions=" + Arrays.toString(invalidDescriptions) +
                 '}';

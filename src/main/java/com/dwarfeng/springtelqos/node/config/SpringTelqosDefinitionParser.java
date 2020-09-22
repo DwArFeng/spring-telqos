@@ -11,8 +11,10 @@ import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.scheduling.config.TaskExecutorFactoryBean;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -96,6 +98,67 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             }
         }
         telqosConfigBuilder.addPropertyValue("commands", commandBeanReferences);
+        //解析task-pool。
+        Element taskPoolElement = (Element) element.getElementsByTagNameNS(
+                TELQOS_NAMESPACE_URL, "task-pool").item(0);
+        BeanReference taskPoolBeanReference;
+        if (Objects.isNull(taskPoolElement)) {
+            String id = "telqosExecutor";
+            checkBeanDuplicated(parserContext, id);
+            BeanDefinitionBuilder executorBuilder = BeanDefinitionBuilder.rootBeanDefinition(TaskExecutorFactoryBean.class);
+            executorBuilder.setScope(BeanDefinition.SCOPE_SINGLETON);
+            executorBuilder.setLazyInit(false);
+            parserContext.getRegistry().registerBeanDefinition(id, executorBuilder.getBeanDefinition());
+            taskPoolBeanReference = new RuntimeBeanReference(id);
+        } else {
+            String id = ParserUtil.mayResolve(parserContext, taskPoolElement.getAttribute("id"));
+            String ref = ParserUtil.mayResolve(parserContext, taskPoolElement.getAttribute("ref"));
+            if (StringUtils.isNotEmpty(ref)) {
+                taskPoolBeanReference = new RuntimeBeanReference(ref);
+            } else {
+                BeanDefinitionBuilder executorBuilder = BeanDefinitionBuilder.rootBeanDefinition(TaskExecutorFactoryBean.class);
+                String keepAliveSeconds = taskPoolElement.getAttribute("keep-alive");
+                if (StringUtils.isNotEmpty(keepAliveSeconds)) {
+                    executorBuilder.addPropertyValue("keepAliveSeconds", keepAliveSeconds);
+                }
+                String queueCapacity = taskPoolElement.getAttribute("queue-capacity");
+                if (StringUtils.isNotEmpty(queueCapacity)) {
+                    executorBuilder.addPropertyValue("queueCapacity", queueCapacity);
+                }
+                String poolSize = taskPoolElement.getAttribute("pool-size");
+                if (StringUtils.isNotEmpty(poolSize)) {
+                    executorBuilder.addPropertyValue("poolSize", poolSize);
+                }
+                String rejectionPolicy = taskPoolElement.getAttribute("rejection-policy");
+                if (StringUtils.isNotEmpty(rejectionPolicy)) {
+                    String prefix = "java.util.concurrent.ThreadPoolExecutor.";
+                    String policyClassName;
+                    switch (rejectionPolicy) {
+                        case "ABORT":
+                            policyClassName = prefix + "AbortPolicy";
+                            break;
+                        case "CALLER_RUNS":
+                            policyClassName = prefix + "CallerRunsPolicy";
+                            break;
+                        case "DISCARD":
+                            policyClassName = prefix + "DiscardPolicy";
+                            break;
+                        case "DISCARD_OLDEST":
+                            policyClassName = prefix + "DiscardOldestPolicy";
+                            break;
+                        default:
+                            policyClassName = rejectionPolicy;
+                            break;
+                    }
+                    executorBuilder.addPropertyValue("rejectedExecutionHandler", new RootBeanDefinition(policyClassName));
+                }
+                executorBuilder.setScope(BeanDefinition.SCOPE_SINGLETON);
+                executorBuilder.setLazyInit(false);
+                parserContext.getRegistry().registerBeanDefinition(id, executorBuilder.getBeanDefinition());
+                taskPoolBeanReference = new RuntimeBeanReference(id);
+            }
+        }
+        telqosConfigBuilder.addPropertyValue("executor", taskPoolBeanReference);
         //注册TelqosConfig。
         telqosConfigBuilder.setScope(BeanDefinition.SCOPE_SINGLETON);
         telqosConfigBuilder.setLazyInit(false);
@@ -122,7 +185,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
         String id = ParserUtil.mayResolve(parserContext, element.getAttribute("id"));
         String clazz = ParserUtil.mayResolve(parserContext, element.getAttribute("class"));
         String ref = ParserUtil.mayResolve(parserContext, element.getAttribute("ref"));
-        if (StringUtils.isEmpty(ref)) {
+        if (StringUtils.isNotEmpty(ref)) {
             return new RuntimeBeanReference(ref);
         } else {
             checkBeanDuplicated(parserContext, id);
