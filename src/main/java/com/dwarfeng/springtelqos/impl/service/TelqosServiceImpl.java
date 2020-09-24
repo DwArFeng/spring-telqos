@@ -650,7 +650,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         public String getCommandDescription(String identity) {
             lock.lock();
             try {
-                return Optional.of(commandMap.get(identity)).map(Command::getDescription).orElse(null);
+                return Optional.ofNullable(commandMap.get(identity)).map(Command::getDescription).orElse(null);
             } finally {
                 lock.unlock();
             }
@@ -660,7 +660,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         public String getCommandManual(String identity) {
             lock.lock();
             try {
-                return Optional.of(commandMap.get(identity)).map(Command::getManual).orElse(null);
+                return Optional.ofNullable(commandMap.get(identity)).map(Command::getManual).orElse(null);
             } finally {
                 lock.unlock();
             }
