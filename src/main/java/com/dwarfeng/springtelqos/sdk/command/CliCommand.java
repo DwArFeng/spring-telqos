@@ -73,9 +73,6 @@ public abstract class CliCommand extends AbstractCommand {
         while (matcher.find()) {
             list.add(matcher.group());
         }
-        for (String s : list) {
-            System.out.println(s);
-        }
         return list.toArray(new String[0]);
     }
 
