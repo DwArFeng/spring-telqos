@@ -98,110 +98,6 @@
                         </xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
-                <xsd:element name="serializer" minOccurs="0">
-                    <xsd:annotation>
-                        <xsd:documentation>
-                            <![CDATA[序列化配置.]]>
-                        </xsd:documentation>
-                        <xsd:appinfo>
-                            <tool:annotation>
-                                <tool:exports type="com.dwarfeng.springtelqos.stack.serialize.Serializer"/>
-                            </tool:annotation>
-                        </xsd:appinfo>
-                    </xsd:annotation>
-                    <xsd:complexType>
-                        <xsd:attribute name="id" type="xsd:token" default="telqosSerializer">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[序列化器的 bean id。]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="class" type="xsd:string"
-                                       default="com.dwarfeng.springtelqos.sdk.serialize.FastJsonSerializer">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[序列化器的 class 名称，使用该类的无参数构造方法构造对象。]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type
-                                                type="com.dwarfeng.springtelqos.stack.serialize.Serializer"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="ref" type="xsd:string">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[序列化器的 bean 引用名称。]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type
-                                                type="com.dwarfeng.springtelqos.stack.serialize.Serializer"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                    </xsd:complexType>
-                </xsd:element>
-                <xsd:element name="deserializer" minOccurs="0">
-                    <xsd:annotation>
-                        <xsd:documentation>
-                            <![CDATA[反序列化配置.]]>
-                        </xsd:documentation>
-                        <xsd:appinfo>
-                            <tool:exports
-                                    type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
-                        </xsd:appinfo>
-                    </xsd:annotation>
-                    <xsd:complexType>
-                        <xsd:attribute name="id" type="xsd:token" default="telqosDeserializer">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[反序列化器的 bean id。]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="class" type="xsd:string"
-                                       default="com.dwarfeng.springtelqos.sdk.serialize.FastJsonDeserializer">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[反序列化器的 class 名称，使用该类的无参数构造方法构造对象。]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.String"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="ref" type="xsd:string">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[序列化器的 bean 引用名称。]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type
-                                                type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                    </xsd:complexType>
-                </xsd:element>
                 <xsd:element name="command" minOccurs="0">
                     <xsd:annotation>
                         <xsd:documentation>
@@ -261,18 +157,6 @@
                                 </xsd:complexType>
                             </xsd:element>
                         </xsd:sequence>
-                        <xsd:attribute name="use-default" type="xsd:boolean" default="true">
-                            <xsd:annotation>
-                                <xsd:documentation>
-                                    <![CDATA[是否启用默认的命令。]]>
-                                </xsd:documentation>
-                                <xsd:appinfo>
-                                    <tool:annotation>
-                                        <tool:expected-type type="java.lang.Boolean"/>
-                                    </tool:annotation>
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
                 <xsd:element name="task-pool" minOccurs="0">

@@ -1,9 +1,9 @@
 package com.dwarfeng.springtelqos.node.config;
 
-import com.dwarfeng.springtelqos.impl.command.*;
+import com.dwarfeng.springtelqos.impl.command.ListCommandCommand;
+import com.dwarfeng.springtelqos.impl.command.ManualCommand;
+import com.dwarfeng.springtelqos.impl.command.QuitCommand;
 import com.dwarfeng.springtelqos.impl.service.TelqosServiceImpl;
-import com.dwarfeng.springtelqos.sdk.serialize.FastJsonDeserializer;
-import com.dwarfeng.springtelqos.sdk.serialize.FastJsonSerializer;
 import com.dwarfeng.springtelqos.stack.bean.TelqosConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -61,36 +61,12 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             telqosConfigBuilder.addPropertyValue("bannerUrl", ParserUtil.mayResolve(
                     parserContext, connectionSettingElement.getAttribute("banner-url")));
         }
-        //解析serializer。
-        Element serializerElement = (Element) element.getElementsByTagNameNS(
-                TELQOS_NAMESPACE_URL, "serializer").item(0);
-        if (Objects.isNull(serializerElement)) {
-            telqosConfigBuilder.addPropertyValue("serializer", new FastJsonSerializer());
-        } else {
-            telqosConfigBuilder.addPropertyValue(
-                    "serializer", referenceOrCreateBean(serializerElement, parserContext));
-        }
-        //解析deserializer。
-        Element deserializerElement = (Element) element.getElementsByTagNameNS(
-                TELQOS_NAMESPACE_URL, "deserializer").item(0);
-        if (Objects.isNull(deserializerElement)) {
-            telqosConfigBuilder.addPropertyValue("deserializer", new FastJsonDeserializer());
-        } else {
-            telqosConfigBuilder.addPropertyValue(
-                    "deserializer", referenceOrCreateBean(deserializerElement, parserContext));
-        }
         //解析command。
         Element commandElement = (Element) element.getElementsByTagNameNS(
                 TELQOS_NAMESPACE_URL, "command").item(0);
         ManagedList<BeanReference> commandBeanReferences = new ManagedList<>();
-        if (Objects.isNull(commandElement)) {
-            registerDefaultCommand(commandBeanReferences, configId, serviceId, parserContext);
-        } else {
-            boolean useDefaultFlag = Boolean.parseBoolean(ParserUtil.mayResolve(
-                    parserContext, connectionSettingElement.getAttribute("use-default")));
-            if (useDefaultFlag) {
-                registerDefaultCommand(commandBeanReferences, configId, serviceId, parserContext);
-            }
+        registerDefaultCommand(commandBeanReferences, configId, serviceId, parserContext);
+        if (Objects.nonNull(commandElement)) {
             NodeList commandImpls = element.getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "command-impl");
             for (int i = 0; i < commandImpls.getLength(); i++) {
                 Element commandImplElement = (Element) commandImpls.item(i);
@@ -215,16 +191,6 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
 
         builder = BeanDefinitionBuilder.rootBeanDefinition(QuitCommand.class);
         beanId = getAvailableBeanName("quitCommand", parserContext);
-        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
-        commandBeanReferences.add(new RuntimeBeanReference(beanId));
-
-        builder = BeanDefinitionBuilder.rootBeanDefinition(ListVariableCommand.class);
-        beanId = getAvailableBeanName("listVariableCommand", parserContext);
-        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
-        commandBeanReferences.add(new RuntimeBeanReference(beanId));
-
-        builder = BeanDefinitionBuilder.rootBeanDefinition(CopyVariableCommand.class);
-        beanId = getAvailableBeanName("copyVariableCommand", parserContext);
         parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
         commandBeanReferences.add(new RuntimeBeanReference(beanId));
     }

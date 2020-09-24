@@ -32,18 +32,17 @@ public class ManualCommand extends CliCommand {
     }
 
     @Override
-    protected Object executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
         String identity = cmd.getArgList().stream().findFirst().orElse(null);
         if (StringUtils.isEmpty(identity)) {
             context.sendMessage(getManual());
-            return null;
+            return;
         }
         String manual = context.getCommandManual(identity);
         if (StringUtils.isEmpty(manual)) {
             context.sendMessage("未能找到指令 " + identity + " 的详细帮助");
-            return null;
+            return;
         }
         context.sendMessage(manual);
-        return null;
     }
 }

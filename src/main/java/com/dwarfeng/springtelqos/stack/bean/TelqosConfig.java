@@ -1,8 +1,6 @@
 package com.dwarfeng.springtelqos.stack.bean;
 
 import com.dwarfeng.springtelqos.stack.command.Command;
-import com.dwarfeng.springtelqos.stack.serialize.Deserializer;
-import com.dwarfeng.springtelqos.stack.serialize.Serializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.Collection;
@@ -20,8 +18,6 @@ public class TelqosConfig {
     private String blacklistRegex;
     private String charset;
     private String bannerUrl;
-    private Serializer serializer;
-    private Deserializer deserializer;
     private String defaultNamespace;
     private Collection<Command> commands;
     private ThreadPoolTaskExecutor executor;
@@ -31,15 +27,12 @@ public class TelqosConfig {
 
     public TelqosConfig(
             int port, String whitelistRegex, String blacklistRegex, String charset, String bannerUrl,
-            Serializer serializer, Deserializer deserializer, String defaultNamespace,
-            Collection<Command> commands, ThreadPoolTaskExecutor executor) {
+            String defaultNamespace, Collection<Command> commands, ThreadPoolTaskExecutor executor) {
         this.port = port;
         this.whitelistRegex = whitelistRegex;
         this.blacklistRegex = blacklistRegex;
         this.charset = charset;
         this.bannerUrl = bannerUrl;
-        this.serializer = serializer;
-        this.deserializer = deserializer;
         this.defaultNamespace = defaultNamespace;
         this.commands = commands;
         this.executor = executor;
@@ -85,22 +78,6 @@ public class TelqosConfig {
         this.bannerUrl = bannerUrl;
     }
 
-    public Serializer getSerializer() {
-        return serializer;
-    }
-
-    public void setSerializer(Serializer serializer) {
-        this.serializer = serializer;
-    }
-
-    public Deserializer getDeserializer() {
-        return deserializer;
-    }
-
-    public void setDeserializer(Deserializer deserializer) {
-        this.deserializer = deserializer;
-    }
-
     public String getDefaultNamespace() {
         return defaultNamespace;
     }
@@ -133,8 +110,6 @@ public class TelqosConfig {
                 ", blacklistRegex='" + blacklistRegex + '\'' +
                 ", charset='" + charset + '\'' +
                 ", bannerUrl='" + bannerUrl + '\'' +
-                ", serializer=" + serializer +
-                ", deserializer=" + deserializer +
                 ", defaultNamespace='" + defaultNamespace + '\'' +
                 ", commands=" + commands +
                 ", executor=" + executor +

@@ -35,7 +35,7 @@ public class ListCommandCommand extends CliCommand {
     }
 
     @Override
-    protected Object executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
         List<String> identities = context.getCommandIdentities();
         if (cmd.hasOption("p")) {
             String prefix = cmd.getOptionValue("p");
@@ -47,6 +47,5 @@ public class ListCommandCommand extends CliCommand {
         }
         context.sendMessage("----------------------");
         context.sendMessage("共 " + identities.size() + " 条");
-        return null;
     }
 }

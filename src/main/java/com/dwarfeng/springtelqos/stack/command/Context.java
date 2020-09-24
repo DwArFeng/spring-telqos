@@ -2,8 +2,6 @@ package com.dwarfeng.springtelqos.stack.command;
 
 import com.dwarfeng.springtelqos.stack.exception.ConnectionTerminatedException;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
-import com.dwarfeng.springtelqos.stack.serialize.Deserializer;
-import com.dwarfeng.springtelqos.stack.serialize.Serializer;
 
 import java.util.List;
 
@@ -28,43 +26,6 @@ public interface Context {
      * @return 指令执行的选项。
      */
     String getOption();
-
-    /**
-     * 获取序列化器。
-     *
-     * @return 序列化器。
-     */
-    Serializer getSerializer();
-
-    /**
-     * 获取反序列化器。
-     *
-     * @return 反序列化器。
-     */
-    Deserializer getDeserializer();
-
-    /**
-     * 列出变量。
-     *
-     * @return 所有变量的标识符组成的列表。
-     */
-    List<String> getVariableIdentities();
-
-    /**
-     * 获取变量。
-     *
-     * @param identity 变量标识符。
-     * @return 变量的值，如果不存在，返回 null。
-     */
-    Object getVariable(String identity);
-
-    /**
-     * 设置变量。
-     *
-     * @param identity 变量标识符。
-     * @param value    变量的值。
-     */
-    void setVariable(String identity, Object value);
 
     /**
      * 列出指令。

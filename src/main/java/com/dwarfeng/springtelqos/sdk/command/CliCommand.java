@@ -55,7 +55,7 @@ public abstract class CliCommand extends AbstractCommand {
     }
 
     @Override
-    public Object execute(Context context) throws TelqosException, ConnectionTerminatedException {
+    public void execute(Context context) throws TelqosException, ConnectionTerminatedException {
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
         try {
@@ -64,7 +64,7 @@ public abstract class CliCommand extends AbstractCommand {
             LOGGER.warn("解析命令选项时发生异常，异常信息如下", e);
             context.sendMessage("命令选项不正确，请检查命令选项: " + context.getOption());
         }
-        return executeWithCmd(context, cmd);
+        executeWithCmd(context, cmd);
     }
 
     private String[] option2Args(String option) {
@@ -81,5 +81,5 @@ public abstract class CliCommand extends AbstractCommand {
 
     protected abstract List<Option> buildOptions();
 
-    protected abstract Object executeWithCmd(Context context, CommandLine cmd) throws TelqosException, ConnectionTerminatedException;
+    protected abstract void executeWithCmd(Context context, CommandLine cmd) throws TelqosException, ConnectionTerminatedException;
 }

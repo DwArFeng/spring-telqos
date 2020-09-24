@@ -31,9 +31,8 @@ public class QuitCommand extends CliCommand {
     }
 
     @Override
-    protected Object executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
-        context.sendMessage("Bye.");
+    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+        context.sendMessage("Bye");
         context.quit();
-        return null;
     }
 }

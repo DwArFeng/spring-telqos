@@ -6,8 +6,6 @@ import com.dwarfeng.springtelqos.stack.command.Command;
 import com.dwarfeng.springtelqos.stack.command.Context;
 import com.dwarfeng.springtelqos.stack.exception.ConnectionTerminatedException;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
-import com.dwarfeng.springtelqos.stack.serialize.Deserializer;
-import com.dwarfeng.springtelqos.stack.serialize.Serializer;
 import com.dwarfeng.springtelqos.stack.service.TelqosService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -50,7 +48,6 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     private Channel channel;
 
     private final Map<String, Command> commandMap = new HashMap<>();
-    private final Map<String, Map<String, Object>> variableMap = new HashMap<>();
     private final Map<String, StringBuilder> commandBufferMap = new HashMap<>();
     private final Map<String, Channel> channelMap = new HashMap<>();
     private final Map<String, InteractionInfo> interactionMap = new HashMap<>();
@@ -210,14 +207,12 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         channel.writeAndFlush(ChannelUtil.line("服务端主动与您中断连接")).get();
         channel.writeAndFlush(ChannelUtil.line("再见!")).get();
         channel.close();
-        sweepUpChannelInfo(address);
     }
 
     private void buildUpChannelInfo(String address, Channel channel) {
         taskMap.put(address, null);
         channelMap.put(address, channel);
         commandBufferMap.put(address, new StringBuilder());
-        variableMap.put(address, new HashMap<>());
         Lock lock = new ReentrantLock();
         interactionMap.put(address, new InteractionInfo(lock, lock.newCondition(),
                 InteractionStatus.WAITING_COMMAND, null, false));
@@ -239,7 +234,6 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         taskMap.remove(address);
         channelMap.remove(address);
         commandBufferMap.remove(address);
-        variableMap.remove(address);
         interactionMap.remove(address);
     }
 
@@ -487,8 +481,6 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
 
             lock.lock();
             try {
-                channel.writeAndFlush(ChannelUtil.line("再见!"));
-                channel.close();
                 sweepUpChannelInfo(address);
             } finally {
                 lock.unlock();
@@ -548,7 +540,6 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             //执行指令，将结果通过反序列化器输出，并妥善处理异常。
             try {
                 //变量记录、输出日志。
-                variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_COMMAND, commandLine);
                 commandBufferMap.put(address, new StringBuilder());
                 LOGGER.info("设备 " + address + " 尝试执行指令: " + commandLine);
 
@@ -566,26 +557,12 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 } finally {
                     lock.unlock();
                 }
-                Object lastResult = command.execute(context);
-                lock.lock();
-                try {
-                    variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_RESULT, lastResult);
-                } finally {
-                    lock.unlock();
-                }
-                String lastResultString = telqosConfig.getDeserializer().deserialize(lastResult);
-                channel.writeAndFlush(ChannelUtil.line("OK, last result:"));
-                channel.writeAndFlush(ChannelUtil.line(lastResultString));
+                command.execute(context);
+                channel.writeAndFlush(ChannelUtil.line("OK"));
                 channel.writeAndFlush(ChannelUtil.line(""));
             } catch (ConnectionTerminatedException ignored) {
             } catch (Exception e) {
                 LOGGER.warn("执行指令时发生异常，异常信息如下", e);
-                lock.lock();
-                try {
-                    variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_RESULT, null);
-                } finally {
-                    lock.unlock();
-                }
                 try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
                     e.printStackTrace(pw);
                     channel.writeAndFlush(ChannelUtil.line("Exception"));
@@ -655,52 +632,6 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         @Override
         public String getOption() {
             return option;
-        }
-
-        @Override
-        public Serializer getSerializer() {
-            return telqosConfig.getSerializer();
-        }
-
-        @Override
-        public Deserializer getDeserializer() {
-            return telqosConfig.getDeserializer();
-        }
-
-        @Override
-        public List<String> getVariableIdentities() {
-            lock.lock();
-            try {
-                Map<String, Object> addressVariableMap = variableMap.get(address);
-                if (Objects.isNull(addressVariableMap)) {
-                    return Collections.emptyList();
-                }
-                List<String> identities = new ArrayList<>(addressVariableMap.keySet());
-                identities.sort(String::compareTo);
-                return identities;
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        @Override
-        public Object getVariable(String identity) {
-            lock.lock();
-            try {
-                return Optional.ofNullable(variableMap.get(address)).map(map -> map.get(identity)).orElse(null);
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        @Override
-        public void setVariable(String identity, Object value) {
-            lock.lock();
-            try {
-                Optional.of(variableMap.get(address)).ifPresent(map -> map.put(identity, value));
-            } finally {
-                lock.unlock();
-            }
         }
 
         @Override

@@ -36,9 +36,8 @@ public interface Command {
      * 执行指令。
      *
      * @param context 指令上下文。
-     * @return 指令返回的结果。
      * @throws TelqosException               Telqos异常。
      * @throws ConnectionTerminatedException 连接中断异常。
      */
-    Object execute(Context context) throws TelqosException, ConnectionTerminatedException;
+    void execute(Context context) throws TelqosException, ConnectionTerminatedException;
 }
