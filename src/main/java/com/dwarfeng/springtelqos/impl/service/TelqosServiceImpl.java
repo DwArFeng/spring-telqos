@@ -2,10 +2,12 @@ package com.dwarfeng.springtelqos.impl.service;
 
 import com.dwarfeng.springtelqos.sdk.util.Constants;
 import com.dwarfeng.springtelqos.stack.bean.TelqosConfig;
-import com.dwarfeng.springtelqos.stack.command.Cio;
 import com.dwarfeng.springtelqos.stack.command.Command;
+import com.dwarfeng.springtelqos.stack.command.Context;
 import com.dwarfeng.springtelqos.stack.exception.ConnectionTerminatedException;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.stack.serialize.Deserializer;
+import com.dwarfeng.springtelqos.stack.serialize.Serializer;
 import com.dwarfeng.springtelqos.stack.service.TelqosService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -31,6 +33,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -51,7 +54,9 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     private final Map<String, StringBuilder> commandBufferMap = new HashMap<>();
     private final Map<String, Channel> channelMap = new HashMap<>();
     private final Map<String, InteractionInfo> interactionMap = new HashMap<>();
+    private final Map<String, CommandExecutionTask> taskMap = new HashMap<>();
     private final Lock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
 
     private boolean onlineFlag = false;
 
@@ -148,7 +153,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         //主动关闭注册的所有连接。
         Collection<String> addresses = new HashSet<>(channelMap.keySet());
         for (String address : addresses) {
-            internalKick(address);
+            kick(address);
         }
 
         //优雅的关闭 Channel 以及对应的 EventLoopGroup。
@@ -156,16 +161,6 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
         onlineFlag = false;
-    }
-
-    @Override
-    public Collection<Command> getCommands() {
-        lock.lock();
-        try {
-            return Collections.unmodifiableCollection(commandMap.values());
-        } finally {
-            lock.unlock();
-        }
     }
 
     @Override
@@ -209,39 +204,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         }
     }
 
-    @Override
-    public Command getCommand(String identity) {
-        lock.lock();
-        try {
-            return commandMap.get(identity);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public Collection<String> getAddresses() {
-        lock.lock();
-        try {
-            return channelMap.keySet();
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void kick(String address) throws TelqosException {
-        lock.lock();
-        try {
-            internalKick(address);
-        } catch (Exception e) {
-            throw new TelqosException(e);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    private void internalKick(String address) throws InterruptedException, ExecutionException {
+    private void kick(String address) throws InterruptedException, ExecutionException {
         if (!channelMap.containsKey(address)) return;
         Channel channel = channelMap.get(address);
         channel.writeAndFlush(ChannelUtil.line("服务端主动与您中断连接")).get();
@@ -251,6 +214,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     }
 
     private void buildUpChannelInfo(String address, Channel channel) {
+        taskMap.put(address, null);
         channelMap.put(address, channel);
         commandBufferMap.put(address, new StringBuilder());
         variableMap.put(address, new HashMap<>());
@@ -260,10 +224,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     }
 
     private void sweepUpChannelInfo(String address) {
-        channelMap.remove(address);
-        commandBufferMap.remove(address);
-        variableMap.remove(address);
-        InteractionInfo interactionInfo = interactionMap.remove(address);
+        InteractionInfo interactionInfo = interactionMap.get(address);
         interactionInfo.getLock().lock();
         try {
             interactionInfo.setTermination(true);
@@ -271,6 +232,15 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         } finally {
             interactionInfo.getLock().unlock();
         }
+        CommandExecutionTask task = taskMap.get(address);
+        if (Objects.nonNull(task)) {
+            task.awaitFinish();
+        }
+        taskMap.remove(address);
+        channelMap.remove(address);
+        commandBufferMap.remove(address);
+        variableMap.remove(address);
+        interactionMap.remove(address);
     }
 
     public TelqosConfig getTelqosConfig() {
@@ -394,8 +364,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                         telqosConfig.getExecutor().execute(new CommandExecutionTask(
                                 interactionInfo, command,
                                 address,
-                                new CioImpl(interactionMap.get(address), channel),
-                                option,
+                                new ContextImpl(address, option, interactionMap.get(address), channel),
                                 commandLine,
                                 channel));
                         break;
@@ -557,19 +526,19 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         private final InteractionInfo interactionInfo;
         private final Command command;
         private final String address;
-        private final Cio cio;
-        private final String option;
+        private final Context context;
         private final String commandLine;
         private final Channel channel;
 
+        private boolean finishFlag = false;
+
         public CommandExecutionTask(
-                InteractionInfo interactionInfo, Command command, String address, Cio cio, String option,
+                InteractionInfo interactionInfo, Command command, String address, Context context,
                 String commandLine, Channel channel) {
             this.interactionInfo = interactionInfo;
             this.command = command;
             this.address = address;
-            this.cio = cio;
-            this.option = option;
+            this.context = context;
             this.commandLine = commandLine;
             this.channel = channel;
         }
@@ -590,8 +559,14 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 } finally {
                     interactionInfo.getLock().unlock();
                 }
-
-                Object lastResult = command.execute(TelqosServiceImpl.this, address, cio, option);
+                //设置客户端当前任务。
+                lock.lock();
+                try {
+                    taskMap.put(address, this);
+                } finally {
+                    lock.unlock();
+                }
+                Object lastResult = command.execute(context);
                 lock.lock();
                 try {
                     variableMap.get(address).put(Constants.VARIABLE_IDENTITY_LAST_RESULT, lastResult);
@@ -627,28 +602,146 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 } finally {
                     interactionInfo.getLock().unlock();
                 }
+                lock.lock();
+                try {
+                    finishFlag = true;
+                    condition.signalAll();
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
 
+        public void awaitFinish() {
+            lock.lock();
+            try {
+                while (!finishFlag) {
+                    try {
+                        condition.await();
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            } finally {
+                lock.unlock();
             }
         }
     }
 
-    private static class CioImpl implements Cio {
+    /**
+     * 指令上下文实现。
+     *
+     * @author DwArFeng
+     * @since 1.0.0
+     */
+    private class ContextImpl implements Context {
 
+        private final String address;
+        private final String option;
         private final InteractionInfo interactionInfo;
         private final Channel channel;
 
-        public CioImpl(InteractionInfo interactionInfo, Channel channel) {
+        public ContextImpl(String address, String option, InteractionInfo interactionInfo, Channel channel) {
+            this.address = address;
+            this.option = option;
             this.interactionInfo = interactionInfo;
             this.channel = channel;
         }
 
         @Override
-        public void send(String message) {
+        public String getAddress() {
+            return address;
+        }
+
+        @Override
+        public String getOption() {
+            return option;
+        }
+
+        @Override
+        public Serializer getSerializer() {
+            return telqosConfig.getSerializer();
+        }
+
+        @Override
+        public Deserializer getDeserializer() {
+            return telqosConfig.getDeserializer();
+        }
+
+        @Override
+        public List<String> getVariableIdentities() {
+            lock.lock();
+            try {
+                Map<String, Object> addressVariableMap = variableMap.get(address);
+                if (Objects.isNull(addressVariableMap)) {
+                    return Collections.emptyList();
+                }
+                List<String> identities = new ArrayList<>(addressVariableMap.keySet());
+                identities.sort(String::compareTo);
+                return identities;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public Object getVariable(String identity) {
+            lock.lock();
+            try {
+                return Optional.ofNullable(variableMap.get(address)).map(map -> map.get(identity)).orElse(null);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public void setVariable(String identity, Object value) {
+            lock.lock();
+            try {
+                Optional.of(variableMap.get(address)).ifPresent(map -> map.put(identity, value));
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public List<String> getCommandIdentities() {
+            lock.lock();
+            try {
+                ArrayList<String> list = new ArrayList<>(commandMap.keySet());
+                list.sort(String::compareTo);
+                return list;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public String getCommandDescription(String identity) {
+            lock.lock();
+            try {
+                return Optional.of(commandMap.get(identity)).map(Command::getDescription).orElse(null);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public String getCommandManual(String identity) {
+            lock.lock();
+            try {
+                return Optional.of(commandMap.get(identity)).map(Command::getManual).orElse(null);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public void sendMessage(String message) {
             channel.writeAndFlush(ChannelUtil.line(message));
         }
 
         @Override
-        public String receive() throws ConnectionTerminatedException {
+        public String receiveMessage() throws ConnectionTerminatedException {
             interactionInfo.getLock().lock();
             try {
                 interactionInfo.setInteractionStatus(InteractionStatus.WAITING_MESSAGE);
@@ -669,6 +762,18 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 return interactionInfo.getNextMessage();
             } finally {
                 interactionInfo.getLock().unlock();
+            }
+        }
+
+        @Override
+        public void quit() throws TelqosException {
+            lock.lock();
+            try {
+                kick(address);
+            } catch (Exception e) {
+                throw new TelqosException(e);
+            } finally {
+                lock.unlock();
             }
         }
     }

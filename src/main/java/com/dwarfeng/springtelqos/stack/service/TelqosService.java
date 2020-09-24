@@ -3,8 +3,6 @@ package com.dwarfeng.springtelqos.stack.service;
 import com.dwarfeng.springtelqos.stack.command.Command;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 
-import java.util.Collection;
-
 /**
  * Telqos Telnet 服务器。
  *
@@ -34,15 +32,19 @@ public interface TelqosService {
      */
     void offline() throws TelqosException;
 
-    Collection<Command> getCommands();
-
+    /**
+     * 注册指令。
+     *
+     * @param command 指定的指令。
+     * @throws TelqosException Telqos异常。
+     */
     void registerCommand(Command command) throws TelqosException;
 
+    /**
+     * 解除注册指令。
+     *
+     * @param identity 指令标识。
+     * @throws TelqosException Telqos异常。
+     */
     void unregisterCommand(String identity) throws TelqosException;
-
-    Command getCommand(String identity) throws TelqosException;
-
-    Collection<String> getAddresses();
-
-    void kick(String address) throws TelqosException;
 }

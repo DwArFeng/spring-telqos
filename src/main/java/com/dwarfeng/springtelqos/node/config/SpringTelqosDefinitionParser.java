@@ -1,6 +1,6 @@
 package com.dwarfeng.springtelqos.node.config;
 
-import com.dwarfeng.springtelqos.impl.command.ListCommand;
+import com.dwarfeng.springtelqos.impl.command.*;
 import com.dwarfeng.springtelqos.impl.service.TelqosServiceImpl;
 import com.dwarfeng.springtelqos.sdk.serialize.FastJsonDeserializer;
 import com.dwarfeng.springtelqos.sdk.serialize.FastJsonSerializer;
@@ -203,8 +203,28 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder builder;
         String beanId;
 
-        builder = BeanDefinitionBuilder.rootBeanDefinition(ListCommand.class);
-        beanId = getAvailableBeanName("listCommand", parserContext);
+        builder = BeanDefinitionBuilder.rootBeanDefinition(ListCommandCommand.class);
+        beanId = getAvailableBeanName("listCommandCommand", parserContext);
+        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
+        commandBeanReferences.add(new RuntimeBeanReference(beanId));
+
+        builder = BeanDefinitionBuilder.rootBeanDefinition(ManualCommand.class);
+        beanId = getAvailableBeanName("manualCommand", parserContext);
+        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
+        commandBeanReferences.add(new RuntimeBeanReference(beanId));
+
+        builder = BeanDefinitionBuilder.rootBeanDefinition(QuitCommand.class);
+        beanId = getAvailableBeanName("quitCommand", parserContext);
+        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
+        commandBeanReferences.add(new RuntimeBeanReference(beanId));
+
+        builder = BeanDefinitionBuilder.rootBeanDefinition(ListVariableCommand.class);
+        beanId = getAvailableBeanName("listVariableCommand", parserContext);
+        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
+        commandBeanReferences.add(new RuntimeBeanReference(beanId));
+
+        builder = BeanDefinitionBuilder.rootBeanDefinition(CopyVariableCommand.class);
+        beanId = getAvailableBeanName("copyVariableCommand", parserContext);
         parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
         commandBeanReferences.add(new RuntimeBeanReference(beanId));
     }

@@ -1,8 +1,9 @@
 package com.dwarfeng.springtelqos.sdk.serialize;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import com.dwarfeng.springtelqos.stack.serialize.Deserializer;
-
-import java.util.Objects;
 
 /**
  * FastJson 反序列化器。
@@ -13,7 +14,14 @@ import java.util.Objects;
 public class FastJsonDeserializer implements Deserializer {
 
     @Override
-    public String deserialize(Object object) {
-        return Objects.toString(object);
+    public String deserialize(Object object) throws TelqosException {
+        try {
+            return JSON.toJSONString(object,
+                    SerializerFeature.WriteClassName,
+                    SerializerFeature.DisableCircularReferenceDetect,
+                    SerializerFeature.WriteMapNullValue);
+        } catch (Exception e) {
+            throw new TelqosException(e);
+        }
     }
 }
