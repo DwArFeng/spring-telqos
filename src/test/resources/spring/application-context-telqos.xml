@@ -10,5 +10,8 @@
     <telqos:config>
         <telqos:connection-setting charset="GBK"/>
         <telqos:task-pool pool-size="20" rejection-policy="ABORT"/>
+        <telqos:command>
+            <telqos:command-impl ref="helloWorldCommand"/>
+        </telqos:command>
     </telqos:config>
 </beans>
