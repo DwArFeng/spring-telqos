@@ -30,7 +30,6 @@ import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -74,7 +73,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         lock.lock();
         try {
             internalOffline();
@@ -142,7 +141,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         }
     }
 
-    private void internalOffline() throws Exception {
+    private void internalOffline() {
         if (!onlineFlag) {
             return;
         }
@@ -201,11 +200,11 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         }
     }
 
-    private void kick(String address) throws InterruptedException, ExecutionException {
+    private void kick(String address) {
         if (!channelMap.containsKey(address)) return;
         Channel channel = channelMap.get(address);
-        channel.writeAndFlush(ChannelUtil.line("服务端主动与您中断连接")).get();
-        channel.writeAndFlush(ChannelUtil.line("再见!")).get();
+        channel.writeAndFlush(ChannelUtil.line("服务端主动与您中断连接"));
+        channel.writeAndFlush(ChannelUtil.line("再见!"));
         channel.close();
     }
 
@@ -415,8 +414,8 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
 
                 if (!checkAddress(address)) {
                     LOGGER.info("设备 " + address + " 尝试访问本服务，由于黑/白名单规则被禁止");
-                    channel.writeAndFlush(ChannelUtil.line("该服务设置了黑/白名单，您所在的设备禁止访问此服务")).get();
-                    channel.writeAndFlush(ChannelUtil.line("再见!")).get();
+                    channel.writeAndFlush(ChannelUtil.line("该服务设置了黑/白名单，您所在的设备禁止访问此服务"));
+                    channel.writeAndFlush(ChannelUtil.line("再见!"));
                     channel.close();
                     return;
                 }
@@ -464,11 +463,11 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             return address.matches(whitelistRegex);
         }
 
-        private void mayReplaceExistsChannel(String address) throws ExecutionException, InterruptedException {
+        private void mayReplaceExistsChannel(String address) {
             if (channelMap.containsKey(address)) {
                 Channel channel = channelMap.get(address);
-                channel.writeAndFlush(ChannelUtil.line("此地址 (" + address + ") 在其它进程登录，此进程将停止")).get();
-                channel.writeAndFlush(ChannelUtil.line("再见!")).get();
+                channel.writeAndFlush(ChannelUtil.line("此地址 (" + address + ") 在其它进程登录，此进程将停止"));
+                channel.writeAndFlush(ChannelUtil.line("再见!"));
                 channel.close();
                 sweepUpChannelInfo(address);
             }
@@ -495,8 +494,8 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             lock.lock();
             LOGGER.warn("设备 " + address + " 在通讯时发生异常，将中断连接，异常信息如下:", e);
             try {
-                channel.writeAndFlush(ChannelUtil.line("不小心发生异常了，将中断连接, 请留意服务端日志")).get();
-                channel.writeAndFlush(ChannelUtil.line("再见!")).get();
+                channel.writeAndFlush(ChannelUtil.line("不小心发生异常了，将中断连接, 请留意服务端日志"));
+                channel.writeAndFlush(ChannelUtil.line("再见!"));
             } catch (Exception ex) {
                 LOGGER.warn("向设备 " + address + " 发送消息时发生异常，异常信息如下:", ex);
             } finally {
