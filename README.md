@@ -20,7 +20,7 @@
 
 ## 使用方式
 
-以下的操作步骤可以通过启动 `test` 文件夹中的 `TelqosServiceImplTest` 观察实际效果。
+以下的操作步骤可以通过启动 `test` 源目录中的 `com.dwarfeng.springtelqos.impl.service.Example` 观察实际效果。
 
 1. 添加依赖。
 

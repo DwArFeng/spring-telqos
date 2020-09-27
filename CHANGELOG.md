@@ -5,6 +5,8 @@
 #### 功能构建
 
 - 优化 TelqosServiceImpl 中几处冗余的代码。
+- 将测试文件更名为 Example。
+- 去除示例文件对 spring-terminator 的依赖。
 
 #### Bug修复
 
