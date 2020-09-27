@@ -592,10 +592,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             lock.lock();
             try {
                 while (!finishFlag) {
-                    try {
-                        condition.await();
-                    } catch (InterruptedException ignored) {
-                    }
+                    condition.awaitUninterruptibly();
                 }
             } finally {
                 lock.unlock();
@@ -678,10 +675,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 interactionInfo.setNextMessage(null);
 
                 while (Objects.isNull(interactionInfo.getNextMessage()) && !interactionInfo.isTermination()) {
-                    try {
-                        interactionInfo.getCondition().await();
-                    } catch (InterruptedException ignored) {
-                    }
+                    interactionInfo.getCondition().awaitUninterruptibly();
                 }
 
                 if (interactionInfo.isTermination()) {

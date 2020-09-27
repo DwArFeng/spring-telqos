@@ -4,7 +4,7 @@
 
 #### 功能构建
 
-- (无)
+- 优化 TelqosServiceImpl 中几处冗余的代码。
 
 #### Bug修复
 
