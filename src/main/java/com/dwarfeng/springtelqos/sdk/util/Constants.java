@@ -9,7 +9,5 @@ package com.dwarfeng.springtelqos.sdk.util;
 public final class Constants {
 
     public static final char MULTI_LINE_COMMAND_INDICATOR = '\\';
-    public static final String VARIABLE_IDENTITY_LAST_RESULT = "lastResult";
-    public static final String VARIABLE_IDENTITY_LAST_COMMAND = "lastCommand";
     public static final String COMMAND_IDENTITY_FORMAT = "^[a-zA-Z_][0-9a-zA-Z_]*$";
 }

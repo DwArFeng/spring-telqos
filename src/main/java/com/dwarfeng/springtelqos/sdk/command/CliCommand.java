@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +35,7 @@ public abstract class CliCommand extends AbstractCommand {
         this.description = description;
         this.cmdLineSyntax = cmdLineSyntax;
         buildOptions().forEach(options::addOption);
+        buildOptionGroups().forEach(options::addOptionGroup);
     }
 
     @Override
@@ -76,7 +78,35 @@ public abstract class CliCommand extends AbstractCommand {
         return list.toArray(new String[0]);
     }
 
-    protected abstract List<Option> buildOptions();
+    /**
+     * 构建 Option 列表。
+     *
+     * <p>该方法默认返回空列表，如需要，请重写该方法。
+     *
+     * @return Option 组成的列表。
+     */
+    protected List<Option> buildOptions() {
+        return Collections.emptyList();
+    }
 
+    /**
+     * 构建 OptionGroup 列表。
+     *
+     * <p>该方法默认返回空列表，如需要，请重写该方法。
+     *
+     * @return OptionGroup 组成的列表。
+     */
+    protected List<OptionGroup> buildOptionGroups() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * 将 {@link Context#getOption()} 解析为 {@link CommandLine} 之后，执行指令的抽象方法。
+     *
+     * @param context 指令上下文。
+     * @param cmd     被解析的 CommandLine
+     * @throws TelqosException               Telqos异常。
+     * @throws ConnectionTerminatedException 连接中断异常。
+     */
     protected abstract void executeWithCmd(Context context, CommandLine cmd) throws TelqosException, ConnectionTerminatedException;
 }
