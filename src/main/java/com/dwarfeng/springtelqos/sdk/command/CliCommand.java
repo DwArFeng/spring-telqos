@@ -12,8 +12,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 通过CLI框架实现的指令。
@@ -24,7 +22,6 @@ import java.util.regex.Pattern;
 public abstract class CliCommand extends AbstractCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CliCommand.class);
-    private static final Pattern PATTERN = Pattern.compile("\"([^\"]*?)\"|(\\S+)");
 
     protected final String description;
     protected final String cmdLineSyntax;
@@ -70,12 +67,26 @@ public abstract class CliCommand extends AbstractCommand {
     }
 
     private String[] option2Args(String option) {
-        Matcher matcher = PATTERN.matcher(option);
-        List<String> list = new ArrayList<>();
-        while (matcher.find()) {
-            list.add(matcher.group());
+        boolean quoteFlag = false;
+        List<Integer> spaceIndexes = new ArrayList<>();
+        for (int i = 0; i < option.toCharArray().length; i++) {
+            char ch = option.charAt(i);
+            if (ch == '\"') {
+                quoteFlag = !quoteFlag;
+            }
+            if (ch == ' ' && !quoteFlag) {
+                spaceIndexes.add(i);
+            }
         }
-        return list.toArray(new String[0]);
+        String[] args = new String[spaceIndexes.size() + 1];
+        int j = 0;
+        int beginIndex = 0;
+        for (int endIndex : spaceIndexes) {
+            args[j++] = option.substring(beginIndex, endIndex);
+            beginIndex = endIndex + 1;
+        }
+        args[j] = option.substring(beginIndex);
+        return args;
     }
 
     /**
