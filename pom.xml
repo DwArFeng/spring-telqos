@@ -6,7 +6,7 @@
 
     <groupId>com.dwarfeng</groupId>
     <artifactId>spring-telqos</artifactId>
-    <version>1.0.1.a</version>
+    <version>1.0.2.a-SNAPSHOT</version>
 
     <name>spring-telqos</name>
     <url>http://maven.apache.org</url>
