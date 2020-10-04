@@ -56,12 +56,13 @@ public abstract class CliCommand extends AbstractCommand {
     @Override
     public void execute(Context context) throws TelqosException, ConnectionTerminatedException {
         CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = null;
+        CommandLine cmd;
         try {
             cmd = parser.parse(options, option2Args(context.getOption()));
         } catch (Exception e) {
             LOGGER.warn("解析命令选项时发生异常，异常信息如下", e);
             context.sendMessage("命令选项不正确，请检查命令选项: " + context.getOption());
+            return;
         }
         executeWithCmd(context, cmd);
     }

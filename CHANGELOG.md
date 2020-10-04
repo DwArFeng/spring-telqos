@@ -9,6 +9,7 @@
 #### Bug修复
 
 - 修复 CliCommand 处理带引号的参数时行为不正常的 bug。
+- 修复 CliCommand 解析命令行发生异常后仍然会执行 executeWithCmd 方法的bug。
 
 #### 功能移除
 
