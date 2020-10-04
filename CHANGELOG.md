@@ -5,6 +5,7 @@
 #### 功能构建
 
 - 完善 CliCommand 类，补全构造入口。
+- 美化 ListCommandCommand 的输出样式。
 
 #### Bug修复
 

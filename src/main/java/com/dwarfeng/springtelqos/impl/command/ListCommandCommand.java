@@ -20,7 +20,7 @@ public class ListCommandCommand extends CliCommand {
 
     private static final String IDENTITY = "lc";
     private static final String DESCRIPTION = "列出指令";
-    private static final String CMD_LINE_SYNTAX = "lc [-pprefix|--prefix prefix]";
+    private static final String CMD_LINE_SYNTAX = "lc [-p prefix|--prefix prefix]";
 
     public ListCommandCommand() {
         super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
@@ -41,11 +41,23 @@ public class ListCommandCommand extends CliCommand {
             String prefix = cmd.getOptionValue("p");
             identities = identities.stream().filter(s -> s.startsWith(prefix)).collect(Collectors.toList());
         }
-        int i = 1;
+        int index = 0;
+        int maxIdentityLength = 0;
+        int maxDescriptionLength = 0;
         for (String identity : identities) {
-            context.sendMessage((i++) + ".\t" + identity + "\t" + context.getCommandDescription(identity));
+            if (identity.length() > maxIdentityLength) maxIdentityLength = identity.length();
         }
-        context.sendMessage("----------------------");
+        for (String identity : identities) {
+            String description = String.format("%-3d %-" + (maxIdentityLength + 2) + "s %s",
+                    ++index, identity, context.getCommandDescription(identity));
+            if (description.length() > maxDescriptionLength) maxDescriptionLength = description.length();
+            context.sendMessage(description);
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < maxDescriptionLength; i++) {
+            stringBuilder.append('-');
+        }
+        context.sendMessage(stringBuilder.toString());
         context.sendMessage("共 " + identities.size() + " 条");
     }
 }
