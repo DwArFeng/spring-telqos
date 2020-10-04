@@ -6,6 +6,7 @@
 
 - 完善 CliCommand 类，补全构造入口。
 - 美化 ListCommandCommand 的输出样式。
+- 完善设备登录时的日志记录。
 
 #### Bug修复
 

@@ -426,6 +426,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 channel.writeAndFlush(ChannelUtil.line(""));
                 channel.writeAndFlush(ChannelUtil.line(""));
                 buildUpChannelInfo(address, channel);
+                LOGGER.info("设备 " + address + " 尝试访问本服务，并登录成功");
             } finally {
                 lock.unlock();
             }
@@ -466,10 +467,11 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         private void mayReplaceExistsChannel(String address) {
             if (channelMap.containsKey(address)) {
                 Channel channel = channelMap.get(address);
-                channel.writeAndFlush(ChannelUtil.line("此地址 (" + address + ") 在其它进程登录，此进程将停止"));
+                channel.writeAndFlush(ChannelUtil.line("此设备 (" + address + ") 在其它进程登录，此进程将停止"));
                 channel.writeAndFlush(ChannelUtil.line("再见!"));
                 channel.close();
                 sweepUpChannelInfo(address);
+                LOGGER.info("设备 " + address + " 在其它进程登录，其它登录进程停止");
             }
         }
 
