@@ -219,16 +219,19 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
 
     private void sweepUpChannelInfo(String address) {
         InteractionInfo interactionInfo = interactionMap.get(address);
-        interactionInfo.getLock().lock();
-        try {
-            interactionInfo.setTermination(true);
-            interactionInfo.getCondition().signalAll();
-        } finally {
-            interactionInfo.getLock().unlock();
-        }
-        CommandExecutionTask task = taskMap.get(address);
-        if (Objects.nonNull(task)) {
-            task.awaitFinish();
+        // 非空判断，避免偶发的多次调用时抛出 NullPointerException。
+        if (Objects.nonNull(interactionInfo)) {
+            interactionInfo.getLock().lock();
+            try {
+                interactionInfo.setTermination(true);
+                interactionInfo.getCondition().signalAll();
+            } finally {
+                interactionInfo.getLock().unlock();
+            }
+            CommandExecutionTask task = taskMap.get(address);
+            if (Objects.nonNull(task)) {
+                task.awaitFinish();
+            }
         }
         taskMap.remove(address);
         channelMap.remove(address);
@@ -480,6 +483,8 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
+            LOGGER.info("设备 " + address + " 与本服务断开连接");
+
             lock.lock();
             try {
                 sweepUpChannelInfo(address);
@@ -493,8 +498,8 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
-            lock.lock();
             LOGGER.warn("设备 " + address + " 在通讯时发生异常，将中断连接，异常信息如下:", e);
+            lock.lock();
             try {
                 channel.writeAndFlush(ChannelUtil.line("不小心发生异常了，将中断连接, 请留意服务端日志"));
                 channel.writeAndFlush(ChannelUtil.line("再见!"));

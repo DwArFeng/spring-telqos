@@ -6,12 +6,13 @@
 
 - 完善 CliCommand 类，补全构造入口。
 - 美化 ListCommandCommand 的输出样式。
-- 完善设备登录时的日志记录。
+- 完善设备登录以及连接中断时的日志记录。
 
 #### Bug修复
 
 - 修复 CliCommand 处理带引号的参数时行为不正常的 bug。
 - 修复 CliCommand 解析命令行发生异常后仍然会执行 executeWithCmd 方法的bug。
+- 修复 TelqosServiceImpl 处理中断连接事件时引发潜在的 NullPointerException 的 bug。
 
 #### 功能移除
 
