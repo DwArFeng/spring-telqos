@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>spring-telqos</artifactId>
+        <groupId>com.dwarfeng</groupId>
+        <version>1.1.0.a-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>spring-telqos-api</artifactId>
+    <name>spring-telqos-api</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <!-- 进行工程编码声明 -->
+        <!-- 进行JDK版本声明 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+        <!-- spring-terminator组件 -->
+        <dependency>
+            <groupId>com.dwarfeng</groupId>
+            <artifactId>spring-terminator</artifactId>
+        </dependency>
+        <!-- Dubbo分布式包 -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+        </dependency>
+        <!-- 程序自身组件 -->
+        <dependency>
+            <groupId>com.dwarfeng</groupId>
+            <artifactId>spring-telqos-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- 插件列表 -->
+        <plugins>
+            <!-- Maven 测试插件，用于跳过测试。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

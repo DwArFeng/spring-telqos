@@ -137,3 +137,7 @@
       
       遗失对主机的连接。
       ```
+
+## 附录
+
+1. [字符画生成工具](https://www.bootschool.net/ascii) 默认的 banner 使用 `broadway` 字体生成。

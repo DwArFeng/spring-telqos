@@ -5,6 +5,9 @@
 #### 功能构建
 
 - 将项目主体代码移动至子模块 spring-telqos-core。
+- 添加模块 spring-telqos-api。
+  - 与 spring-terminator 进行集成。
+  - 与 dubbo 进行集成。
 
 #### Bug修复
 

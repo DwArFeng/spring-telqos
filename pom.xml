@@ -30,6 +30,8 @@
         <netty.version>4.1.51.Final</netty.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
         <commons-cli.version>1.4</commons-cli.version>
+        <spring-terminator.version>1.0.6.a</spring-terminator.version>
+        <dubbo.version>2.7.6</dubbo.version>
         <!-- Maven插件版本声明 -->
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     </properties>
@@ -103,6 +105,31 @@
                 <artifactId>commons-cli</artifactId>
                 <version>${commons-cli.version}</version>
             </dependency>
+            <!-- spring-terminator组件 -->
+            <dependency>
+                <groupId>com.dwarfeng</groupId>
+                <artifactId>spring-terminator</artifactId>
+                <version>${spring-terminator.version}</version>
+            </dependency>
+            <!-- Dubbo分布式包 -->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo</artifactId>
+                <exclusions>
+                    <!-- 排除或者不适用dubbo中指定的spring版本 -->
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring</artifactId>
+                    </exclusion>
+                </exclusions>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <!-- 程序自身组件 -->
+            <dependency>
+                <groupId>com.dwarfeng</groupId>
+                <artifactId>spring-telqos-core</artifactId>
+                <version>1.1.0.a-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -135,5 +162,6 @@
 
     <modules>
         <module>spring-telqos-core</module>
+        <module>spring-telqos-api</module>
     </modules>
 </project>
