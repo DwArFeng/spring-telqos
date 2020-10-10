@@ -362,7 +362,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                                 address,
                                 new ContextImpl(address, option, interactionMap.get(address), channel),
                                 commandLine,
-                                channel), 5L);
+                                channel), 1L);
                         break;
                     case WAITING_MESSAGE:
                         interactionInfo.setNextMessage(commandLine);
