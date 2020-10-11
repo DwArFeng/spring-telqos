@@ -97,6 +97,7 @@
       telnet localhost 23
       lc
       hello
+      quit
       ```
    3. 观察控制台输出
       ```
@@ -127,6 +128,10 @@
       4   quit    退出
       ---------------------------
       共 4 条
+      OK
+      
+      hello
+      Hello World!
       OK
       
       quit
