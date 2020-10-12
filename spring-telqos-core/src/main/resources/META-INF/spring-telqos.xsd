@@ -34,7 +34,7 @@
                         </xsd:documentation>
                     </xsd:annotation>
                     <xsd:complexType>
-                        <xsd:attribute name="port" type="xsd:token" default="23">
+                        <xsd:attribute name="port" type="xsd:string" default="23">
                             <xsd:annotation>
                                 <xsd:documentation>
                                     <![CDATA[Telnet服务开放的端口，默认是 23。]]>
@@ -46,7 +46,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="whitelist-regex" type="xsd:token" default="">
+                        <xsd:attribute name="whitelist-regex" type="xsd:string" default="">
                             <xsd:annotation>
                                 <xsd:documentation>
                                     <![CDATA[连接白名单，默认是空字符串，意味着没有白名单。]]>
@@ -58,7 +58,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="blacklist-regex" type="xsd:token" default="">
+                        <xsd:attribute name="blacklist-regex" type="xsd:string" default="">
                             <xsd:annotation>
                                 <xsd:documentation>
                                     <![CDATA[连接黑名单，默认是空字符串，意味着没有黑名单。]]>
@@ -70,7 +70,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="charset" type="xsd:token" default="UTF-8">
+                        <xsd:attribute name="charset" type="xsd:string" default="UTF-8">
                             <xsd:annotation>
                                 <xsd:documentation>
                                     <![CDATA[字符集，服务端返回的字符串的字符集，默认是UTF-8，对于中文windows系统，
@@ -83,7 +83,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:attribute>
-                        <xsd:attribute name="banner-url" type="xsd:token" default="classpath:telqos/banner.txt">
+                        <xsd:attribute name="banner-url" type="xsd:string" default="classpath:telqos/banner.txt">
                             <xsd:annotation>
                                 <xsd:documentation>
                                     <![CDATA[Banner的地址，新连接接入时向客户端发送的欢迎文本，默认值是该项目自带的字符画，
@@ -143,13 +143,14 @@
                                     </xsd:attribute>
                                     <xsd:attribute name="ref" type="xsd:string">
                                         <xsd:annotation>
-                                            <xsd:documentation>
+                                            <xsd:documentation
+                                                    source="java:com.dwarfeng.springtelqos.stack.command.Command">
                                                 <![CDATA[Command 的 bean 引用名称。]]>
                                             </xsd:documentation>
                                             <xsd:appinfo>
-                                                <tool:annotation>
+                                                <tool:annotation kind="ref">
                                                     <tool:expected-type
-                                                            type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
+                                                            type="com.dwarfeng.springtelqos.stack.command.Command"/>
                                                 </tool:annotation>
                                             </xsd:appinfo>
                                         </xsd:annotation>
@@ -180,13 +181,14 @@
                         </xsd:attribute>
                         <xsd:attribute name="ref" type="xsd:string">
                             <xsd:annotation>
-                                <xsd:documentation>
+                                <xsd:documentation
+                                        source="java:org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
                                     <![CDATA[序列化器的 bean 引用名称。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
-                                    <tool:annotation>
+                                    <tool:annotation kind="ref">
                                         <tool:expected-type
-                                                type="com.dwarfeng.springtelqos.stack.serialize.Deserializer"/>
+                                                type="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"/>
                                     </tool:annotation>
                                 </xsd:appinfo>
                             </xsd:annotation>
