@@ -9,6 +9,7 @@
 #### Bug修复
 
 - 修正 spring-telqos.xsd 中不正确的约束以及注释。
+- 修正 ShutdownCommand 中错误的命令描述。
 
 #### 功能移除
 

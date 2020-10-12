@@ -24,7 +24,7 @@ public class ShutdownCommand extends CliCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownCommand.class);
 
     private static final String IDENTITY = "shutdown";
-    private static final String DESCRIPTION = "列出指令";
+    private static final String DESCRIPTION = "关闭/重启程序";
     private static final String CMD_LINE_SYNTAX = "shutdown [-s/-r] [-e exit-code] [-c comment]";
 
     public ShutdownCommand() {
