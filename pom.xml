@@ -32,6 +32,7 @@
         <commons-cli.version>1.4</commons-cli.version>
         <spring-terminator.version>1.0.6.a</spring-terminator.version>
         <dubbo.version>2.7.6</dubbo.version>
+        <curator.version>4.2.0</curator.version>
         <dutil.version>beta-0.2.1.a</dutil.version>
         <!-- Maven插件版本声明 -->
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -124,6 +125,12 @@
                     </exclusion>
                 </exclusions>
                 <version>${dubbo.version}</version>
+            </dependency>
+            <!-- Curator框架 -->
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-recipes</artifactId>
+                <version>${curator.version}</version>
             </dependency>
             <!-- dutil组件 -->
             <dependency>

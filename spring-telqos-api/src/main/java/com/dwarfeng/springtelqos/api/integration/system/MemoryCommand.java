@@ -8,7 +8,6 @@ import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,18 +71,18 @@ public class MemoryCommand extends CliCommand {
                         stringBuilder.append(DATA_SIZE_LABELS.get(i));
                     }
                 } else {
-                    renderHumanUnitValue(stringBuilder, "JVM 最大内存: ", maxMemory, index);
+                    renderUnitValue(stringBuilder, "JVM 最大内存:", maxMemory, index);
                     stringBuilder.append(System.lineSeparator());
-                    renderHumanUnitValue(stringBuilder, "JVM 分配内存: ", totalMemory, index);
+                    renderUnitValue(stringBuilder, "JVM 分配内存:", totalMemory, index);
                     stringBuilder.append(System.lineSeparator());
-                    renderHumanUnitValue(stringBuilder, "JVM 可用内存: ", freeMemory, index);
+                    renderUnitValue(stringBuilder, "JVM 可用内存:", freeMemory, index);
                 }
             } else {
-                renderHumanReadableValue(stringBuilder, "JVM 最大内存: ", maxMemory);
+                renderUnitValue(stringBuilder, "JVM 最大内存:", maxMemory, humanReadable(maxMemory));
                 stringBuilder.append(System.lineSeparator());
-                renderHumanReadableValue(stringBuilder, "JVM 分配内存: ", totalMemory);
+                renderUnitValue(stringBuilder, "JVM 分配内存:", totalMemory, humanReadable(totalMemory));
                 stringBuilder.append(System.lineSeparator());
-                renderHumanReadableValue(stringBuilder, "JVM 可用内存: ", freeMemory);
+                renderUnitValue(stringBuilder, "JVM 可用内存:", freeMemory, humanReadable(freeMemory));
             }
             context.sendMessage(stringBuilder.toString());
         } catch (Exception e) {
@@ -91,26 +90,25 @@ public class MemoryCommand extends CliCommand {
         }
     }
 
-    private void renderHumanUnitValue(StringBuilder stringBuilder, String prefix, long byteSize, int index) {
-        double value = NumberUtil.unitTrans(byteSize, DataSize.BYTE, DATA_SIZES.get(index)).doubleValue();
+    private void renderUnitValue(StringBuilder stringBuilder, String prefix, long byteSize, int index) {
         String label = DATA_SIZE_LABELS.get(index);
-        stringBuilder.append(String.format("%s %.2f%s", prefix, value, label));
+        if (index == DATA_SIZE_LABELS.size() - 1) {
+            stringBuilder.append(String.format("%s %d%s", prefix, byteSize, label));
+        } else {
+            double value = NumberUtil.unitTrans(byteSize, DataSize.BYTE, DATA_SIZES.get(index)).doubleValue();
+            stringBuilder.append(String.format("%s %.2f%s", prefix, value, label));
+        }
     }
 
-    private void renderHumanReadableValue(StringBuilder stringBuilder, String prefix, long byteSize) {
-        Pair<Double, String> pair = humanReadable(byteSize);
-        stringBuilder.append(String.format("%s %.2f%s", prefix, pair.getLeft(), pair.getRight()));
-    }
-
-    private Pair<Double, String> humanReadable(long byteSize) {
+    private int humanReadable(long byteSize) {
         if (byteSize == 0) {
-            return Pair.of(0d, DATA_SIZE_LABELS.get(DATA_SIZE_LABELS.size() - 1));
+            return DATA_SIZE_LABELS.size() - 1;
         }
         int index = 0;
         double value;
         do {
             value = NumberUtil.unitTrans(byteSize, DataSize.BYTE, DATA_SIZES.get(index++)).doubleValue();
         } while (value < 1);
-        return Pair.of(value, DATA_SIZE_LABELS.get(index - 1));
+        return index - 1;
     }
 }

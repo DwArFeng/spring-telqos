@@ -23,6 +23,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
+import org.springframework.lang.NonNull;
 
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -252,7 +253,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 

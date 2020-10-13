@@ -54,6 +54,12 @@
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
         </dependency>
+        <!-- Curator框架 -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- dutil组件 -->
         <dependency>
             <groupId>com.dwarfeng</groupId>
@@ -79,5 +85,17 @@
                 </configuration>
             </plugin>
         </plugins>
+        <!-- 配置资源目录 -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <!-- 配置测试资源目录 -->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
     </build>
 </project>

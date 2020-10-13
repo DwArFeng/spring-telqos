@@ -6,6 +6,7 @@
 
 - 新增集成指令。
   - com.dwarfeng.springtelqos.api.integration.system.MemoryCommand
+- 为 spring-telqos-api 模块添加测试用代码。
 
 #### Bug修复
 

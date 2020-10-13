@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:terminator="http://dwarfeng.com/schema/spring-terminator"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://dwarfeng.com/schema/spring-terminator
+        http://dwarfeng.com/schema/spring-terminator/spring-terminator.xsd">
+
+    <terminator:bean pre-delay="500"/>
+</beans>
