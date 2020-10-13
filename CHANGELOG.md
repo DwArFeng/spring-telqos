@@ -4,7 +4,8 @@
 
 #### 功能构建
 
-- (无)
+- 新增集成指令。
+  - com.dwarfeng.springtelqos.api.integration.system.MemoryCommand
 
 #### Bug修复
 

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 关闭程序命令。
+ * 关闭/重启程序命令。
  *
  * @author DwArFeng
  * @since 1.1.0

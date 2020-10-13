@@ -32,6 +32,7 @@
         <commons-cli.version>1.4</commons-cli.version>
         <spring-terminator.version>1.0.6.a</spring-terminator.version>
         <dubbo.version>2.7.6</dubbo.version>
+        <dutil.version>beta-0.2.1.a</dutil.version>
         <!-- Maven插件版本声明 -->
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     </properties>
@@ -123,6 +124,12 @@
                     </exclusion>
                 </exclusions>
                 <version>${dubbo.version}</version>
+            </dependency>
+            <!-- dutil组件 -->
+            <dependency>
+                <groupId>com.dwarfeng</groupId>
+                <artifactId>dutil-basic</artifactId>
+                <version>${dutil.version}</version>
             </dependency>
             <!-- 程序自身组件 -->
             <dependency>
