@@ -357,13 +357,14 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                             channel.writeAndFlush(ChannelUtil.line(""));
                             return;
                         }
-                        //同步执行交互任务，设置1ms的延迟时间，防止过快返回结果，导致部分telnet客户端换行显示不正确。
+                        //同步执行交互任务。
                         telqosConfig.getExecutor().execute(new CommandExecutionTask(
                                 interactionInfo, command,
                                 address,
                                 new ContextImpl(address, option, interactionMap.get(address), channel),
                                 commandLine,
-                                channel), 1L);
+                                channel
+                        ));
                         break;
                     case WAITING_MESSAGE:
                         interactionInfo.setNextMessage(commandLine);
