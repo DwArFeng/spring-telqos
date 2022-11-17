@@ -31,7 +31,11 @@
         <commons-lang3.version>3.3.2</commons-lang3.version>
         <commons-cli.version>1.4</commons-cli.version>
         <spring-terminator.version>1.0.10.a-SNAPSHOT</spring-terminator.version>
+        <gson.version>2.8.9</gson.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
         <dubbo.version>2.7.18</dubbo.version>
+        <zookeeper.version>3.5.7</zookeeper.version>
+        <guava.version>31.1-jre</guava.version>
         <curator.version>4.3.0</curator.version>
         <dutil.version>beta-0.3.2.a</dutil.version>
         <!-- Maven插件版本声明 -->
@@ -114,24 +118,91 @@
                 <artifactId>spring-terminator</artifactId>
                 <version>${spring-terminator.version}</version>
             </dependency>
+            <!-- Gson 组件 -->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+            <!-- Snakeyaml 组件 -->
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
             <!-- Dubbo分布式包 -->
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo</artifactId>
+                <version>${dubbo.version}</version>
                 <exclusions>
-                    <!-- 排除或者不适用dubbo中指定的spring版本 -->
                     <exclusion>
                         <groupId>org.springframework</groupId>
                         <artifactId>spring</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <artifactId>gson</artifactId>
+                        <groupId>com.google.code.gson</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>snakeyaml</artifactId>
+                        <groupId>org.yaml</groupId>
+                    </exclusion>
                 </exclusions>
-                <version>${dubbo.version}</version>
             </dependency>
-            <!-- Curator框架 -->
+            <!-- Zookeeper 客户端 -->
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>netty-handler</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>netty-transport-native-epoll</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-api</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- Guava 组件 -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <!-- Curator 框架 -->
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>zookeeper</artifactId>
+                        <groupId>org.apache.zookeeper</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>guava</artifactId>
+                        <groupId>com.google.guava</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- dutil组件 -->
             <dependency>
