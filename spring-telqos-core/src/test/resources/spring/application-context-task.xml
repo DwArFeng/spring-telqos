@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns:task="http://www.springframework.org/schema/task"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+<beans
+        xmlns:task="http://www.springframework.org/schema/task"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task.xsd"
+>
 
     <!-- 启用Async注解 -->
     <task:annotation-driven executor="executor"/>

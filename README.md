@@ -35,34 +35,43 @@
 1. 添加依赖。
 
 2. 在Spring中添加如下配置。
-
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
-   <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
-          xmlns="http://www.springframework.org/schema/beans"
-          xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans.xsd
-           http://dwarfeng.com/schema/spring-telqos
-           http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd">
+   <beans
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
+   xmlns="http://www.springframework.org/schema/beans"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://dwarfeng.com/schema/spring-telqos
+   http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd"
+   >
    
        <telqos:config>
-           <telqos:connection-setting port="23" blacklist-regex="192.168.100.1" whitelist-regex=".*" charset="GBK"
-                                      banner-url="classpath:telqos/banner.txt"/>
-           <telqos:task-pool keep-alive="1000" queue-capacity="10" pool-size="20" rejection-policy="ABORT"/>
+           <telqos:connection-setting port="${telqos.port}" charset="${telqos.charset}"/>
+           <telqos:task-pool ref="executor"/>
            <telqos:command>
-               <telqos:command-impl ref="helloWorldCommand"/>
+               <telqos:command-impl ref="shutdownCommand"/>
+               <telqos:command-impl ref="dubboCommand"/>
+               <telqos:command-impl ref="memoryCommand"/>
            </telqos:command>
        </telqos:config>
+   
+       <bean name="shutdownCommand" class="com.dwarfeng.springtelqos.api.integration.springterminator.ShutdownCommand">
+           <!--suppress SpringXmlModelInspection -->
+           <property name="terminator" ref="terminator"/>
+           <property name="restartEnabled" value="false"/>
+       </bean>
+   
+       <bean name="dubboCommand" class="com.dwarfeng.springtelqos.api.integration.dubbo.DubboCommand"/>
+   
+       <bean name="memoryCommand" class="com.dwarfeng.springtelqos.api.integration.system.MemoryCommand"/>
    </beans>
    ```
-   
    注：该文件中的所有属性均支持 `Spring place-holder expression`。
-   
-3. 编写自定义指令类，继承 `Command`。
 
+3. 编写自定义指令类，继承 `Command`。  
    `spring-telqos` 中提供了多种 `Command` 接口的抽象实现，合理地继承这些抽象实现能够提高开发的速度。
-   
    ```java
    @Component
    public class HelloWorldCommand extends CliCommand {
@@ -90,7 +99,6 @@
 4. 在 `ApplicationContext` 中注入`HelloWorldCommand`对象，并启动程序。
 
 5. 打开 telnet 客户端，以 windows 平台举例。
-
    1. 运行 `powershell`
    2. 依次输入命令
       ```cmd

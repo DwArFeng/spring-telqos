@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
-       xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+<beans
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://dwarfeng.com/schema/spring-telqos
-        http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd">
+        http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd"
+>
 
     <telqos:config>
         <telqos:connection-setting charset="GBK"/>
