@@ -23,33 +23,7 @@
     </properties>
 
     <dependencies>
-        <!-- Spring -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-        </dependency>
-        <!-- Netty -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-        <!-- spring-terminator组件 -->
+        <!-- spring-terminator 组件 -->
         <dependency>
             <groupId>com.dwarfeng</groupId>
             <artifactId>spring-terminator</artifactId>
@@ -64,7 +38,7 @@
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
-        <!-- Dubbo分布式包 -->
+        <!-- Dubbo 分布式包 -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
@@ -79,13 +53,13 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-        <!-- Curator框架 -->
+        <!-- Curator 框架 -->
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- dutil组件 -->
+        <!-- dutil 组件 -->
         <dependency>
             <groupId>com.dwarfeng</groupId>
             <artifactId>dutil-basic</artifactId>
