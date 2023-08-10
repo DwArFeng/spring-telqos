@@ -15,7 +15,7 @@
    <dependency>
        <groupId>com.dwarfeng</groupId>
        <artifactId>spring-telqos-core</artifactId>
-       <version>1.1.0.a</version>
+       <version>${spring-telqos.version}</version>
    </dependency>
    ```
 
@@ -24,7 +24,7 @@
    <dependency>
        <groupId>com.dwarfeng</groupId>
        <artifactId>spring-telqos-api</artifactId>
-       <version>1.1.0.a</version>
+       <version>${spring-telqos.version}</version>
    </dependency>
    ```
 
@@ -95,7 +95,7 @@
        }
    }
    ```
-   
+
 4. 在 `ApplicationContext` 中注入`HelloWorldCommand`对象，并启动程序。
 
 5. 打开 telnet 客户端，以 windows 平台举例。
@@ -122,7 +122,7 @@
             8 8888       8 888888888888 8 888888888888 `8888888P'  `8.    `8888888P'     `Y8888P ,88P'
       ------------------------------------------------------------------------------------------------
       Telnet QOS 运维系统
-      版本: 1.0.0.a                                                                   Powered By 赵扶风
+      版本: x.x.x.x                                                                  Powered By 赵扶风
       -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       
       
