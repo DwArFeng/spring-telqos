@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xsd:schema xmlns="http://dwarfeng.com/schema/spring-telqos"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:tool="http://www.springframework.org/schema/tool"
-            targetNamespace="http://dwarfeng.com/schema/spring-telqos"
-            elementFormDefault="qualified">
+<xsd:schema
+        xmlns="http://dwarfeng.com/schema/spring-telqos"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:tool="http://www.springframework.org/schema/tool"
+        targetNamespace="http://dwarfeng.com/schema/spring-telqos"
+        elementFormDefault="qualified"
+>
 
     <xsd:import namespace="http://www.springframework.org/schema/tool"
                 schemaLocation="https://www.springframework.org/schema/tool/spring-tool.xsd"/>
@@ -151,6 +153,18 @@
                                                 <tool:annotation kind="ref">
                                                     <tool:expected-type
                                                             type="com.dwarfeng.springtelqos.stack.command.Command"/>
+                                                </tool:annotation>
+                                            </xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:attribute>
+                                    <xsd:attribute name="package-scan" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:documentation>
+                                                <![CDATA[Command 所包的名称。]]>
+                                            </xsd:documentation>
+                                            <xsd:appinfo>
+                                                <tool:annotation>
+                                                    <tool:expected-type type="java.lang.String"/>
                                                 </tool:annotation>
                                             </xsd:appinfo>
                                         </xsd:annotation>

@@ -4,6 +4,11 @@
 
 #### 功能构建
 
+- 实现 package-scan 解析指令的功能。
+  - 在 xml 配置中，使用 `<telqos:command-impl package-scan="xxx"/>` 配置，以扫描指定包下的所有指令。
+  - 需要被扫描的类必须拥有 `@TelqosCommand` 注解。
+  - 需要被扫描的类必须实现 `TelqosCommand` 接口。
+
 - 依赖升级。
   - 升级 `spring` 依赖版本为 `32.0.0-jre`。
 

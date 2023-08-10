@@ -19,7 +19,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Telqos Connection相关的 BeanDefinitionParser。
@@ -71,7 +74,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             NodeList commandImpls = element.getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "command-impl");
             for (int i = 0; i < commandImpls.getLength(); i++) {
                 Element commandImplElement = (Element) commandImpls.item(i);
-                commandBeanReferences.add(referenceOrCreateBean(commandImplElement, parserContext));
+                commandBeanReferences.addAll(parseCommandImpl(commandImplElement, parserContext));
             }
         }
         telqosConfigBuilder.addPropertyValue("commands", commandBeanReferences);
@@ -158,19 +161,42 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    private BeanReference referenceOrCreateBean(Element element, ParserContext parserContext) {
+    private Set<BeanReference> parseCommandImpl(Element element, ParserContext parserContext) {
+        // 展开元素中所有可能出现的属性。
         String id = ParserUtil.mayResolve(parserContext, element.getAttribute("id"));
         String clazz = ParserUtil.mayResolve(parserContext, element.getAttribute("class"));
         String ref = ParserUtil.mayResolve(parserContext, element.getAttribute("ref"));
+        String packageScan = ParserUtil.mayResolve(parserContext, element.getAttribute("package-scan"));
+
+        /*
+         * 优先级：ref > package-scan > id-class
+         */
+
+        // 如果 ref 不为空，按照 ref 逻辑处理。
         if (StringUtils.isNotEmpty(ref)) {
-            return new RuntimeBeanReference(ref);
-        } else {
+            return Collections.singleton(new RuntimeBeanReference(ref));
+        }
+        // 如果 package-scan 不为空，按照 package-scan 逻辑处理。
+        else if (StringUtils.isNotEmpty(packageScan)) {
+            CommandClassPathBeanDefinitionScanner scanner = new CommandClassPathBeanDefinitionScanner(
+                    parserContext.getRegistry(), parserContext.getReaderContext().getEnvironment()
+            );
+            scanner.scan(packageScan);
+            Set<String> beanNames = scanner.getScannedBeanNames();
+            Set<BeanReference> beanReferenceSet = new LinkedHashSet<>(beanNames.size());
+            for (String beanName : beanNames) {
+                beanReferenceSet.add(new RuntimeBeanReference(beanName));
+            }
+            return beanReferenceSet;
+        }
+        // 否则，按照 id-class 逻辑处理。
+        else {
             checkBeanDuplicated(parserContext, id);
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(clazz);
             builder.setScope(BeanDefinition.SCOPE_SINGLETON);
             builder.setLazyInit(false);
             parserContext.getRegistry().registerBeanDefinition(id, builder.getBeanDefinition());
-            return new RuntimeBeanReference(id);
+            return Collections.singleton(new RuntimeBeanReference(id));
         }
     }
 
