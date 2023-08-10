@@ -4,12 +4,14 @@ import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.stack.command.Context;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-
+/**
+ * Hello World 指令。
+ *
+ * @author DwArFeng
+ * @since 1.0.0
+ */
 @Component
 public class HelloWorldCommand extends CliCommand {
 
@@ -19,11 +21,6 @@ public class HelloWorldCommand extends CliCommand {
 
     public HelloWorldCommand() {
         super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
-    }
-
-    @Override
-    protected List<Option> buildOptions() {
-        return Collections.emptyList();
     }
 
     @Override

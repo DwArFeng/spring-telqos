@@ -18,6 +18,7 @@ import org.springframework.scheduling.config.TaskExecutorFactoryBean;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -31,7 +32,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
     private static final String TELQOS_NAMESPACE_URL = "http://dwarfeng.com/schema/spring-telqos";
 
     @Override
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
+    public BeanDefinition parse(Element element, @Nonnull ParserContext parserContext) {
         //获取bean名称。
         String configId = ParserUtil.mayResolve(parserContext, element.getAttribute("config-id"));
         String serviceId = ParserUtil.mayResolve(parserContext, element.getAttribute("service-id"));
@@ -65,7 +66,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
         Element commandElement = (Element) element.getElementsByTagNameNS(
                 TELQOS_NAMESPACE_URL, "command").item(0);
         ManagedList<BeanReference> commandBeanReferences = new ManagedList<>();
-        registerDefaultCommand(commandBeanReferences, configId, serviceId, parserContext);
+        registerDefaultCommand(commandBeanReferences, parserContext);
         if (Objects.nonNull(commandElement)) {
             NodeList commandImpls = element.getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "command-impl");
             for (int i = 0; i < commandImpls.getLength(); i++) {
@@ -173,9 +174,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    private void registerDefaultCommand(
-            ManagedList<BeanReference> commandBeanReferences, String configId,
-            String serviceId, ParserContext parserContext) {
+    private void registerDefaultCommand(ManagedList<BeanReference> commandBeanReferences, ParserContext parserContext) {
         BeanDefinitionBuilder builder;
         String beanId;
 

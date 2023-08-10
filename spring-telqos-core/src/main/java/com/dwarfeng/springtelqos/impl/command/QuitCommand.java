@@ -4,10 +4,6 @@ import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.stack.command.Context;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * 退出指令。
@@ -23,11 +19,6 @@ public class QuitCommand extends CliCommand {
 
     public QuitCommand() {
         super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
-    }
-
-    @Override
-    protected List<Option> buildOptions() {
-        return Collections.emptyList();
     }
 
     @Override
