@@ -28,17 +28,17 @@
         <!-- 集中定义依赖版本号 -->
         <javassist.version>3.23.2-GA</javassist.version>
         <junit.version>4.13.2</junit.version>
-        <spring.version>5.3.27</spring.version>
+        <spring.version>5.3.31</spring.version>
         <log4j2.version>2.17.2</log4j2.version>
         <slf4j.version>1.7.5</slf4j.version>
-        <netty.version>4.1.86.Final</netty.version>
+        <netty.version>4.1.104.Final</netty.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-cli.version>1.4</commons-cli.version>
-        <spring-terminator.version>1.0.11.a</spring-terminator.version>
+        <spring-terminator.version>1.0.12.a</spring-terminator.version>
         <gson.version>2.8.9</gson.version>
         <snakeyaml.version>2.0</snakeyaml.version>
-        <dubbo.version>2.7.21</dubbo.version>
-        <zookeeper.version>3.5.7</zookeeper.version>
+        <dubbo.version>2.7.22</dubbo.version>
+        <zookeeper.version>3.7.2</zookeeper.version>
         <guava.version>32.0.0-jre</guava.version>
         <curator.version>4.3.0</curator.version>
         <dutil.version>beta-0.3.2.a</dutil.version>
