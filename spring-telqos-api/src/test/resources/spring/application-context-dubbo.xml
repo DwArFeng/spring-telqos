@@ -15,10 +15,14 @@
     <dubbo:registry address="${dubbo.zookeeper.address}"/>
 
     <!-- dubbo协议 -->
-    <dubbo:protocol name="dubbo" port="${dubbo.port}" host="${dubbo.host}" dispatcher="message" threadpool="fixed"
-                    threads="100"/>
+    <dubbo:protocol
+            name="dubbo" port="${dubbo.port}" host="${dubbo.host}" dispatcher="message" threadpool="fixed"
+            threads="100"
+    />
 
     <!-- 向注册中心注册暴露服务地址,注册服务 -->
-    <dubbo:service interface="com.dwarfeng.springtelqos.api.integration.dubbo.DubboTestService"
-                   ref="dubboTestServiceImpl"/>
+    <dubbo:service
+            interface="com.dwarfeng.springtelqos.api.integration.dubbo.DubboTestService"
+            ref="dubboTestServiceImpl"
+    />
 </beans>

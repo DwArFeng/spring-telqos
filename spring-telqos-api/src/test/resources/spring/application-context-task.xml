@@ -11,6 +11,7 @@
     <!-- 启用Async注解 -->
     <task:annotation-driven executor="executor"/>
     <!-- 装配Executor -->
-    <task:executor id="executor" pool-size="20-40" queue-capacity="100" keep-alive="120"
-                   rejection-policy="CALLER_RUNS"/>
+    <task:executor
+            id="executor" pool-size="20-40" queue-capacity="100" keep-alive="120" rejection-policy="CALLER_RUNS"
+    />
 </beans>

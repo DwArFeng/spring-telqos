@@ -4,6 +4,9 @@
 
 #### 功能构建
 
+- 优化文件格式。
+  - 优化 `application-context-*.xml` 文件的格式。
+
 - 新增集成指令。
   - com.dwarfeng.springtelqos.api.integration.log4j2.Log4j2Command。
 
