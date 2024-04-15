@@ -16,6 +16,7 @@
             <telqos:command-impl ref="shutdownCommand"/>
             <telqos:command-impl ref="dubboCommand"/>
             <telqos:command-impl ref="memoryCommand"/>
+            <telqos:command-impl ref="log4j2Command"/>
         </telqos:command>
     </telqos:config>
 
@@ -28,4 +29,6 @@
     <bean name="dubboCommand" class="com.dwarfeng.springtelqos.api.integration.dubbo.DubboCommand"/>
 
     <bean name="memoryCommand" class="com.dwarfeng.springtelqos.api.integration.system.MemoryCommand"/>
+
+    <bean name="log4j2Command" class="com.dwarfeng.springtelqos.api.integration.log4j2.Log4j2Command"/>
 </beans>
