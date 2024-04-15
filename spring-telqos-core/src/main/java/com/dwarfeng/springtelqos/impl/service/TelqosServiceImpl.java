@@ -418,7 +418,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 showBanner(channel);
 
                 if (!checkAddress(address)) {
-                    LOGGER.info("设备 " + address + " 尝试访问本服务，由于黑/白名单规则被禁止");
+                    LOGGER.info("设备 {} 尝试访问本服务，由于黑/白名单规则被禁止", address);
                     channel.writeAndFlush(ChannelUtil.line("该服务设置了黑/白名单，您所在的设备禁止访问此服务"));
                     channel.writeAndFlush(ChannelUtil.line("再见!"));
                     channel.close();
@@ -431,7 +431,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 channel.writeAndFlush(ChannelUtil.line(""));
                 channel.writeAndFlush(ChannelUtil.line(""));
                 buildUpChannelInfo(address, channel);
-                LOGGER.info("设备 " + address + " 尝试访问本服务，并登录成功");
+                LOGGER.info("设备 {} 尝试访问本服务，并登录成功", address);
             } finally {
                 lock.unlock();
             }
@@ -476,7 +476,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                 channel.writeAndFlush(ChannelUtil.line("再见!"));
                 channel.close();
                 sweepUpChannelInfo(address);
-                LOGGER.info("设备 " + address + " 在其它进程登录，其它登录进程停止");
+                LOGGER.info("设备 {} 在其它进程登录，其它登录进程停止", address);
             }
         }
 
@@ -485,7 +485,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
-            LOGGER.info("设备 " + address + " 与本服务断开连接");
+            LOGGER.info("设备 {} 与本服务断开连接", address);
 
             lock.lock();
             try {
@@ -500,13 +500,13 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
-            LOGGER.warn("设备 " + address + " 在通讯时发生异常，将中断连接，异常信息如下:", e);
+            LOGGER.warn("设备 {} 在通讯时发生异常，将中断连接，异常信息如下:", address, e);
             lock.lock();
             try {
                 channel.writeAndFlush(ChannelUtil.line("不小心发生异常了，将中断连接, 请留意服务端日志"));
                 channel.writeAndFlush(ChannelUtil.line("再见!"));
             } catch (Exception ex) {
-                LOGGER.warn("向设备 " + address + " 发送消息时发生异常，异常信息如下:", ex);
+                LOGGER.warn("向设备 {} 发送消息时发生异常，异常信息如下:", address, ex);
             } finally {
                 channel.close();
                 sweepUpChannelInfo(address);
@@ -549,7 +549,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             try {
                 //变量记录、输出日志。
                 commandBufferMap.put(address, new StringBuilder());
-                LOGGER.info("设备 " + address + " 尝试执行指令: " + commandLine);
+                LOGGER.info("设备 {} 尝试执行指令: {}", address, commandLine);
 
                 //变更交互状态。
                 interactionInfo.getLock().lock();
