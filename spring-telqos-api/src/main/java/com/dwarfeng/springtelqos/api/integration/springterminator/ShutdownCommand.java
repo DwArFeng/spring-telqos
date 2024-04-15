@@ -109,7 +109,7 @@ public class ShutdownCommand extends CliCommand {
                     terminator.exit(exitCode);
                 }
             } else {
-                context.sendMessage("已确认请求，服务不会不关闭...");
+                context.sendMessage("已确认请求，服务不会不关闭");
             }
         } catch (Exception e) {
             throw new TelqosException(e);

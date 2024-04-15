@@ -4,6 +4,9 @@
 
 #### 功能构建
 
+- 优化部分指令文案。
+  - com.dwarfeng.springtelqos.api.integration.springterminator.ShutdownCommand。
+
 - 依赖升级。
   - 升级 `guava` 依赖版本为 `32.0.1-jre` 以规避漏洞。
 
