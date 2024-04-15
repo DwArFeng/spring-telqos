@@ -39,7 +39,7 @@
         <snakeyaml.version>2.0</snakeyaml.version>
         <dubbo.version>2.7.22</dubbo.version>
         <zookeeper.version>3.7.2</zookeeper.version>
-        <guava.version>32.0.0-jre</guava.version>
+        <guava.version>32.0.1-jre</guava.version>
         <curator.version>4.3.0</curator.version>
         <dutil.version>beta-0.3.2.a</dutil.version>
         <annotations.version>3.0.1</annotations.version>
