@@ -27,7 +27,8 @@ public class TelqosConfig {
 
     public TelqosConfig(
             int port, String whitelistRegex, String blacklistRegex, String charset, String bannerUrl,
-            String defaultNamespace, Collection<Command> commands, ThreadPoolTaskExecutor executor) {
+            String defaultNamespace, Collection<Command> commands, ThreadPoolTaskExecutor executor
+    ) {
         this.port = port;
         this.whitelistRegex = whitelistRegex;
         this.blacklistRegex = blacklistRegex;

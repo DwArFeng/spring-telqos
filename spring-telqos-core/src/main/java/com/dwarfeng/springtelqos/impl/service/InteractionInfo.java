@@ -22,7 +22,8 @@ class InteractionInfo {
 
     public InteractionInfo(
             Lock lock, Condition condition, InteractionStatus interactionStatus, String nextMessage,
-            boolean termination) {
+            boolean termination
+    ) {
         this.lock = lock;
         this.condition = condition;
         this.interactionStatus = interactionStatus;
