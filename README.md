@@ -38,13 +38,13 @@
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
    <beans
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
-   xmlns="http://www.springframework.org/schema/beans"
-   xsi:schemaLocation="http://www.springframework.org/schema/beans
-   http://www.springframework.org/schema/beans/spring-beans.xsd
-   http://dwarfeng.com/schema/spring-telqos
-   http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://dwarfeng.com/schema/spring-telqos
+        http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd"
    >
    
        <telqos:config>
@@ -71,7 +71,9 @@
    注：该文件中的所有属性均支持 `Spring place-holder expression`。
 
 3. 编写自定义指令类，继承 `Command`。  
+
    `spring-telqos` 中提供了多种 `Command` 接口的抽象实现，合理地继承这些抽象实现能够提高开发的速度。
+
    ```java
    @Component
    public class HelloWorldCommand extends CliCommand {
