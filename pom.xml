@@ -182,6 +182,10 @@
                         <artifactId>slf4j-log4j12</artifactId>
                         <groupId>org.slf4j</groupId>
                     </exclusion>
+                    <exclusion>
+                        <artifactId>netty-tcnative-boringssl-static</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <!-- Guava 组件 -->
