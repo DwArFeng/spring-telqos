@@ -70,7 +70,7 @@ public abstract class CliCommand extends AbstractCommand {
     private String[] option2Args(String option) {
         boolean quoteFlag = false;
         List<Integer> spaceIndexes = new ArrayList<>();
-        for (int i = 0; i < option.toCharArray().length; i++) {
+        for (int i = 0; i < option.length(); i++) {
             char ch = option.charAt(i);
             if (ch == '\"') {
                 quoteFlag = !quoteFlag;
@@ -120,5 +120,6 @@ public abstract class CliCommand extends AbstractCommand {
      * @throws TelqosException               Telqos异常。
      * @throws ConnectionTerminatedException 连接中断异常。
      */
-    protected abstract void executeWithCmd(Context context, CommandLine cmd) throws TelqosException, ConnectionTerminatedException;
+    protected abstract void executeWithCmd(Context context, CommandLine cmd)
+            throws TelqosException, ConnectionTerminatedException;
 }

@@ -15,8 +15,12 @@ import org.apache.commons.cli.CommandLine;
 @TelqosCommand
 public class PackageScanDemoCommand extends CliCommand {
 
+    // 指令标识符，系专有术语，忽略相关的拼写检查。
+    @SuppressWarnings("SpellCheckingInspection")
     private static final String IDENTITY = "pkgscan";
     private static final String DESCRIPTION = "使用包扫描功能加载的指令";
+    // 指令标识符，系专有术语，忽略相关的拼写检查。
+    @SuppressWarnings("SpellCheckingInspection")
     private static final String CMD_LINE_SYNTAX = "pkgscan";
 
     public PackageScanDemoCommand() {
