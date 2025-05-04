@@ -10,14 +10,14 @@
 
 ## 文档
 
-该项目的文档位于 [docs](./docs) 目录下，包括：
+该项目的文档位于 [docs](../../../docs) 目录下，包括：
 
 ### wiki
 
 wiki 为项目的开发人员为本项目编写的详细文档，包含不同语言的版本，主要入口为：
 
-1. [简介](./docs/wiki/zh_CN/Introduction.md) - 镜像的 `README.md`，与本文件内容基本相同。
-2. [目录](./docs/wiki/zh_CN/Contents.md) - 文档目录。
+1. [简介](./Introduction.md) - 即本文件。
+2. [目录](./Contents.md) - 文档目录。
 
 ## maven坐标
 
@@ -81,7 +81,7 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
    ```
    注：该文件中的所有属性均支持 `Spring place-holder expression`。
 
-3. 编写自定义指令类，继承 `Command`。  
+3. 编写自定义指令类，继承 `Command`。
 
    `spring-telqos` 中提供了多种 `Command` 接口的抽象实现，合理地继承这些抽象实现能够提高开发的速度。
 
