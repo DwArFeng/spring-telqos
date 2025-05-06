@@ -10,7 +10,7 @@
 
     <groupId>com.dwarfeng</groupId>
     <artifactId>spring-telqos</artifactId>
-    <version>1.1.12.a</version>
+    <version>1.1.13.a-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -241,7 +241,7 @@
             <dependency>
                 <groupId>com.dwarfeng</groupId>
                 <artifactId>spring-telqos-core</artifactId>
-                <version>1.1.12.a</version>
+                <version>1.1.13.a-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
