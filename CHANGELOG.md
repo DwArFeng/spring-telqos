@@ -10,6 +10,9 @@
 
 #### Bug修复
 
+- 修复一个项目中存在多个 `telqos:config` 配置时，程序阻塞的 bug。
+  - 修复 com.dwarfeng.springtelqos.node.config.SpringTelqosDefinitionParser 中的相关 bug。
+
 - 修正 pom.xml 中不正确的配置。
 
 #### 功能移除
