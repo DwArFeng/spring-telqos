@@ -4,6 +4,9 @@
 
 #### 功能构建
 
+- Wiki 编写。
+  - docs/wiki/zh_CN/VersionBlacklist.md。
+
 - 优化所有 util 类，禁止其实例化。
   - com.dwarfeng.springtelqos.impl.service.ChannelUtil。
   - com.dwarfeng.springtelqos.node.config.ParserUtil。
