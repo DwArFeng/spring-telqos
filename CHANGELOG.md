@@ -4,7 +4,9 @@
 
 #### 功能构建
 
-- (无)
+- 优化部分文件中的内容/注释格式。
+  - README.md。
+  - docs/wiki/zh_CN/Introduction.md。
 
 #### Bug修复
 
