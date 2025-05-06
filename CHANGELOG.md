@@ -8,6 +8,7 @@
   - 优化一个项目中存在多个 `telqos:config` 配置时，项目中 Spring Bean 的命名规则。
 
 - 优化部分文件中的内容/注释格式。
+  - SpringTelqosDefinitionParser.java
   - README.md。
   - docs/wiki/zh_CN/Introduction.md。
 

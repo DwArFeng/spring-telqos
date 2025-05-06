@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Telqos Connection相关的 BeanDefinitionParser。
+ * Telqos Connection 相关的 BeanDefinitionParser。
  *
  * @author DwArFeng
  * @since 1.0.0
@@ -36,15 +36,15 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
 
     @Override
     public BeanDefinition parse(Element element, @Nonnull ParserContext parserContext) {
-        //获取bean名称。
+        // 获取 bean 名称。
         String configId = ParserUtil.mayResolve(parserContext, element.getAttribute("config-id"));
         String serviceId = ParserUtil.mayResolve(parserContext, element.getAttribute("service-id"));
-        //检查bean名称是否重复。
+        // 检查 bean 名称是否重复。
         checkBeanDuplicated(parserContext, configId);
         checkBeanDuplicated(parserContext, serviceId);
-        //构造TelqosConfig。
+        // 构造 TelqosConfig。
         BeanDefinitionBuilder telqosConfigBuilder = BeanDefinitionBuilder.rootBeanDefinition(TelqosConfig.class);
-        //解析connection-setting。
+        // 解析 connection-setting。
         Element connectionSettingElement = (Element) element.getElementsByTagNameNS(
                 TELQOS_NAMESPACE_URL, "connection-setting").item(0);
         if (Objects.isNull(connectionSettingElement)) {
@@ -65,7 +65,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             telqosConfigBuilder.addPropertyValue("bannerUrl", ParserUtil.mayResolve(
                     parserContext, connectionSettingElement.getAttribute("banner-url")));
         }
-        //解析command。
+        // 解析 command。
         Element commandElement = (Element) element.getElementsByTagNameNS(
                 TELQOS_NAMESPACE_URL, "command").item(0);
         ManagedList<BeanReference> commandBeanReferences = new ManagedList<>();
@@ -78,7 +78,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             }
         }
         telqosConfigBuilder.addPropertyValue("commands", commandBeanReferences);
-        //解析task-pool。
+        // 解析 task-pool。
         Element taskPoolElement = (Element) element.getElementsByTagNameNS(
                 TELQOS_NAMESPACE_URL, "task-pool").item(0);
         BeanReference taskPoolBeanReference;
@@ -139,15 +139,15 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             }
         }
         telqosConfigBuilder.addPropertyValue("executor", taskPoolBeanReference);
-        //注册TelqosConfig。
+        // 注册 TelqosConfig。
         telqosConfigBuilder.setScope(BeanDefinition.SCOPE_SINGLETON);
         telqosConfigBuilder.setLazyInit(false);
         parserContext.getRegistry().registerBeanDefinition(configId, telqosConfigBuilder.getBeanDefinition());
-        //构造TelqosService。
+        // 构造 TelqosService。
         BeanDefinitionBuilder telqosServiceBuilder = BeanDefinitionBuilder.rootBeanDefinition(TelqosServiceImpl.class);
-        //TelqosService参数赋值。
+        // TelqosService 参数赋值。
         telqosServiceBuilder.addPropertyValue("telqosConfig", new RuntimeBeanReference(configId));
-        //注册构造TelqosService。
+        // 注册构造 TelqosService。
         telqosServiceBuilder.setScope(BeanDefinition.SCOPE_SINGLETON);
         telqosServiceBuilder.setLazyInit(false);
         parserContext.getRegistry().registerBeanDefinition(serviceId, telqosServiceBuilder.getBeanDefinition());
