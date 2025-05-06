@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
 <xsd:schema
         xmlns="http://dwarfeng.com/schema/spring-telqos"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -7,8 +8,10 @@
         elementFormDefault="qualified"
 >
 
-    <xsd:import namespace="http://www.springframework.org/schema/tool"
-                schemaLocation="https://www.springframework.org/schema/tool/spring-tool.xsd"/>
+    <xsd:import
+            namespace="http://www.springframework.org/schema/tool"
+            schemaLocation="https://www.springframework.org/schema/tool/spring-tool.xsd"
+    />
 
     <xsd:annotation>
         <xsd:documentation>
@@ -75,7 +78,7 @@
                         <xsd:attribute name="charset" type="xsd:string" default="UTF-8">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[字符集，服务端返回的字符串的字符集，默认是UTF-8，对于中文windows系统，
+                                    <![CDATA[字符集，服务端返回的字符串的字符集，默认是 UTF-8，对于中文 windows 系统，
                                     可能需要把该值改成 GBK。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
@@ -88,8 +91,8 @@
                         <xsd:attribute name="banner-url" type="xsd:string" default="classpath:telqos/banner.txt">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[Banner的地址，新连接接入时向客户端发送的欢迎文本，默认值是该项目自带的字符画，
-                                    可以改成其它项目的banner，或者改成空字符串取消banner输出。]]>
+                                    <![CDATA[Banner 的地址，新连接接入时向客户端发送的欢迎文本，默认值是该项目自带的字符画，
+                                    可以改成其它项目的 banner，或者改成空字符串取消 banner 输出。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -111,11 +114,10 @@
                             <xsd:element name="command-impl" minOccurs="0" maxOccurs="unbounded">
                                 <xsd:annotation>
                                     <xsd:documentation>
-                                        <![CDATA[Command的实现类.]]>
+                                        <![CDATA[Command 的实现类.]]>
                                     </xsd:documentation>
                                     <xsd:appinfo>
-                                        <tool:exports
-                                                type="com.dwarfeng.springtelqos.stack.command.Command"/>
+                                        <tool:exports type="com.dwarfeng.springtelqos.stack.command.Command"/>
                                     </xsd:appinfo>
                                 </xsd:annotation>
                                 <xsd:complexType>
@@ -146,13 +148,15 @@
                                     <xsd:attribute name="ref" type="xsd:string">
                                         <xsd:annotation>
                                             <xsd:documentation
-                                                    source="java:com.dwarfeng.springtelqos.stack.command.Command">
+                                                    source="java:com.dwarfeng.springtelqos.stack.command.Command"
+                                            >
                                                 <![CDATA[Command 的 bean 引用名称。]]>
                                             </xsd:documentation>
                                             <xsd:appinfo>
                                                 <tool:annotation kind="ref">
                                                     <tool:expected-type
-                                                            type="com.dwarfeng.springtelqos.stack.command.Command"/>
+                                                            type="com.dwarfeng.springtelqos.stack.command.Command"
+                                                    />
                                                 </tool:annotation>
                                             </xsd:appinfo>
                                         </xsd:annotation>
@@ -177,7 +181,7 @@
                 <xsd:element name="task-pool" minOccurs="0">
                     <xsd:annotation>
                         <xsd:documentation>
-                            <![CDATA[后台任务池配置，类型为ThreadPoolTaskExecutor.]]>
+                            <![CDATA[后台任务池配置，类型为 ThreadPoolTaskExecutor.]]>
                         </xsd:documentation>
                     </xsd:annotation>
                     <xsd:complexType>
@@ -196,13 +200,15 @@
                         <xsd:attribute name="ref" type="xsd:string">
                             <xsd:annotation>
                                 <xsd:documentation
-                                        source="java:org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+                                        source="java:org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"
+                                >
                                     <![CDATA[序列化器的 bean 引用名称。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation kind="ref">
                                         <tool:expected-type
-                                                type="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"/>
+                                                type="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"
+                                        />
                                     </tool:annotation>
                                 </xsd:appinfo>
                             </xsd:annotation>
@@ -210,28 +216,28 @@
                         <xsd:attribute name="pool-size" type="xsd:string">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[与spring-task用法相同]]>
+                                    <![CDATA[与 spring-task 用法相同]]>
                                 </xsd:documentation>
                             </xsd:annotation>
                         </xsd:attribute>
                         <xsd:attribute name="queue-capacity" type="xsd:string">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[与spring-task用法相同]]>
+                                    <![CDATA[与 spring-task 用法相同]]>
                                 </xsd:documentation>
                             </xsd:annotation>
                         </xsd:attribute>
                         <xsd:attribute name="keep-alive" type="xsd:string">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[与spring-task用法相同]]>
+                                    <![CDATA[与 spring-task 用法相同]]>
                                 </xsd:documentation>
                             </xsd:annotation>
                         </xsd:attribute>
                         <xsd:attribute name="rejection-policy">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[与spring-task用法相同]]>
+                                    <![CDATA[与 spring-task 用法相同]]>
                                 </xsd:documentation>
                             </xsd:annotation>
                             <xsd:simpleType>
