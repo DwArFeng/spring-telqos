@@ -20,4 +20,8 @@ public final class ParserUtil {
     public static String mayResolve(ParserContext parserContext, String attribute) {
         return parserContext.getReaderContext().getEnvironment().resolvePlaceholders(attribute);
     }
+
+    private ParserUtil() {
+        throw new IllegalStateException("禁止实例化");
+    }
 }

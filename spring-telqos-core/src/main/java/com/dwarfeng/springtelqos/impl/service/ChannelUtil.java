@@ -37,4 +37,8 @@ final class ChannelUtil {
     public static String line(String message) {
         return message + System.lineSeparator();
     }
+
+    private ChannelUtil() {
+        throw new IllegalStateException("禁止实例化");
+    }
 }

@@ -4,6 +4,10 @@
 
 #### 功能构建
 
+- 优化所有 util 类，禁止其实例化。
+  - com.dwarfeng.springtelqos.impl.service.ChannelUtil。
+  - com.dwarfeng.springtelqos.node.config.ParserUtil。
+
 - 功能优化。
   - 优化一个项目中存在多个 `telqos:config` 配置时，项目中 Spring Bean 的命名规则。
 
