@@ -225,7 +225,7 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             return baseName;
         }
         String actualName;
-        int index = 0;
+        int index = 1;
         do {
             actualName = baseName + (index++);
         } while (parserContext.getRegistry().containsBeanDefinition(actualName));

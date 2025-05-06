@@ -4,6 +4,9 @@
 
 #### 功能构建
 
+- 功能优化。
+  - 优化一个项目中存在多个 `telqos:config` 配置时，项目中 Spring Bean 的命名规则。
+
 - 优化部分文件中的内容/注释格式。
   - README.md。
   - docs/wiki/zh_CN/Introduction.md。
