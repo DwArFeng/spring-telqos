@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- Wiki 编写。
+  - docs/wiki/zh_CN/InstallBySourceCode.md。
+
 - 依赖升级。
   - 升级 `commons-lang3` 依赖版本为 `3.18.0` 以规避漏洞。
 
