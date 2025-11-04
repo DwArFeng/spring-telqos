@@ -4,6 +4,12 @@
 
 ### 功能构建
 
+- 优化 `docs/wiki` 目录结构。
+  - 将 `docs/wiki/en_US` 目录重命名为 `en-US`，以符合 rfc5646 规范。
+  - 将 `docs/wiki/zh_CN` 目录重命名为 `zh-CN`，以符合 rfc5646 规范。
+  - 更新 `docs/wiki/README.md` 中的链接指向。
+  - 更新 `README.md` 中的链接指向。
+
 - 优化 `api` 模块的配置文件。
   - 优化 `spring/application-context-dubbo.xml` 中部分配置项的名称。
   - 优化 `dubbo/connection.properties` 中部分配置项的名称。

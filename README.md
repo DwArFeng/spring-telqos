@@ -16,8 +16,8 @@
 
 wiki 为项目的开发人员为本项目编写的详细文档，包含不同语言的版本，主要入口为：
 
-1. [简介](./docs/wiki/zh_CN/Introduction.md) - 镜像的 `README.md`，与本文件内容基本相同。
-2. [目录](./docs/wiki/zh_CN/Contents.md) - 文档目录。
+1. [简介](docs/wiki/zh-CN/Introduction.md) - 镜像的 `README.md`，与本文件内容基本相同。
+2. [目录](docs/wiki/zh-CN/Contents.md) - 文档目录。
 
 ## maven坐标
 
