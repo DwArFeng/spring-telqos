@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- Wiki 更新。
+  - docs/wiki/zh-CN/VersionBlacklist.md。
+
 - 优化 `docs/wiki` 目录结构。
   - 将 `docs/wiki/en_US` 目录重命名为 `en-US`，以符合 rfc5646 规范。
   - 将 `docs/wiki/zh_CN` 目录重命名为 `zh-CN`，以符合 rfc5646 规范。
