@@ -1,6 +1,7 @@
 package com.dwarfeng.springtelqos.impl.command;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
+import com.dwarfeng.springtelqos.sdk.util.Constants;
 import com.dwarfeng.springtelqos.stack.command.Context;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import org.apache.commons.cli.CommandLine;
@@ -18,12 +19,11 @@ import java.util.stream.Collectors;
  */
 public class ListCommandCommand extends CliCommand {
 
-    private static final String IDENTITY = "lc";
     private static final String DESCRIPTION = "列出指令";
-    private static final String CMD_LINE_SYNTAX = "lc [-p prefix|--prefix prefix]";
+    private static final String CMD_LINE_SYNTAX = Constants.COMMAND_LIST_COMMAND + " [-p prefix|--prefix prefix]";
 
     public ListCommandCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(Constants.COMMAND_LIST_COMMAND, DESCRIPTION, CMD_LINE_SYNTAX);
     }
 
     @Override

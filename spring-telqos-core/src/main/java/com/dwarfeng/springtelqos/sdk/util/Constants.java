@@ -10,4 +10,19 @@ public final class Constants {
 
     public static final char MULTI_LINE_COMMAND_INDICATOR = '\\';
     public static final String COMMAND_IDENTITY_FORMAT = "^[a-zA-Z_][0-9a-zA-Z_]*$";
+
+    /**
+     * @since 1.1.15
+     */
+    public static final String COMMAND_LIST_COMMAND = "lc";
+
+    /**
+     * @since 1.1.15
+     */
+    public static final String COMMAND_MANUAL = "man";
+
+    /**
+     * @since 1.1.15
+     */
+    public static final String COMMAND_QUIT = "quit";
 }

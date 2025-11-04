@@ -1,6 +1,7 @@
 package com.dwarfeng.springtelqos.impl.command;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
+import com.dwarfeng.springtelqos.sdk.util.Constants;
 import com.dwarfeng.springtelqos.stack.command.Context;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import org.apache.commons.cli.CommandLine;
@@ -14,12 +15,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ManualCommand extends CliCommand {
 
-    private static final String IDENTITY = "man";
     private static final String DESCRIPTION = "显示指令的详细信息";
-    private static final String CMD_LINE_SYNTAX = "man [command]";
+    private static final String CMD_LINE_SYNTAX = Constants.COMMAND_MANUAL + " [command]";
 
     public ManualCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(Constants.COMMAND_MANUAL, DESCRIPTION, CMD_LINE_SYNTAX);
     }
 
     @Override

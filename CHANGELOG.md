@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- 代码优化。
+  - 提取核心命令类的命令标识符至 Constants 常量类中，提升代码可维护性。
+
 - 新增集成指令。
   - com.dwarfeng.springtelqos.api.integration.system.JmxRemoteCommand。
   - com.dwarfeng.springtelqos.api.integration.system.UptimeCommand。
