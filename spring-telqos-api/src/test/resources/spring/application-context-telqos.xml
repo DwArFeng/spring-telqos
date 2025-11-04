@@ -17,6 +17,7 @@
             <telqos:command-impl ref="dubboCommand"/>
             <telqos:command-impl ref="memoryCommand"/>
             <telqos:command-impl ref="log4j2Command"/>
+            <telqos:command-impl ref="uptimeCommand"/>
         </telqos:command>
     </telqos:config>
 
@@ -31,4 +32,6 @@
     <bean name="memoryCommand" class="com.dwarfeng.springtelqos.api.integration.system.MemoryCommand"/>
 
     <bean name="log4j2Command" class="com.dwarfeng.springtelqos.api.integration.log4j2.Log4j2Command"/>
+
+    <bean name="uptimeCommand" class="com.dwarfeng.springtelqos.api.integration.system.UptimeCommand"/>
 </beans>

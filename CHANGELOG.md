@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- 新增集成指令。
+  - com.dwarfeng.springtelqos.api.integration.system.UptimeCommand。
+
 - 优化开发环境支持。
   - 在 .gitignore 中添加 VSCode 相关文件的忽略规则。
   - 在 .gitignore 中添加 Cursor IDE 相关文件的忽略规则。
