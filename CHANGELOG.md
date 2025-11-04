@@ -4,6 +4,10 @@
 
 ### 功能构建
 
+- 优化开发环境支持。
+  - 在 .gitignore 中添加 VSCode 相关文件的忽略规则。
+  - 在 .gitignore 中添加 Cursor IDE 相关文件的忽略规则。
+
 - 依赖升级。
   - 升级 `zookeeper` 依赖版本为 `3.9.4` 以规避漏洞。
 

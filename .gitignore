@@ -34,6 +34,19 @@ local.properties
 .idea/
 
 #################
+## VSCode
+#################
+.vscode/
+*.code-workspace
+
+#################
+## Cursor
+#################
+.cursor/
+.cursorrules
+.cursorignore
+
+#################
 ## Maven
 #################
 target/
