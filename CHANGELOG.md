@@ -5,6 +5,7 @@
 ### 功能构建
 
 - 新增集成指令。
+  - com.dwarfeng.springtelqos.api.integration.system.JmxRemoteCommand。
   - com.dwarfeng.springtelqos.api.integration.system.UptimeCommand。
 
 - 优化开发环境支持。
