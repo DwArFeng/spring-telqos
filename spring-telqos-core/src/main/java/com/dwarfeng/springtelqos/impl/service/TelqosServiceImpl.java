@@ -354,6 +354,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                         //Command不存在时执行拒绝动作。
                         if (Objects.isNull(command)) {
                             channel.writeAndFlush(ChannelUtil.line("未知的命令: " + identity));
+                            channel.writeAndFlush(ChannelUtil.line("输入 " + Constants.COMMAND_LIST_COMMAND + " 查看所有指令"));
                             channel.writeAndFlush(ChannelUtil.line(""));
                             return;
                         }
