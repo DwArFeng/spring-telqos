@@ -4,6 +4,14 @@
 
 ### 功能构建
 
+- 优化 `api` 模块的配置文件。
+  - 优化 `spring/application-context-dubbo.xml` 中部分配置项的名称。
+  - 优化 `dubbo/connection.properties` 中部分配置项的名称。
+  - 在 `spring/application-context-dubbo.xml` 中增加超时时间的配置选项。
+  - 在 `dubbo/connection.properties` 中增加超时时间的配置选项。
+  - 在 `spring/application-context-dubbo.xml` 中增加分组配置。
+  - 在 `dubbo/connection.properties` 中增加分组配置。
+
 - 用户体验优化。
   - 优化未知命令提示信息，引导用户使用命令列表查看可用指令。
 
