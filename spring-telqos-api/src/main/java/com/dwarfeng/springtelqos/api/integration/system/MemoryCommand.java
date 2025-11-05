@@ -7,7 +7,7 @@ import com.dwarfeng.springtelqos.stack.command.Context;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +57,7 @@ public class MemoryCommand extends CliCommand {
                 int index = -1;
                 for (int i = 0; i < DATA_SIZE_LABELS.size(); i++) {
                     String testUnit = DATA_SIZE_LABELS.get(i);
-                    if (StringUtils.equalsIgnoreCase(unit, testUnit)) {
+                    if (Strings.CI.equals(unit, testUnit)) {
                         index = i;
                         break;
                     }
