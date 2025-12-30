@@ -1,7 +1,7 @@
 package com.dwarfeng.springtelqos.stack.exception;
 
 /**
- * Telqos异常。
+ * Telqos 异常。
  *
  * @author DwArFeng
  * @since 1.0.0

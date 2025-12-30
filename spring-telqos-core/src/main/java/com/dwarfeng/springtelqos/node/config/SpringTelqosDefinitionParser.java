@@ -85,7 +85,9 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
         if (Objects.isNull(taskPoolElement)) {
             String id = "telqosExecutor";
             checkBeanDuplicated(parserContext, id);
-            BeanDefinitionBuilder executorBuilder = BeanDefinitionBuilder.rootBeanDefinition(TaskExecutorFactoryBean.class);
+            BeanDefinitionBuilder executorBuilder = BeanDefinitionBuilder.rootBeanDefinition(
+                    TaskExecutorFactoryBean.class
+            );
             executorBuilder.setScope(BeanDefinition.SCOPE_SINGLETON);
             executorBuilder.setLazyInit(false);
             parserContext.getRegistry().registerBeanDefinition(id, executorBuilder.getBeanDefinition());
@@ -96,7 +98,9 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             if (StringUtils.isNotEmpty(ref)) {
                 taskPoolBeanReference = new RuntimeBeanReference(ref);
             } else {
-                BeanDefinitionBuilder executorBuilder = BeanDefinitionBuilder.rootBeanDefinition(TaskExecutorFactoryBean.class);
+                BeanDefinitionBuilder executorBuilder = BeanDefinitionBuilder.rootBeanDefinition(
+                        TaskExecutorFactoryBean.class
+                );
                 String keepAliveSeconds = taskPoolElement.getAttribute("keep-alive");
                 if (StringUtils.isNotEmpty(keepAliveSeconds)) {
                     executorBuilder.addPropertyValue("keepAliveSeconds", keepAliveSeconds);
@@ -130,7 +134,9 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
                             policyClassName = rejectionPolicy;
                             break;
                     }
-                    executorBuilder.addPropertyValue("rejectedExecutionHandler", new RootBeanDefinition(policyClassName));
+                    executorBuilder.addPropertyValue(
+                            "rejectedExecutionHandler", new RootBeanDefinition(policyClassName)
+                    );
                 }
                 executorBuilder.setScope(BeanDefinition.SCOPE_SINGLETON);
                 executorBuilder.setLazyInit(false);

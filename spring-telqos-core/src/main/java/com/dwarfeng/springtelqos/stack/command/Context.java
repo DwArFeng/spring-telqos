@@ -54,7 +54,7 @@ public interface Context {
      * 向客户端发送一条信息（换行）。
      *
      * @param message 指定的信息。
-     * @throws TelqosException Telqos异常。
+     * @throws TelqosException Telqos 异常。
      */
     void sendMessage(String message) throws TelqosException;
 
@@ -64,7 +64,7 @@ public interface Context {
      * 请注意：{@link Command#execute(Context)} 调用该方法时不能捕获 ConnectionTerminatedException 异常，必须抛出。
      *
      * @return 用户输入的信息。
-     * @throws TelqosException               Telqos异常。
+     * @throws TelqosException               Telqos 异常。
      * @throws ConnectionTerminatedException 在用户输入完成之前连接中断。
      */
     String receiveMessage() throws TelqosException, ConnectionTerminatedException;
@@ -72,7 +72,7 @@ public interface Context {
     /**
      * 退出。
      *
-     * @throws TelqosException Telqos异常。
+     * @throws TelqosException Telqos 异常。
      */
     void quit() throws TelqosException;
 }

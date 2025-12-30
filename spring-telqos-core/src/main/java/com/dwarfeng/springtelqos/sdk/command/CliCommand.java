@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 通过CLI框架实现的指令。
+ * 通过 CLI 框架实现的指令。
  *
  * @author DwArFeng
  * @since 1.0.0
@@ -117,7 +117,7 @@ public abstract class CliCommand extends AbstractCommand {
      *
      * @param context 指令上下文。
      * @param cmd     被解析的 CommandLine
-     * @throws TelqosException               Telqos异常。
+     * @throws TelqosException               Telqos 异常。
      * @throws ConnectionTerminatedException 连接中断异常。
      */
     protected abstract void executeWithCmd(Context context, CommandLine cmd)

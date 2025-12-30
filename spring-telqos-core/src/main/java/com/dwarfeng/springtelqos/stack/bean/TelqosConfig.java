@@ -6,7 +6,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.Collection;
 
 /**
- * Telqos配置。
+ * Telqos 配置。
  *
  * @author DwArFeng
  * @since 1.0.0

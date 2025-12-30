@@ -111,7 +111,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         }
         // 新建负责接收客户端连接线程。
         bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-        // 新建负责处理客户端i/o事件、task任务、监听任务组。
+        // 新建负责处理客户端 i/o 事件、task 任务、监听任务组。
         workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
 
         // 启动 NIO 服务的辅助启动类
@@ -147,13 +147,13 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             return;
         }
 
-        //主动关闭注册的所有连接。
+        // 主动关闭注册的所有连接。
         Collection<String> addresses = new HashSet<>(channelMap.keySet());
         for (String address : addresses) {
             kick(address);
         }
 
-        //优雅的关闭 Channel 以及对应的 EventLoopGroup。
+        // 优雅的关闭 Channel 以及对应的 EventLoopGroup。
         channel.close();
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
@@ -267,15 +267,15 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
 
         @Override
         protected void initChannel(SocketChannel socketChannel) {
-            // 管道注册handler
+            // 管道注册 handler。
             ChannelPipeline pipeline = socketChannel.pipeline();
-            // 转码通道处理
+            // 转码通道处理。
             pipeline.addLast("encode", new StringEncoder(Charset.forName(telqosConfig.getCharset())));
             // 处理拆包、粘包的问题。
             pipeline.addLast("unpack", new LineBasedFrameDecoder(Integer.MAX_VALUE));
-            // 编码通道处理
+            // 编码通道处理。
             pipeline.addLast("decode", new StringDecoder(Charset.forName(telqosConfig.getCharset())));
-            // 聊天服务通道处理
+            // 聊天服务通道处理。
             pipeline.addLast("chat", new TelqosChannelHandler());
         }
     }
@@ -295,15 +295,15 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
 
             lock.lock();
             try {
-                //对空字符串进行处理。
+                // 对空字符串进行处理。
                 if (StringUtils.isEmpty(commandLine)) {
                     return;
                 }
 
-                //获取命令行的StringBuilder。
+                // 获取命令行的 StringBuilder。
                 StringBuilder stringBuilder = commandBufferMap.get(address);
 
-                //处理多行命令。
+                // 处理多行命令。
                 boolean endFlag = false;
                 if (commandLine.charAt(commandLine.length() - 1) == Constants.MULTI_LINE_COMMAND_INDICATOR) {
                     stringBuilder.append(commandLine, 0, commandLine.length() - 1);
@@ -312,16 +312,16 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                     stringBuilder.append(commandLine);
                 }
 
-                //如果命令还没有输入完成，则退出，等待下一次输入。
+                // 如果命令还没有输入完成，则退出，等待下一次输入。
                 if (!endFlag) {
                     return;
                 }
 
-                //构造命令，并且重置 StringBuilder。
+                // 构造命令，并且重置 StringBuilder。
                 commandLine = commandBufferMap.getOrDefault(address, new StringBuilder()).toString();
                 commandBufferMap.put(address, new StringBuilder());
 
-                //获取交互信息并交互。
+                // 获取交互信息并交互。
                 InteractionInfo interactionInfo = interactionMap.get(address);
                 interaction(address, channel, interactionInfo, commandLine);
             } finally {
@@ -330,35 +330,39 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         }
 
         private void interaction(String address, Channel channel, InteractionInfo interactionInfo, String commandLine) {
-            //通过交互信息中的交互状态分别执行不同的指令。
+            // 通过交互信息中的交互状态分别执行不同的指令。
             interactionInfo.getLock().lock();
             try {
                 switch (interactionInfo.getInteractionStatus()) {
                     case WAITING_COMMAND:
                         CommandStruct commandStruct = parseCommandLine(commandLine);
-                        //命令非法时执行拒绝动作。
+                        // 命令非法时执行拒绝动作。
                         if (!commandStruct.isValidFlag()) {
                             String[] invalidDescriptions = commandStruct.getInvalidDescriptions();
                             int total = invalidDescriptions.length;
                             channel.writeAndFlush(ChannelUtil.line("输入的命令不合法，共 " + total + " 处错误"));
                             for (int i = 0; i < total; i++) {
-                                channel.writeAndFlush(ChannelUtil.line(String.format("%d/%d: %s", i + 1, total, invalidDescriptions[i])));
+                                channel.writeAndFlush(ChannelUtil.line(
+                                        String.format("%d/%d: %s", i + 1, total, invalidDescriptions[i])
+                                ));
                             }
                             channel.writeAndFlush(ChannelUtil.line(""));
                             return;
                         }
-                        //命令合法时，搜索相应的Command。
+                        // 命令合法时，搜索相应的 Command。
                         String identity = commandStruct.getIdentity();
                         String option = commandStruct.getOption();
                         Command command = commandMap.get(identity);
-                        //Command不存在时执行拒绝动作。
+                        // Command 不存在时执行拒绝动作。
                         if (Objects.isNull(command)) {
                             channel.writeAndFlush(ChannelUtil.line("未知的命令: " + identity));
-                            channel.writeAndFlush(ChannelUtil.line("输入 " + Constants.COMMAND_LIST_COMMAND + " 查看所有指令"));
+                            channel.writeAndFlush(
+                                    ChannelUtil.line("输入 " + Constants.COMMAND_LIST_COMMAND + " 查看所有指令")
+                            );
                             channel.writeAndFlush(ChannelUtil.line(""));
                             return;
                         }
-                        //同步执行交互任务。
+                        // 同步执行交互任务。
                         telqosConfig.getExecutor().execute(new CommandExecutionTask(
                                 interactionInfo, command,
                                 address,
@@ -546,20 +550,20 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
 
         @Override
         public void run() {
-            //执行指令，将结果通过反序列化器输出，并妥善处理异常。
+            // 执行指令，将结果通过反序列化器输出，并妥善处理异常。
             try {
-                //变量记录、输出日志。
+                // 变量记录、输出日志。
                 commandBufferMap.put(address, new StringBuilder());
                 LOGGER.info("设备 {} 尝试执行指令: {}", address, commandLine);
 
-                //变更交互状态。
+                // 变更交互状态。
                 interactionInfo.getLock().lock();
                 try {
                     interactionInfo.setInteractionStatus(InteractionStatus.BUSY);
                 } finally {
                     interactionInfo.getLock().unlock();
                 }
-                //设置客户端当前任务。
+                // 设置客户端当前任务。
                 lock.lock();
                 try {
                     taskMap.put(address, this);
@@ -581,7 +585,7 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
                     LOGGER.warn("获取异常 StackTrace 时发生异常，异常信息如下", e);
                 }
             } finally {
-                //变更交互状态。
+                // 变更交互状态。
                 interactionInfo.getLock().lock();
                 try {
                     interactionInfo.setInteractionStatus(InteractionStatus.WAITING_COMMAND);

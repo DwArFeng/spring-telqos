@@ -21,14 +21,14 @@ public interface TelqosService {
     /**
      * 上线服务。
      *
-     * @throws TelqosException Telqos异常。
+     * @throws TelqosException Telqos 异常。
      */
     void online() throws TelqosException;
 
     /**
      * 下线服务。
      *
-     * @throws TelqosException Telqos异常。
+     * @throws TelqosException Telqos 异常。
      */
     void offline() throws TelqosException;
 
@@ -36,7 +36,7 @@ public interface TelqosService {
      * 注册指令。
      *
      * @param command 指定的指令。
-     * @throws TelqosException Telqos异常。
+     * @throws TelqosException Telqos 异常。
      */
     void registerCommand(Command command) throws TelqosException;
 
@@ -44,7 +44,7 @@ public interface TelqosService {
      * 解除注册指令。
      *
      * @param identity 指令标识。
-     * @throws TelqosException Telqos异常。
+     * @throws TelqosException Telqos 异常。
      */
     void unregisterCommand(String identity) throws TelqosException;
 }

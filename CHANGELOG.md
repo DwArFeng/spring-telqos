@@ -4,6 +4,17 @@
 
 ### 功能构建
 
+- `spring-telqos-core` 子模块类优化注释、文档注释格式、代码换行格式。
+  - com.dwarfeng.springtelqos.impl.service.TelqosServiceImpl。
+  - com.dwarfeng.springtelqos.node.config.ParserUtil。
+  - com.dwarfeng.springtelqos.node.config.SpringTelqosDefinitionParser。
+  - com.dwarfeng.springtelqos.sdk.command.CliCommand。
+  - com.dwarfeng.springtelqos.stack.bean.TelqosConfig。
+  - com.dwarfeng.springtelqos.stack.command.Command。
+  - com.dwarfeng.springtelqos.stack.command.Context。
+  - com.dwarfeng.springtelqos.stack.exception.TelqosException。
+  - com.dwarfeng.springtelqos.stack.service.TelqosService。
+
 - 优化文件格式。
   - 优化 `application-context-*.xml` 文件的格式。
 
