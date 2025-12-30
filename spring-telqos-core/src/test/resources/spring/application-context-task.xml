@@ -9,8 +9,10 @@
         http://www.springframework.org/schema/task/spring-task.xsd"
 >
 
-    <!-- 启用Async注解 -->
+    <!-- 启用 @Async 和 @Scheduled 注解。 -->
     <task:annotation-driven executor="executor"/>
-    <!-- 装配Executor -->
-    <task:executor id="executor" pool-size="5-25" queue-capacity="100" keep-alive="120" rejection-policy="CALLER_RUNS"/>
+    <!-- 装配 executor。 -->
+    <task:executor
+            id="executor" pool-size="5-25" queue-capacity="100" keep-alive="120" rejection-policy="CALLER_RUNS"
+    />
 </beans>
