@@ -9,7 +9,7 @@ import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import com.dwarfeng.springtelqos.stack.service.TelqosService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
@@ -43,8 +43,8 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     private TelqosConfig telqosConfig;
     private ApplicationContext applicationContext;
 
-    private NioEventLoopGroup bossGroup;
-    private NioEventLoopGroup workerGroup;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
     private Channel channel;
 
     private final Map<String, Command> commandMap = new HashMap<>();
@@ -110,9 +110,9 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
             return;
         }
         // 新建负责接收客户端连接线程。
-        bossGroup = new NioEventLoopGroup();
+        bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
         // 新建负责处理客户端i/o事件、task任务、监听任务组。
-        workerGroup = new NioEventLoopGroup();
+        workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
 
         // 启动 NIO 服务的辅助启动类
         ServerBootstrap bootstrap = new ServerBootstrap();

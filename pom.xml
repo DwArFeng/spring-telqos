@@ -29,9 +29,9 @@
         <javassist.version>3.23.2-GA</javassist.version>
         <junit.version>4.13.2</junit.version>
         <spring.version>5.3.39</spring.version>
-        <log4j2.version>2.17.2</log4j2.version>
+        <log4j2.version>2.25.3</log4j2.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <netty.version>4.1.119.Final</netty.version>
+        <netty.version>4.2.9.Final</netty.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-cli.version>1.4</commons-cli.version>
         <spring-terminator.version>1.0.13.a</spring-terminator.version>
@@ -41,7 +41,7 @@
         <zookeeper.version>3.9.4</zookeeper.version>
         <guava.version>32.0.1-jre</guava.version>
         <curator.version>4.3.0</curator.version>
-        <dutil.version>beta-0.3.2.a</dutil.version>
+        <dutil.version>0.4.0.a-beta</dutil.version>
         <annotations.version>3.0.1</annotations.version>
         <jsr305.version>3.0.2</jsr305.version>
         <!-- Maven 插件版本声明 -->
