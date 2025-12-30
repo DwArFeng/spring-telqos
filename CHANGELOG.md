@@ -4,6 +4,11 @@
 
 ### 功能构建
 
+- 更新 README.md。
+
+- Wiki 更新。
+  - docs/wiki/zh-CN/Introduction.md。
+
 - `spring-telqos-core` 子模块类优化注释、文档注释格式、代码换行格式。
   - com.dwarfeng.springtelqos.impl.service.TelqosServiceImpl。
   - com.dwarfeng.springtelqos.node.config.ParserUtil。

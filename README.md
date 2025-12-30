@@ -19,7 +19,7 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
 1. [简介](docs/wiki/zh-CN/Introduction.md) - 镜像的 `README.md`，与本文件内容基本相同。
 2. [目录](docs/wiki/zh-CN/Contents.md) - 文档目录。
 
-## maven坐标
+## maven 坐标
 
 1. 对于项目本体。
    ```xml
@@ -30,7 +30,7 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
    </dependency>
    ```
 
-2. 对于项目的api。
+2. 对于项目的 api。
    ```xml
    <dependency>
        <groupId>com.dwarfeng</groupId>
@@ -45,7 +45,7 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
 
 1. 添加依赖。
 
-2. 在Spring中添加如下配置。
+2. 在 Spring 中添加如下配置。
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
    <beans
