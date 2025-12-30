@@ -60,4 +60,3 @@ public class UptimeCommand extends CliCommand {
         }
     }
 }
-

@@ -299,4 +299,3 @@ public class JmxRemoteCommand extends CliCommand {
         return DEFAULT_PORT;
     }
 }
-
