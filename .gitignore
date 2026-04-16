@@ -40,6 +40,12 @@ local.properties
 *.code-workspace
 
 #################
+## Vibe Coding
+#################
+AGENTS.md
+.agents
+
+#################
 ## Cursor
 #################
 .cursor/
