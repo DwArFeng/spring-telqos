@@ -42,7 +42,7 @@
                         <xsd:attribute name="port" type="xsd:string" default="23">
                             <xsd:annotation>
                                 <xsd:documentation>
-                                    <![CDATA[Telnet服务开放的端口，默认是 23。]]>
+                                    <![CDATA[Telnet 服务开放的端口，默认是 23。]]>
                                 </xsd:documentation>
                                 <xsd:appinfo>
                                     <tool:annotation>
@@ -267,7 +267,7 @@
             <xsd:attribute name="service-id" type="xsd:token" default="telqosService">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[Telqos服务的 bean id，默认是 telqosService。]]>
+                        <![CDATA[Telqos 服务的 bean id，默认是 telqosService。]]>
                     </xsd:documentation>
                     <xsd:appinfo>
                         <tool:annotation>
