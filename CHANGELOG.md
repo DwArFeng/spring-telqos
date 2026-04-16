@@ -4,6 +4,10 @@
 
 ### 功能构建
 
+- 指令标识符能力增强。
+  - 扩展 `Constants.COMMAND_IDENTITY_FORMAT`，在原有规则基础上支持通过 `:`、`.`、`-` 进行分段命名。
+  - 新增 `com.dwarfeng.springtelqos.sdk.util.CommandIdentityFormatTest` 测试用例。
+
 - 项目架构重构。
   - 项目构型对齐至 subgrade 工具工程构型。
 

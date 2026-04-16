@@ -9,7 +9,37 @@ package com.dwarfeng.springtelqos.sdk.util;
 public final class Constants {
 
     public static final char MULTI_LINE_COMMAND_INDICATOR = '\\';
-    public static final String COMMAND_IDENTITY_FORMAT = "^[a-zA-Z_][0-9a-zA-Z_]*$";
+
+    /**
+     * 指令标识符格式。
+     *
+     * <p>
+     * 规则如下：
+     * <ul>
+     *     <li>首字符必须为英文字母或下划线。</li>
+     *     <li>后续字符允许字母、数字、下划线。</li>
+     *     <li>允许使用分隔符 `:`、`.`、`-` 进行分段，且分隔符后必须跟随至少一个合法字符。</li>
+     * </ul>
+     *
+     * <p>
+     * 合法示例：
+     * <ul>
+     *     <li>`lc`</li>
+     *     <li>`ops:status`</li>
+     *     <li>`module.user-list`</li>
+     *     <li>`api_v2:reload`</li>
+     * </ul>
+     * 非法示例：
+     * <ul>
+     *     <li>空字符串</li>
+     *     <li>`1abc`</li>
+     *     <li>`abc..def`</li>
+     *     <li>`abc*def`</li>
+     * </ul>
+     *
+     * @since 2.0.0
+     */
+    public static final String COMMAND_IDENTITY_FORMAT = "^[a-zA-Z_][0-9a-zA-Z_]*(?:[:.-][0-9a-zA-Z_]+)*$";
 
     /**
      * @since 2.0.0
