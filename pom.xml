@@ -220,7 +220,7 @@
                 <artifactId>dutil-basic</artifactId>
                 <version>${dutil.version}</version>
             </dependency>
-            <!-- findbugs 组件 -->
+            <!-- Findbugs 组件 -->
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>annotations</artifactId>
