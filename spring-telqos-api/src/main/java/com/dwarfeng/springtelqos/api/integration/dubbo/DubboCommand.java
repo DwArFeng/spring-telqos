@@ -65,11 +65,11 @@ public class DubboCommand extends CliCommand {
 
     private String cliSyntaxProvider(CommandDescriptor.Context context) throws Exception {
         final String[] patterns = new String[]{
-                context.getIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_ONLINE) +
+                context.getRuntimeIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_ONLINE) +
                         " [service-name]",
-                context.getIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_OFFLINE) +
+                context.getRuntimeIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_OFFLINE) +
                         " [service-name]",
-                context.getIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_LIST)
+                context.getRuntimeIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_LIST)
         };
         return CliCommandUtil.cliSyntax(patterns);
     }
@@ -88,7 +88,7 @@ public class DubboCommand extends CliCommand {
         Pair<String, Integer> pair = CliCommandUtil.analyseCommand(cmd, COMMAND_OPTION_ARRAY);
         if (pair.getRight() != 1) {
             context.sendMessage(CliCommandUtil.optionMismatchMessage(COMMAND_OPTION_ARRAY));
-            context.sendMessage(context.getCommandManual(context.getIdentity()));
+            context.sendMessage(context.getCommandManual(context.getRuntimeIdentity()));
             return;
         }
         switch (pair.getLeft()) {

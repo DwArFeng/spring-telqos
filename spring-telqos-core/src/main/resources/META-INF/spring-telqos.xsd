@@ -195,6 +195,35 @@
                         </xsd:sequence>
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element name="naming-strategy" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            <![CDATA[指令命名设置。]]>
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:attribute
+                                name="value"
+                                type="xsd:string"
+                                default="#{T(com.dwarfeng.springtelqos.stack.struct.TelqosConfig$Builder).DEFAULT_COMMAND_NAMING_STRATEGY_CLASS_NAME}"
+                        >
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    <xsd:documentation>
+                                        <![CDATA[命名策略接口，未设置时为内置的本征命名策略。]]>
+                                    </xsd:documentation>
+                                </xsd:documentation>
+                                <xsd:appinfo>
+                                    <tool:annotation>
+                                        <tool:expected-type
+                                                type="com.dwarfeng.springtelqos.stack.naming.NamingStrategy"
+                                        />
+                                    </tool:annotation>
+                                </xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
             </xsd:all>
             <xsd:attribute name="config-id" type="xsd:token" default="telqosConfig">
                 <xsd:annotation>

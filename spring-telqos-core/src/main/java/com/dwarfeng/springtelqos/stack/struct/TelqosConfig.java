@@ -2,7 +2,10 @@ package com.dwarfeng.springtelqos.stack.struct;
 
 import com.dwarfeng.dutil.basic.prog.Buildable;
 import com.dwarfeng.springtelqos.stack.command.Command;
+import com.dwarfeng.springtelqos.stack.naming.NamingStrategy;
+import com.dwarfeng.springtelqos.stack.naming.ToCommandIdentityInfo;
 import com.dwarfeng.springtelqos.stack.util.TelqosConfigUtil;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -50,16 +53,21 @@ public final class TelqosConfig {
      */
     private final Collection<Command> commands;
 
+    /**
+     * 命名策略。
+     */
+    private final NamingStrategy namingStrategy;
+
     public TelqosConfig(
             int port, String whitelistRegex, String blacklistRegex, String charset, String bannerUrl,
-            Collection<Command> commands
+            Collection<Command> commands, NamingStrategy namingStrategy
     ) {
-        this(port, whitelistRegex, blacklistRegex, charset, bannerUrl, commands, false);
+        this(port, whitelistRegex, blacklistRegex, charset, bannerUrl, commands, namingStrategy, false);
     }
 
     private TelqosConfig(
             int port, String whitelistRegex, String blacklistRegex, String charset, String bannerUrl,
-            Collection<Command> commands, boolean paramReliable
+            Collection<Command> commands, NamingStrategy namingStrategy, boolean paramReliable
     ) {
         // 如果参数不可靠，则检查参数。
         if (!paramReliable) {
@@ -69,6 +77,7 @@ public final class TelqosConfig {
             TelqosConfigUtil.checkCharset(charset);
             TelqosConfigUtil.checkBannerUrl(bannerUrl);
             TelqosConfigUtil.checkCommands(commands);
+            TelqosConfigUtil.checkNamingStrategy(namingStrategy);
         }
         // 设置值。
         this.port = port;
@@ -77,6 +86,7 @@ public final class TelqosConfig {
         this.charset = charset;
         this.bannerUrl = bannerUrl;
         this.commands = commands;
+        this.namingStrategy = namingStrategy;
     }
 
     public int getPort() {
@@ -103,6 +113,10 @@ public final class TelqosConfig {
         return commands;
     }
 
+    public NamingStrategy getNamingStrategy() {
+        return namingStrategy;
+    }
+
     @Override
     public String toString() {
         return "TelqosConfig{" +
@@ -112,6 +126,7 @@ public final class TelqosConfig {
                 ", charset='" + charset + '\'' +
                 ", bannerUrl='" + bannerUrl + '\'' +
                 ", commands=" + commands +
+                ", namingStrategy=" + namingStrategy +
                 '}';
     }
 
@@ -129,6 +144,7 @@ public final class TelqosConfig {
         public static final String DEFAULT_CHARSET = "UTF-8";
         public static final String DEFAULT_BANNER_URL = "classpath:telqos/banner.txt";
         public static final Collection<Command> DEFAULT_COMMANDS = Collections.emptySet();
+        public static final NamingStrategy DEFAULT_NAMING_STRATEGY = DefaultNamingStrategy.INSTANCE;
 
         private int port = DEFAULT_PORT;
         private String whitelistRegex = DEFAULT_WHITELIST_REGEX;
@@ -136,6 +152,7 @@ public final class TelqosConfig {
         private String charset = DEFAULT_CHARSET;
         private String bannerUrl = DEFAULT_BANNER_URL;
         private Collection<Command> commands = DEFAULT_COMMANDS;
+        private NamingStrategy namingStrategy = DEFAULT_NAMING_STRATEGY;
 
         public Builder() {
         }
@@ -170,6 +187,11 @@ public final class TelqosConfig {
             return this;
         }
 
+        public Builder setNamingStrategy(NamingStrategy namingStrategy) {
+            this.namingStrategy = namingStrategy;
+            return this;
+        }
+
         @Override
         public TelqosConfig build() {
             // 检查参数。
@@ -179,10 +201,11 @@ public final class TelqosConfig {
             TelqosConfigUtil.checkCharset(charset);
             TelqosConfigUtil.checkBannerUrl(bannerUrl);
             TelqosConfigUtil.checkCommands(commands);
+            TelqosConfigUtil.checkNamingStrategy(namingStrategy);
 
             // 构造并返回配置。
             return new TelqosConfig(
-                    port, whitelistRegex, blacklistRegex, charset, bannerUrl, commands, true
+                    port, whitelistRegex, blacklistRegex, charset, bannerUrl, commands, namingStrategy, true
             );
         }
 
@@ -195,7 +218,23 @@ public final class TelqosConfig {
                     ", charset='" + charset + '\'' +
                     ", bannerUrl='" + bannerUrl + '\'' +
                     ", commands=" + commands +
+                    ", namingStrategy=" + namingStrategy +
                     '}';
+        }
+    }
+
+    private static class DefaultNamingStrategy implements NamingStrategy {
+
+        public static final DefaultNamingStrategy INSTANCE = new DefaultNamingStrategy();
+
+        @Override
+        public String toCommandIdentity(@NonNull ToCommandIdentityInfo info) {
+            return info.getCommandInfo().getIdentify();
+        }
+
+        @Override
+        public String toString() {
+            return "DefaultNamingStrategy{}";
         }
     }
 }

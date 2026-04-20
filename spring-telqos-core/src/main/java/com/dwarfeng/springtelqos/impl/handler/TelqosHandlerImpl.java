@@ -6,6 +6,7 @@ import com.dwarfeng.springtelqos.stack.command.Command;
 import com.dwarfeng.springtelqos.stack.command.CommandDescriptor;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import com.dwarfeng.springtelqos.stack.handler.TelqosHandler;
+import com.dwarfeng.springtelqos.stack.naming.ToCommandIdentityInfo;
 import com.dwarfeng.springtelqos.stack.struct.TelqosConfig;
 import com.dwarfeng.subgrade.sdk.interceptor.analyse.BehaviorAnalyse;
 import com.dwarfeng.subgrade.stack.exception.HandlerException;
@@ -157,22 +158,22 @@ public class TelqosHandlerImpl implements TelqosHandler {
             }
             Field instanceField = clazz.getField("INSTANCE");
             if (!Modifier.isStatic(instanceField.getModifiers())) {
-                throw new IllegalArgumentException("内置命令类的 INSTANCE 字段不是静态字段: " + className);
+                throw new IllegalArgumentException("内置指令类的 INSTANCE 字段不是静态字段: " + className);
             }
             Object instance = instanceField.get(null);
             if (!(instance instanceof Command)) {
-                throw new IllegalArgumentException("内置命令类的 INSTANCE 字段不是 Command 类型: " + className);
+                throw new IllegalArgumentException("内置指令类的 INSTANCE 字段不是 Command 类型: " + className);
             }
             Command command = (Command) instance;
             String identity = command.getIdentity();
             if (Objects.isNull(identity)) {
-                throw new IllegalArgumentException("内置命令 command.getIdentity() 不能为 null: " + className);
+                throw new IllegalArgumentException("内置指令 command.getIdentity() 不能为 null: " + className);
             }
             if (commandMap.containsKey(identity)) {
-                throw new IllegalArgumentException("重复的命令标识符: " + identity);
+                throw new IllegalArgumentException("重复的指令标识符: " + identity);
             }
             if (identityInvalid(identity)) {
-                throw new IllegalArgumentException("非法的命令标识符: " + identity);
+                throw new IllegalArgumentException("非法的指令标识符: " + identity);
             }
             commandMap.put(identity, command);
         }
@@ -215,24 +216,35 @@ public class TelqosHandlerImpl implements TelqosHandler {
         }
     }
 
-    private void registerCustomCommands() {
+    private void registerCustomCommands() throws Exception {
         for (Command command : config.getCommands()) {
-            String identity = command.getIdentity();
-            if (Objects.isNull(identity)) {
-                throw new IllegalArgumentException("command.getIdentity() 不能为 null");
+            // 基于命名策略获取指令标识。
+            ToCommandIdentityInfo.CommandInfo commandInfo = parseCommandInfoFromCommand(command);
+            Map<String, ToCommandIdentityInfo.CommandInfo> registeredCommandInfos = new HashMap<>();
+            for (Map.Entry<String, Command> entry : commandMap.entrySet()) {
+                registeredCommandInfos.put(entry.getKey(), parseCommandInfoFromCommand(entry.getValue()));
             }
-            if (commandMap.containsKey(identity)) {
-                throw new IllegalArgumentException("重复的命令标识符: " + identity);
+            String runtimeIdentity = config.getNamingStrategy().toCommandIdentity(
+                    new ToCommandIdentityInfo(commandInfo, registeredCommandInfos)
+            );
+            if (identityInvalid(runtimeIdentity)) {
+                throw new IllegalArgumentException("非法的指令标识符: " + runtimeIdentity);
             }
-            if (identityInvalid(identity)) {
-                throw new IllegalArgumentException("非法的命令标识符: " + identity);
+            if (commandMap.containsKey(runtimeIdentity)) {
+                throw new IllegalArgumentException("重复的指令标识符: " + runtimeIdentity);
             }
-            commandMap.put(identity, command);
+            commandMap.put(runtimeIdentity, command);
         }
     }
 
+    private ToCommandIdentityInfo.CommandInfo parseCommandInfoFromCommand(Command command) {
+        return new ToCommandIdentityInfo.CommandInfo(command.getIdentity(), command.getClass());
+    }
+
     private boolean identityInvalid(String identity) {
-        if (Objects.isNull(identity)) return false;
+        if (StringUtils.isBlank(identity)) {
+            return true;
+        }
         return !identity.matches(Constants.COMMAND_IDENTITY_FORMAT);
     }
 
@@ -359,10 +371,10 @@ public class TelqosHandlerImpl implements TelqosHandler {
                     return;
                 }
 
-                // 获取命令行的 StringBuilder。
+                // 获取指令行的 StringBuilder。
                 StringBuilder stringBuilder = commandBufferMap.get(address);
 
-                // 处理多行命令。
+                // 处理多行指令。
                 boolean endFlag = false;
                 if (commandLine.charAt(commandLine.length() - 1) == Constants.MULTI_LINE_COMMAND_INDICATOR) {
                     stringBuilder.append(commandLine, 0, commandLine.length() - 1);
@@ -371,12 +383,12 @@ public class TelqosHandlerImpl implements TelqosHandler {
                     stringBuilder.append(commandLine);
                 }
 
-                // 如果命令还没有输入完成，则退出，等待下一次输入。
+                // 如果指令还没有输入完成，则退出，等待下一次输入。
                 if (!endFlag) {
                     return;
                 }
 
-                // 构造命令，并且重置 StringBuilder。
+                // 构造指令，并且重置 StringBuilder。
                 commandLine = commandBufferMap.getOrDefault(address, new StringBuilder()).toString();
                 commandBufferMap.put(address, new StringBuilder());
 
@@ -395,11 +407,11 @@ public class TelqosHandlerImpl implements TelqosHandler {
                 switch (interactionInfo.getInteractionStatus()) {
                     case WAITING_COMMAND:
                         CommandLineParseResult commandLineParseResult = parseCommandLine(commandLine);
-                        // 命令非法时执行拒绝动作。
+                        // 指令非法时执行拒绝动作。
                         if (!commandLineParseResult.isValidFlag()) {
                             String[] invalidDescriptions = commandLineParseResult.getInvalidDescriptions();
                             int total = invalidDescriptions.length;
-                            channel.writeAndFlush(ChannelUtil.line("输入的命令不合法，共 " + total + " 处错误"));
+                            channel.writeAndFlush(ChannelUtil.line("输入的指令不合法，共 " + total + " 处错误"));
                             for (int i = 0; i < total; i++) {
                                 channel.writeAndFlush(ChannelUtil.line(
                                         String.format("%d/%d: %s", i + 1, total, invalidDescriptions[i])
@@ -408,13 +420,13 @@ public class TelqosHandlerImpl implements TelqosHandler {
                             channel.writeAndFlush(ChannelUtil.line(""));
                             return;
                         }
-                        // 命令合法时，搜索相应的 Command。
-                        String identity = commandLineParseResult.getIdentity();
+                        // 指令合法时，搜索相应的 Command。
+                        String runtimeIdentity = commandLineParseResult.getIdentity();
                         String option = commandLineParseResult.getOption();
-                        Command command = commandMap.get(identity);
+                        Command command = commandMap.get(runtimeIdentity);
                         // Command 不存在时执行拒绝动作。
                         if (Objects.isNull(command)) {
-                            channel.writeAndFlush(ChannelUtil.line("未知的命令: " + identity));
+                            channel.writeAndFlush(ChannelUtil.line("未知的指令: " + runtimeIdentity));
                             channel.writeAndFlush(
                                     ChannelUtil.line("输入 " + Constants.COMMAND_IDENTITY_LIST_COMMAND + " 查看所有指令")
                             );
@@ -422,8 +434,10 @@ public class TelqosHandlerImpl implements TelqosHandler {
                             return;
                         }
                         // 同步执行交互任务。
+                        String identity = command.getIdentity();
                         executor.execute(new CommandExecutionTask(
-                                interactionInfo, command, identity, address, option, commandLine, channel
+                                interactionInfo, command, identity, runtimeIdentity, address, option, commandLine,
+                                channel
                         ));
                         break;
                     case WAITING_MESSAGE:
@@ -586,6 +600,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
         private final InteractionInfo interactionInfo;
         private final Command command;
         private final String identity;
+        private final String runtimeIdentity;
         private final String address;
         private final String option;
         private final String commandLine;
@@ -594,12 +609,13 @@ public class TelqosHandlerImpl implements TelqosHandler {
         private boolean finishFlag = false;
 
         public CommandExecutionTask(
-                InteractionInfo interactionInfo, Command command, String identity, String address, String option,
-                String commandLine, Channel channel
+                InteractionInfo interactionInfo, Command command, String identity, String runtimeIdentity,
+                String address, String option, String commandLine, Channel channel
         ) {
             this.interactionInfo = interactionInfo;
             this.command = command;
             this.identity = identity;
+            this.runtimeIdentity = runtimeIdentity;
             this.address = address;
             this.option = option;
             this.commandLine = commandLine;
@@ -651,9 +667,9 @@ public class TelqosHandlerImpl implements TelqosHandler {
         private void executeCommand() {
             try {
                 CommandExecutor commandExecutor = command.newCommandExecutor();
-                commandExecutor.init(
-                        new CommandExecutorContextImpl(identity, address, option, interactionInfo, channel)
-                );
+                commandExecutor.init(new CommandExecutorContextImpl(
+                        identity, runtimeIdentity, address, option, interactionInfo, channel
+                ));
                 commandExecutor.execute();
                 channel.writeAndFlush(ChannelUtil.line("OK"));
                 channel.writeAndFlush(ChannelUtil.line(""));
@@ -683,7 +699,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
     }
 
     /**
-     * 指令描述器上下文：在查询某条命令的说明时，向描述器提供该命令的标识符。
+     * 指令描述器上下文：在查询某条指令的说明时，向描述器提供该指令的标识符。
      *
      * @author DwArFeng
      * @since 2.0.0
@@ -691,14 +707,21 @@ public class TelqosHandlerImpl implements TelqosHandler {
     private static final class CommandDescriptorContextImpl implements CommandDescriptor.Context {
 
         private final String identity;
+        private final String runtimeIdentity;
 
-        public CommandDescriptorContextImpl(String identity) {
+        public CommandDescriptorContextImpl(String identity, String runtimeIdentity) {
             this.identity = identity;
+            this.runtimeIdentity = runtimeIdentity;
         }
 
         @Override
         public String getIdentity() {
             return identity;
+        }
+
+        @Override
+        public String getRuntimeIdentity() {
+            return runtimeIdentity;
         }
     }
 
@@ -711,15 +734,18 @@ public class TelqosHandlerImpl implements TelqosHandler {
     private class CommandExecutorContextImpl implements CommandExecutor.Context {
 
         private final String identity;
+        private final String runtimeIdentity;
         private final String address;
         private final String option;
         private final InteractionInfo interactionInfo;
         private final Channel channel;
 
         public CommandExecutorContextImpl(
-                String identity, String address, String option, InteractionInfo interactionInfo, Channel channel
+                String identity, String runtimeIdentity, String address, String option, InteractionInfo interactionInfo,
+                Channel channel
         ) {
             this.identity = identity;
+            this.runtimeIdentity = runtimeIdentity;
             this.address = address;
             this.option = option;
             this.interactionInfo = interactionInfo;
@@ -729,6 +755,11 @@ public class TelqosHandlerImpl implements TelqosHandler {
         @Override
         public String getIdentity() {
             return identity;
+        }
+
+        @Override
+        public String getRuntimeIdentity() {
+            return runtimeIdentity;
         }
 
         @Override
@@ -742,7 +773,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
         }
 
         @Override
-        public List<String> getCommandIdentities() {
+        public List<String> getCommandRuntimeIdentities() {
             lock.lock();
             try {
                 ArrayList<String> list = new ArrayList<>(commandMap.keySet());
@@ -754,15 +785,15 @@ public class TelqosHandlerImpl implements TelqosHandler {
         }
 
         @Override
-        public String getCommandDescription(String identity) throws Exception {
+        public String getCommandDescription(String runtimeIdentity) throws Exception {
             lock.lock();
             try {
-                Command c = commandMap.get(identity);
+                Command c = commandMap.get(runtimeIdentity);
                 if (Objects.isNull(c)) {
                     return null;
                 }
                 CommandDescriptor d = c.newCommandDescriptor();
-                d.init(new CommandDescriptorContextImpl(identity));
+                d.init(new CommandDescriptorContextImpl(c.getIdentity(), runtimeIdentity));
                 return d.getDescription();
             } finally {
                 lock.unlock();
@@ -770,15 +801,15 @@ public class TelqosHandlerImpl implements TelqosHandler {
         }
 
         @Override
-        public String getCommandManual(String identity) throws Exception {
+        public String getCommandManual(String runtimeIdentity) throws Exception {
             lock.lock();
             try {
-                Command c = commandMap.get(identity);
+                Command c = commandMap.get(runtimeIdentity);
                 if (Objects.isNull(c)) {
                     return null;
                 }
                 CommandDescriptor d = c.newCommandDescriptor();
-                d.init(new CommandDescriptorContextImpl(identity));
+                d.init(new CommandDescriptorContextImpl(c.getIdentity(), runtimeIdentity));
                 return d.getManual();
             } finally {
                 lock.unlock();

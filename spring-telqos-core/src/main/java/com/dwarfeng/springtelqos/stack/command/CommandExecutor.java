@@ -47,6 +47,18 @@ public interface CommandExecutor {
         String getIdentity() throws Exception;
 
         /**
+         * 获取指令的运行时标识。
+         *
+         * <p>
+         * 指令的运行时标识是指，在指令被注册后，由指令的标识与命名策略共同作用生成的标识。<br>
+         * 如果命名策略为本征命名策略，则指令的运行时标识与指令的标识相同。
+         *
+         * @return 指令的运行时标识。
+         * @throws Exception 方法执行过程中发生的任何异常。
+         */
+        String getRuntimeIdentity() throws Exception;
+
+        /**
          * 获取执行指令的客户端地址。
          *
          * @return 客户端地址。
@@ -63,30 +75,30 @@ public interface CommandExecutor {
         String getOption() throws Exception;
 
         /**
-         * 列出指令。
+         * 列出指令的运行时标识。
          *
-         * @return 所有指令的标识符组成的列表。
+         * @return 所有指令的标识组成的列表。
          * @throws Exception 方法执行过程中发生的任何异常。
          */
-        List<String> getCommandIdentities() throws Exception;
+        List<String> getCommandRuntimeIdentities() throws Exception;
 
         /**
          * 获取指令的描述。
          *
-         * @param identity 指定指令的标识符。
+         * @param runtimeIdentity 指定指令的运行时标识符。
          * @return 指令的描述。
          * @throws Exception 方法执行过程中发生的任何异常。
          */
-        String getCommandDescription(String identity) throws Exception;
+        String getCommandDescription(String runtimeIdentity) throws Exception;
 
         /**
          * 获取指令的详细说明。
          *
-         * @param identity 指定指令的标识符。
+         * @param runtimeIdentity 指定指令的运行时标识符。
          * @return 指令的详细说明。
          * @throws Exception 方法执行过程中发生的任何异常。
          */
-        String getCommandManual(String identity) throws Exception;
+        String getCommandManual(String runtimeIdentity) throws Exception;
 
         /**
          * 向客户端发送一条信息（换行）。

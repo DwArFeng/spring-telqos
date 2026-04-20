@@ -52,5 +52,17 @@ public interface CommandDescriptor {
          * @throws Exception 方法执行过程中发生的任何异常。
          */
         String getIdentity() throws Exception;
+
+        /**
+         * 获取指令的运行时标识。
+         *
+         * <p>
+         * 指令的运行时标识是指，在指令被注册后，由指令的标识与命名策略共同作用生成的标识。<br>
+         * 如果命名策略为本征命名策略，则指令的运行时标识与指令的标识相同。
+         *
+         * @return 指令的运行时标识。
+         * @throws Exception 方法执行过程中发生的任何异常。
+         */
+        String getRuntimeIdentity() throws Exception;
     }
 }

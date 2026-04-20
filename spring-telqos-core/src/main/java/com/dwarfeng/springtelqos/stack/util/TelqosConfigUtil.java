@@ -1,7 +1,7 @@
 package com.dwarfeng.springtelqos.stack.util;
 
 import com.dwarfeng.springtelqos.stack.command.Command;
-import org.apache.commons.lang3.StringUtils;
+import com.dwarfeng.springtelqos.stack.naming.NamingStrategy;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -131,7 +131,6 @@ public final class TelqosConfigUtil {
      * <ul>
      *     <li>集合本身不能为 <code>null</code>。</li>
      *     <li>元素不能为 <code>null</code>。</li>
-     *     <li>每个 {@link Command#getIdentity()} 不能为空。</li>
      * </ul>
      *
      * @param commands 指定的命令集合。
@@ -146,10 +145,21 @@ public final class TelqosConfigUtil {
             if (Objects.isNull(command)) {
                 throw new IllegalArgumentException("命令集合中不能包含 null 元素");
             }
-            String identity = command.getIdentity();
-            if (StringUtils.isBlank(identity)) {
-                throw new IllegalArgumentException("命令的 identity 不能为空");
-            }
+        }
+    }
+
+    /**
+     * 检查指定的命名策略是否合法。
+     *
+     * <p>
+     * 不允许为 <code>null</code>。
+     *
+     * @param namingStrategy 指定的命名策略。
+     * @throws NullPointerException 若为 <code>null</code>。
+     */
+    public static void checkNamingStrategy(NamingStrategy namingStrategy) {
+        if (Objects.isNull(namingStrategy)) {
+            throw new NullPointerException("命名策略不能为 null");
         }
     }
 

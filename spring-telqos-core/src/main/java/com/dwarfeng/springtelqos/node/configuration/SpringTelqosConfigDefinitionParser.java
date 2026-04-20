@@ -42,6 +42,8 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
                 .getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "connection-setting").item(0);
         Element commandElement = (Element) element
                 .getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "command").item(0);
+        Element namingStrategyElement = (Element) element
+                .getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "naming-strategy").item(0);
 
         ManagedList<BeanReference> commandBeanReferences = new ManagedList<>();
         if (Objects.nonNull(commandElement)) {
@@ -86,6 +88,14 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
             );
         }
         telqosConfigBuilderBeanDefinition.getPropertyValues().add("commands", commandBeanReferences);
+        if (Objects.nonNull(namingStrategyElement)) {
+            telqosConfigBuilderBeanDefinition.getPropertyValues().add(
+                    "namingStrategy",
+                    BeanDefinitionParserUtil.mayResolve(
+                            parserContext, namingStrategyElement.getAttribute("value")
+                    )
+            );
+        }
         telqosConfigBuilderBeanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
         telqosConfigBuilderBeanDefinition.setLazyInit(false);
         String telqosConfigBuilderBeanName = BeanDefinitionParserUtil.parseAvailableBeanName(

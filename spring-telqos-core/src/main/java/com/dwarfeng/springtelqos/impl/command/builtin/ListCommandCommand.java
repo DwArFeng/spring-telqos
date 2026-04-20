@@ -53,7 +53,7 @@ public class ListCommandCommand extends CliCommand {
 
     @Override
     protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
-        List<String> identities = context.getCommandIdentities();
+        List<String> identities = context.getCommandRuntimeIdentities();
         if (cmd.hasOption(COMMAND_SUB_OPTION_PREFIX)) {
             String prefix = cmd.getOptionValue(COMMAND_SUB_OPTION_PREFIX);
             identities = identities.stream().filter(s -> s.startsWith(prefix)).collect(Collectors.toList());

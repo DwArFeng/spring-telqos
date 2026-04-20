@@ -22,6 +22,8 @@ public final class ServiceExceptionCodes {
     public static final ServiceException.Code COMMAND_EXECUTOR_FAILED =
             new ServiceException.Code(offset(12), "command executor failed");
 
+    public static final ServiceException.Code NAMING_STRATEGY_FAILED =
+            new ServiceException.Code(offset(20), "naming strategy failed");
 
     @SuppressWarnings("SameParameterValue")
     private static int offset(int i) {
@@ -52,6 +54,7 @@ public final class ServiceExceptionCodes {
         COMMAND_FAILED.setCode(offset(10));
         COMMAND_DESCRIPTOR_FAILED.setCode(offset(11));
         COMMAND_EXECUTOR_FAILED.setCode(offset(12));
+        NAMING_STRATEGY_FAILED.setCode(offset(20));
     }
 
     private ServiceExceptionCodes() {

@@ -49,7 +49,7 @@ public class Log4j2Command extends CliCommand {
 
     private String cliSyntaxProvider(CommandDescriptor.Context context) throws Exception {
         final String[] patterns = new String[]{
-                context.getIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_RECONFIGURE)
+                context.getRuntimeIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_RECONFIGURE)
         };
         return CliCommandUtil.cliSyntax(patterns);
     }
@@ -67,7 +67,7 @@ public class Log4j2Command extends CliCommand {
         Pair<String, Integer> pair = CliCommandUtil.analyseCommand(cmd, COMMAND_OPTION_ARRAY);
         if (pair.getRight() != 1) {
             context.sendMessage(CliCommandUtil.optionMismatchMessage(COMMAND_OPTION_ARRAY));
-            context.sendMessage(context.getCommandManual(context.getIdentity()));
+            context.sendMessage(context.getCommandManual(context.getRuntimeIdentity()));
             return;
         }
         switch (pair.getLeft()) {

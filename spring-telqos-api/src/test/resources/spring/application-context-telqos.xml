@@ -18,6 +18,7 @@
             <telqos:command-impl ref="uptimeCommand"/>
             <telqos:command-impl ref="jmxRemoteCommand"/>
         </telqos:command>
+        <telqos:naming-strategy value="#{T(com.dwarfeng.springtelqos.impl.naming.TestNamingStrategy).INSTANCE}"/>
     </telqos:config>
     <telqos:handler/>
     <telqos:qos/>

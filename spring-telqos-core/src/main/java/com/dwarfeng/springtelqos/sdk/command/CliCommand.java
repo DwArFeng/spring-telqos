@@ -48,11 +48,11 @@ public abstract class CliCommand extends AbstractCommand {
     // region 供子类覆盖的构建方法
 
     protected DescriptionProvider provideDescriptionProvider() {
-        return CommandDescriptor.Context::getIdentity;
+        return CommandDescriptor.Context::getRuntimeIdentity;
     }
 
     protected CliSyntaxProvider provideCliSyntaxProvider() {
-        return CommandDescriptor.Context::getIdentity;
+        return CommandDescriptor.Context::getRuntimeIdentity;
     }
 
     protected List<Option> provideOptions() {

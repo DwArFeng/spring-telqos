@@ -4,6 +4,12 @@
 
 ### 功能构建
 
+- 新增命名策略。
+  - 新增 `com.dwarfeng.springtelqos.stack.naming.NamingStrategy` 接口，实现指令标识符映射。
+  - 新增 `com.dwarfeng.springtelqos.stack.struct.TelqosConfig` 中相关的配置项。
+  - 调整 `com.dwarfeng.springtelqos.node.configuration.SpringTelqosConfigDefinitionParser` 中相关的配置解析逻辑。
+  - 调整 `com.dwarfeng.springtelqos.impl.handler.TelqosHandlerImpl` 的内部实现，在相应的逻辑处理中应用命名策略。
+
 - 指令标识符能力增强。
   - 扩展 `Constants.COMMAND_IDENTITY_FORMAT`，在原有规则基础上支持通过 `:`、`.`、`-` 进行分段命名。
   - 新增 `com.dwarfeng.springtelqos.sdk.util.CommandIdentityFormatTest` 测试用例。

@@ -1,9 +1,6 @@
 package com.dwarfeng.springtelqos.sdk.util;
 
-import com.dwarfeng.springtelqos.stack.exception.CommandDescriptorException;
-import com.dwarfeng.springtelqos.stack.exception.CommandException;
-import com.dwarfeng.springtelqos.stack.exception.CommandExecutorException;
-import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.stack.exception.*;
 import com.dwarfeng.subgrade.stack.exception.ServiceException;
 
 import java.util.HashMap;
@@ -37,6 +34,7 @@ public final class ServiceExceptionHelper {
         map.put(CommandException.class, ServiceExceptionCodes.COMMAND_FAILED);
         map.put(CommandDescriptorException.class, ServiceExceptionCodes.COMMAND_DESCRIPTOR_FAILED);
         map.put(CommandExecutorException.class, ServiceExceptionCodes.COMMAND_EXECUTOR_FAILED);
+        map.put(NamingStrategyException.class, ServiceExceptionCodes.NAMING_STRATEGY_FAILED);
 
         return map;
     }

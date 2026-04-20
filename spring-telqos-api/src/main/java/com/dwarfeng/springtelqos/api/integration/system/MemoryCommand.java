@@ -49,8 +49,8 @@ public class MemoryCommand extends CliCommand {
 
     @Override
     protected CliSyntaxProvider provideCliSyntaxProvider() {
-        return context -> context.getIdentity() + " [" + CliCommandUtil.concatOptionPrefix(COMMAND_SUB_OPTION_UNIT) +
-                " unit]";
+        return context -> context.getRuntimeIdentity() + " [" +
+                CliCommandUtil.concatOptionPrefix(COMMAND_SUB_OPTION_UNIT) + " unit]";
     }
 
     @Override

@@ -33,14 +33,14 @@ public class ManualCommand extends CliCommand {
 
     @Override
     protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
-        String identity = cmd.getArgList().stream().findFirst().orElse(null);
-        if (StringUtils.isEmpty(identity)) {
+        String runtimeIdentity = cmd.getArgList().stream().findFirst().orElse(null);
+        if (StringUtils.isEmpty(runtimeIdentity)) {
             context.sendMessage(context.getCommandManual(Constants.COMMAND_IDENTITY_MANUAL));
             return;
         }
-        String manual = context.getCommandManual(identity);
+        String manual = context.getCommandManual(runtimeIdentity);
         if (StringUtils.isEmpty(manual)) {
-            context.sendMessage("未能找到指令 " + identity + " 的详细帮助");
+            context.sendMessage("未能找到指令 " + runtimeIdentity + " 的详细帮助");
             return;
         }
         context.sendMessage(manual);

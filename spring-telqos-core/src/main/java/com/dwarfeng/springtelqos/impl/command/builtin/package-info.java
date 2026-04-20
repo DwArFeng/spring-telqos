@@ -12,6 +12,9 @@
  *     <li>本包下的指令类必须是顶级类，内部类或匿名类不能实现指令接口。</li>
  * </ol>
  *
+ * <p>
+ * 内置指令的标识不受命名策略影响，而是直接采用指令本身提供的标识。
+ *
  * @since 1.2.0
  */
 package com.dwarfeng.springtelqos.impl.command.builtin;
