@@ -25,20 +25,28 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
-public class TelqosServiceImpl implements TelqosService, InitializingBean, DisposableBean,
-        ApplicationContextAware {
+public class TelqosServiceImpl implements TelqosService, InitializingBean, DisposableBean, ApplicationContextAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TelqosServiceImpl.class);
+    private static final String PACKAGE_NAME_BUILTIN_COMMAND = "com.dwarfeng.springtelqos.impl.command.builtin";
 
     private TelqosConfig telqosConfig;
     private ApplicationContext applicationContext;
@@ -64,12 +72,91 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
     public void afterPropertiesSet() throws Exception {
         lock.lock();
         try {
-            for (Command command : telqosConfig.getCommands()) {
-                internalRegisterCommand(command);
-            }
+            registerBuiltinCommands();
+            registerCustomCommands();
             internalOnline();
         } finally {
             lock.unlock();
+        }
+    }
+
+    private void registerBuiltinCommands() throws Exception {
+        List<String> classNames = new ArrayList<>();
+        String packagePath = PACKAGE_NAME_BUILTIN_COMMAND.replace('.', '/');
+        ClassLoader classLoader = Optional.ofNullable(applicationContext.getClassLoader())
+                .orElse(Thread.currentThread().getContextClassLoader());
+        Enumeration<URL> resources = classLoader.getResources(packagePath);
+        while (resources.hasMoreElements()) {
+            URL url = resources.nextElement();
+            String protocol = url.getProtocol();
+            if ("file".equals(protocol)) {
+                String filePath = URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8.name());
+                collectClassNamesFromFile(classNames, PACKAGE_NAME_BUILTIN_COMMAND, filePath);
+            } else if ("jar".equals(protocol)) {
+                collectClassNamesFromJar(classNames, packagePath, url);
+            }
+        }
+        for (String className : classNames) {
+            Class<?> clazz = Class.forName(className);
+            if (!Command.class.isAssignableFrom(clazz) || clazz.isInterface() ||
+                    Modifier.isAbstract(clazz.getModifiers())) {
+                continue;
+            }
+            Field instanceField = clazz.getField("INSTANCE");
+            if (!Modifier.isStatic(instanceField.getModifiers())) {
+                throw new IllegalArgumentException("内置命令类的 INSTANCE 字段不是静态字段: " + className);
+            }
+            Object instance = instanceField.get(null);
+            if (!(instance instanceof Command)) {
+                throw new IllegalArgumentException("内置命令类的 INSTANCE 字段不是 Command 类型: " + className);
+            }
+            internalRegisterCommand((Command) instance);
+        }
+    }
+
+    private void collectClassNamesFromFile(List<String> classNames, String packageName, String filePath) {
+        java.io.File dir = new java.io.File(filePath);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return;
+        }
+        java.io.File[] files = dir.listFiles();
+        if (Objects.isNull(files)) {
+            return;
+        }
+        for (java.io.File file : files) {
+            if (file.isDirectory()) {
+                collectClassNamesFromFile(classNames, packageName + "." + file.getName(), file.getAbsolutePath());
+                continue;
+            }
+            String fileName = file.getName();
+            if (!fileName.endsWith(".class") || fileName.contains("$")) {
+                continue;
+            }
+            classNames.add(packageName + "." + fileName.substring(0, fileName.length() - 6));
+        }
+    }
+
+    private void collectClassNamesFromJar(List<String> classNames, String packagePath, URL url) throws IOException {
+        JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
+        try (JarFile jarFile = jarURLConnection.getJarFile()) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+                if (!name.startsWith(packagePath) || !name.endsWith(".class") || name.contains("$")) {
+                    continue;
+                }
+                classNames.add(name.substring(0, name.length() - 6).replace('/', '.'));
+            }
+        }
+    }
+
+    private void registerCustomCommands() {
+        if (Objects.isNull(telqosConfig.getCommands())) {
+            return;
+        }
+        for (Command command : telqosConfig.getCommands()) {
+            internalRegisterCommand(command);
         }
     }
 

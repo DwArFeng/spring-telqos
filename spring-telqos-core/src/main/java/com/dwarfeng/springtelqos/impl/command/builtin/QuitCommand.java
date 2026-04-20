@@ -1,4 +1,4 @@
-package com.dwarfeng.springtelqos.impl.command;
+package com.dwarfeng.springtelqos.impl.command.builtin;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
@@ -10,14 +10,16 @@ import org.apache.commons.cli.CommandLine;
  * 退出指令。
  *
  * @author DwArFeng
- * @since 1.0.0
+ * @since 1.2.0
  */
 public class QuitCommand extends CliCommand {
+
+    public static final QuitCommand INSTANCE = new QuitCommand();
 
     private static final String DESCRIPTION = "退出";
     private static final String CMD_LINE_SYNTAX = Constants.COMMAND_QUIT;
 
-    public QuitCommand() {
+    private QuitCommand() {
         super(Constants.COMMAND_QUIT, DESCRIPTION, CMD_LINE_SYNTAX);
     }
 

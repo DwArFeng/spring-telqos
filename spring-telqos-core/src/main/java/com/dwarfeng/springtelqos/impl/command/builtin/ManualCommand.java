@@ -1,4 +1,4 @@
-package com.dwarfeng.springtelqos.impl.command;
+package com.dwarfeng.springtelqos.impl.command.builtin;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
@@ -11,14 +11,16 @@ import org.apache.commons.lang3.StringUtils;
  * 显示指令的详细帮助。
  *
  * @author DwArFeng
- * @since 1.0.0
+ * @since 1.2.0
  */
 public class ManualCommand extends CliCommand {
+
+    public static final ManualCommand INSTANCE = new ManualCommand();
 
     private static final String DESCRIPTION = "显示指令的详细信息";
     private static final String CMD_LINE_SYNTAX = Constants.COMMAND_MANUAL + " [command]";
 
-    public ManualCommand() {
+    private ManualCommand() {
         super(Constants.COMMAND_MANUAL, DESCRIPTION, CMD_LINE_SYNTAX);
     }
 

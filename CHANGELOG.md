@@ -4,6 +4,10 @@
 
 ### 功能构建
 
+- 命令注册机制优化。
+  - 将内置命令迁移至 `com.dwarfeng.springtelqos.impl.command.builtin` 包，并新增包级开发规约说明。
+  - 在服务启动阶段改为反射扫描 builtin 包动态注册内置命令，统一多种配置路线下的内置命令可用性。
+
 - `spring-telqos-core` 子模块类优化注释、文档注释格式、代码换行格式。
   - com.dwarfeng.springtelqos.impl.service.TelqosServiceImpl。
   - com.dwarfeng.springtelqos.sdk.command.AbstractCommand。

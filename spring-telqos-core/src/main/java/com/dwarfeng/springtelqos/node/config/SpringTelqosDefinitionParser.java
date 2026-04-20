@@ -1,8 +1,5 @@
 package com.dwarfeng.springtelqos.node.config;
 
-import com.dwarfeng.springtelqos.impl.command.ListCommandCommand;
-import com.dwarfeng.springtelqos.impl.command.ManualCommand;
-import com.dwarfeng.springtelqos.impl.command.QuitCommand;
 import com.dwarfeng.springtelqos.impl.service.TelqosServiceImpl;
 import com.dwarfeng.springtelqos.stack.bean.TelqosConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -69,7 +66,6 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
         Element commandElement = (Element) element.getElementsByTagNameNS(
                 TELQOS_NAMESPACE_URL, "command").item(0);
         ManagedList<BeanReference> commandBeanReferences = new ManagedList<>();
-        registerDefaultCommand(commandBeanReferences, parserContext);
         if (Objects.nonNull(commandElement)) {
             NodeList commandImpls = element.getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "command-impl");
             for (int i = 0; i < commandImpls.getLength(); i++) {
@@ -204,37 +200,5 @@ public class SpringTelqosDefinitionParser implements BeanDefinitionParser {
             parserContext.getRegistry().registerBeanDefinition(id, builder.getBeanDefinition());
             return Collections.singleton(new RuntimeBeanReference(id));
         }
-    }
-
-    private void registerDefaultCommand(ManagedList<BeanReference> commandBeanReferences, ParserContext parserContext) {
-        BeanDefinitionBuilder builder;
-        String beanId;
-
-        builder = BeanDefinitionBuilder.rootBeanDefinition(ListCommandCommand.class);
-        beanId = getAvailableBeanName("listCommandCommand", parserContext);
-        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
-        commandBeanReferences.add(new RuntimeBeanReference(beanId));
-
-        builder = BeanDefinitionBuilder.rootBeanDefinition(ManualCommand.class);
-        beanId = getAvailableBeanName("manualCommand", parserContext);
-        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
-        commandBeanReferences.add(new RuntimeBeanReference(beanId));
-
-        builder = BeanDefinitionBuilder.rootBeanDefinition(QuitCommand.class);
-        beanId = getAvailableBeanName("quitCommand", parserContext);
-        parserContext.getRegistry().registerBeanDefinition(beanId, builder.getBeanDefinition());
-        commandBeanReferences.add(new RuntimeBeanReference(beanId));
-    }
-
-    private String getAvailableBeanName(String baseName, ParserContext parserContext) {
-        if (!parserContext.getRegistry().containsBeanDefinition(baseName)) {
-            return baseName;
-        }
-        String actualName;
-        int index = 1;
-        do {
-            actualName = baseName + (index++);
-        } while (parserContext.getRegistry().containsBeanDefinition(actualName));
-        return actualName;
     }
 }

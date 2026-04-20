@@ -1,4 +1,4 @@
-package com.dwarfeng.springtelqos.impl.command;
+package com.dwarfeng.springtelqos.impl.command.builtin;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
@@ -15,14 +15,16 @@ import java.util.stream.Collectors;
  * 列出所有指令的命令。
  *
  * @author DwArFeng
- * @since 1.0.0
+ * @since 1.2.0
  */
 public class ListCommandCommand extends CliCommand {
+
+    public static final ListCommandCommand INSTANCE = new ListCommandCommand();
 
     private static final String DESCRIPTION = "列出指令";
     private static final String CMD_LINE_SYNTAX = Constants.COMMAND_LIST_COMMAND + " [-p prefix|--prefix prefix]";
 
-    public ListCommandCommand() {
+    private ListCommandCommand() {
         super(Constants.COMMAND_LIST_COMMAND, DESCRIPTION, CMD_LINE_SYNTAX);
     }
 
