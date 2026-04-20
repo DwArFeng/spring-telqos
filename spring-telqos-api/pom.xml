@@ -27,11 +27,6 @@
     </properties>
 
     <dependencies>
-        <!-- Spring-terminator 组件 -->
-        <dependency>
-            <groupId>com.dwarfeng</groupId>
-            <artifactId>spring-terminator</artifactId>
-        </dependency>
         <!-- Gson 组件 -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
