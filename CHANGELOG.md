@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- Wiki 编写。
+  - docs/wiki/zh-CN/NettyInTelqosServiceImpl.md。
+
 - 更新 README.md。
 
 - Wiki 更新。

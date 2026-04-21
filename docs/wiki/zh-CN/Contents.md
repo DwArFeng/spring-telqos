@@ -16,3 +16,8 @@
 ## 版本黑名单
 
 - [Version Blacklist](./VersionBlacklist.md) - 版本黑名单，列出了本项目的版本黑名单，请注意避免使用这些版本。
+
+## 核心实现原理
+
+- [Netty in TelqosServiceImpl](./NettyInTelqosServiceImpl.md) - 详细讲解 TelqosServiceImpl 中 Netty 的使用原理，
+  包括启动流程、管道设计、线程模型与连接生命周期。
