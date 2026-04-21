@@ -2,8 +2,8 @@ package com.dwarfeng.springtelqos.impl.command.builtin;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
-import com.dwarfeng.springtelqos.stack.command.Context;
-import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.stack.command.Command;
+import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,20 +15,27 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ManualCommand extends CliCommand {
 
-    public static final ManualCommand INSTANCE = new ManualCommand();
-
-    private static final String DESCRIPTION = "显示指令的详细信息";
-    private static final String CMD_LINE_SYNTAX = Constants.COMMAND_MANUAL + " [command]";
+    public static final Command INSTANCE = new ManualCommand();
 
     private ManualCommand() {
-        super(Constants.COMMAND_MANUAL, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(Constants.COMMAND_IDENTITY_MANUAL);
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+    protected DescriptionProvider provideDescriptionProvider() {
+        return context -> "显示指令的详细信息";
+    }
+
+    @Override
+    protected CliSyntaxProvider provideCliSyntaxProvider() {
+        return context -> Constants.COMMAND_IDENTITY_MANUAL + " [command]";
+    }
+
+    @Override
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         String identity = cmd.getArgList().stream().findFirst().orElse(null);
         if (StringUtils.isEmpty(identity)) {
-            context.sendMessage(getManual());
+            context.sendMessage(context.getCommandManual(Constants.COMMAND_IDENTITY_MANUAL));
             return;
         }
         String manual = context.getCommandManual(identity);

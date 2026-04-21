@@ -1,8 +1,7 @@
 package com.dwarfeng.springtelqos.impl.command;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-import com.dwarfeng.springtelqos.stack.command.Context;
-import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
 import org.springframework.stereotype.Component;
 
@@ -15,16 +14,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class HelloWorldCommand extends CliCommand {
 
-    private static final String IDENTITY = "hello";
-    private static final String DESCRIPTION = "输出 Hello World!";
-    private static final String CMD_LINE_SYNTAX = "hello";
+    @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})
+    public static final String IDENTITY = "hello";
+
+    private static final String OUTPUT_MESSAGE = "Hello World!";
 
     public HelloWorldCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(IDENTITY);
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
-        context.sendMessage("Hello World!");
+    protected DescriptionProvider provideDescriptionProvider() {
+        return ctx -> "输出 Hello World!";
+    }
+
+    @Override
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
+        // 向通道发送问候消息。
+        context.sendMessage(OUTPUT_MESSAGE);
     }
 }

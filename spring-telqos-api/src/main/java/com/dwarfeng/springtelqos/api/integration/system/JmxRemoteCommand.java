@@ -1,8 +1,9 @@
 package com.dwarfeng.springtelqos.api.integration.system;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-import com.dwarfeng.springtelqos.stack.command.Context;
-import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
+import com.dwarfeng.springtelqos.stack.command.CommandDescriptor;
+import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
@@ -24,32 +25,33 @@ import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * JMX 远程管理操作命令。
+ * JMX 远程管理操作指令。
  *
  * @author DwArFeng
  * @since 1.1.15
  */
 public class JmxRemoteCommand extends CliCommand {
 
+    @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})
+    private static final String IDENTITY = "jmxremote";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JmxRemoteCommand.class);
 
-    @SuppressWarnings({"SpellCheckingInspection", "RedundantSuppression"})
-    private static final String IDENTITY = "jmxremote";
-    private static final String DESCRIPTION = "JMX 远程管理操作";
+    // region 指令选项
 
     private static final String COMMAND_OPTION_START = "start";
     private static final String COMMAND_OPTION_STOP = "stop";
     private static final String COMMAND_OPTION_STATUS = "status";
 
-    private static final String COMMAND_OPTION_PORT = "p";
+    private static final String[] COMMAND_OPTION_ARRAY = new String[]{
+            COMMAND_OPTION_START,
+            COMMAND_OPTION_STOP,
+            COMMAND_OPTION_STATUS
+    };
 
-    private static final String CMD_LINE_SYNTAX_START = IDENTITY + " -" + COMMAND_OPTION_START + " [-" +
-            COMMAND_OPTION_PORT + " port]";
-    private static final String CMD_LINE_SYNTAX_STOP = IDENTITY + " -" + COMMAND_OPTION_STOP;
-    private static final String CMD_LINE_SYNTAX_STATUS = IDENTITY + " -" + COMMAND_OPTION_STATUS;
+    private static final String COMMAND_SUB_OPTION_PORT = "p";
 
-    private static final String CMD_LINE_SYNTAX = CMD_LINE_SYNTAX_START + System.lineSeparator() +
-            CMD_LINE_SYNTAX_STOP + System.lineSeparator() + CMD_LINE_SYNTAX_STATUS;
+    // endregion
 
     private static final int DEFAULT_PORT = 9999;
 
@@ -62,66 +64,63 @@ public class JmxRemoteCommand extends CliCommand {
     private int currentPort;
 
     public JmxRemoteCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(IDENTITY);
     }
 
     @Override
-    protected List<Option> buildOptions() {
+    protected DescriptionProvider provideDescriptionProvider() {
+        return ctx -> "JMX 远程管理操作";
+    }
+
+    @Override
+    protected CliSyntaxProvider provideCliSyntaxProvider() {
+        return this::cliSyntaxProvider;
+    }
+
+    private String cliSyntaxProvider(CommandDescriptor.Context context) throws Exception {
+        final String[] patterns = new String[]{
+                context.getIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_START) + " [" +
+                        CliCommandUtil.concatOptionPrefix(COMMAND_SUB_OPTION_PORT) + " port]",
+                context.getIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_STOP),
+                context.getIdentity() + " " + CliCommandUtil.concatOptionPrefix(COMMAND_OPTION_STATUS)
+        };
+        return CliCommandUtil.cliSyntax(patterns);
+    }
+
+    @Override
+    protected List<Option> provideOptions() {
         List<Option> list = new ArrayList<>();
         list.add(Option.builder(COMMAND_OPTION_START).desc("启动 JMX 远程管理").build());
         list.add(Option.builder(COMMAND_OPTION_STOP).desc("停止 JMX 远程管理").build());
         list.add(Option.builder(COMMAND_OPTION_STATUS).desc("查看 JMX 远程管理状态").build());
-        list.add(Option.builder(COMMAND_OPTION_PORT).desc("JMX 远程管理端口号").hasArg().type(Number.class).build());
+        list.add(Option.builder(COMMAND_SUB_OPTION_PORT).desc("JMX 远程管理端口号").hasArg().type(Number.class).build());
         return list;
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
-        try {
-            Pair<String, Integer> pair = analyseCommand(cmd);
-            if (pair.getRight() != 1) {
-                context.sendMessage("下列选项必须且只能含有一个: -" + COMMAND_OPTION_START + " -" +
-                        COMMAND_OPTION_STOP + " -" + COMMAND_OPTION_STATUS);
-                context.sendMessage(CMD_LINE_SYNTAX);
-                return;
-            }
-            switch (pair.getLeft()) {
-                case COMMAND_OPTION_START:
-                    handleStart(context, cmd);
-                    break;
-                case COMMAND_OPTION_STOP:
-                    handleStop(context);
-                    break;
-                case COMMAND_OPTION_STATUS:
-                    handleStatus(context);
-                    break;
-                default:
-                    throw new IllegalStateException("不应该执行到此处, 请联系开发人员");
-            }
-        } catch (Exception e) {
-            throw new TelqosException(e);
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
+        Pair<String, Integer> pair = CliCommandUtil.analyseCommand(cmd, COMMAND_OPTION_ARRAY);
+        if (pair.getRight() != 1) {
+            context.sendMessage(CliCommandUtil.optionMismatchMessage(COMMAND_OPTION_ARRAY));
+            context.sendMessage(context.getCommandManual(context.getIdentity()));
+            return;
+        }
+        switch (pair.getLeft()) {
+            case COMMAND_OPTION_START:
+                handleStart(context, cmd);
+                break;
+            case COMMAND_OPTION_STOP:
+                handleStop(context);
+                break;
+            case COMMAND_OPTION_STATUS:
+                handleStatus(context);
+                break;
+            default:
+                throw new IllegalStateException("不应该执行到此处, 请联系开发人员");
         }
     }
 
-    private Pair<String, Integer> analyseCommand(CommandLine cmd) {
-        int i = 0;
-        String subCmd = null;
-        if (cmd.hasOption(COMMAND_OPTION_START)) {
-            i++;
-            subCmd = COMMAND_OPTION_START;
-        }
-        if (cmd.hasOption(COMMAND_OPTION_STOP)) {
-            i++;
-            subCmd = COMMAND_OPTION_STOP;
-        }
-        if (cmd.hasOption(COMMAND_OPTION_STATUS)) {
-            i++;
-            subCmd = COMMAND_OPTION_STATUS;
-        }
-        return Pair.of(subCmd, i);
-    }
-
-    private void handleStart(Context context, CommandLine cmd) throws Exception {
+    private void handleStart(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         lock.lock();
         try {
             handleStart0(context, cmd);
@@ -130,7 +129,7 @@ public class JmxRemoteCommand extends CliCommand {
         }
     }
 
-    private void handleStart0(Context context, CommandLine cmd) throws Exception {
+    private void handleStart0(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         // 检查系统属性是否已启用 JMX 远程管理。
         if (isSystemPropertyEnabled()) {
             String portStr = System.getProperty(SYS_PROP_JMX_PORT);
@@ -188,7 +187,7 @@ public class JmxRemoteCommand extends CliCommand {
         }
     }
 
-    private void handleStop(Context context) throws Exception {
+    private void handleStop(CommandExecutor.Context context) throws Exception {
         lock.lock();
         try {
             handleStop0(context);
@@ -197,7 +196,7 @@ public class JmxRemoteCommand extends CliCommand {
         }
     }
 
-    private void handleStop0(Context context) throws Exception {
+    private void handleStop0(CommandExecutor.Context context) throws Exception {
         // 检查系统属性是否已启用 JMX 远程管理。
         if (isSystemPropertyEnabled()) {
             String portStr = System.getProperty(SYS_PROP_JMX_PORT);
@@ -230,7 +229,7 @@ public class JmxRemoteCommand extends CliCommand {
         }
     }
 
-    private void handleStatus(Context context) throws Exception {
+    private void handleStatus(CommandExecutor.Context context) throws Exception {
         lock.lock();
         try {
             handleStatus0(context);
@@ -239,7 +238,7 @@ public class JmxRemoteCommand extends CliCommand {
         }
     }
 
-    private void handleStatus0(Context context) throws Exception {
+    private void handleStatus0(CommandExecutor.Context context) throws Exception {
         // 检查系统属性是否已启用 JMX 远程管理。
         if (isSystemPropertyEnabled()) {
             String portStr = System.getProperty(SYS_PROP_JMX_PORT);
@@ -265,7 +264,7 @@ public class JmxRemoteCommand extends CliCommand {
             context.sendMessage("JMX 远程管理状态: 运行中");
             context.sendMessage("  端口: " + currentPort);
             @SuppressWarnings({"SpellCheckingInspection", "RedundantSuppression"})
-            String jmxServiceUrlDescription = "  服务地址: service:jmx:rmi:///jndi/rmi://:" + currentPort + "/jmxrmi";
+            String jmxServiceUrlDescription = "  服务地址: service:jmx:rmi:///jndi/rmi//:" + currentPort + "/jmxrmi";
             context.sendMessage(jmxServiceUrlDescription);
         }
     }
@@ -275,10 +274,10 @@ public class JmxRemoteCommand extends CliCommand {
         return !StringUtils.isBlank(portStr);
     }
 
-    private int parsePort(Context context, CommandLine cmd) throws Exception {
+    private int parsePort(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         // 优先级 1: 命令行参数。
-        if (cmd.hasOption(COMMAND_OPTION_PORT)) {
-            Number portNumber = (Number) cmd.getParsedOptionValue(COMMAND_OPTION_PORT);
+        if (cmd.hasOption(COMMAND_SUB_OPTION_PORT)) {
+            Number portNumber = (Number) cmd.getParsedOptionValue(COMMAND_SUB_OPTION_PORT);
             if (Objects.nonNull(portNumber)) {
                 return portNumber.intValue();
             }

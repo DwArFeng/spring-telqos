@@ -1,1 +1,1 @@
-http\://dwarfeng.com/schema/spring-telqos=com.dwarfeng.springtelqos.node.config.SpringTelqosNamespaceHandler
+http\://dwarfeng.com/schema/spring-telqos=com.dwarfeng.springtelqos.node.configuration.SpringTelqosNamespaceHandler

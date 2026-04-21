@@ -2,8 +2,8 @@ package com.dwarfeng.springtelqos.impl.command.builtin;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
-import com.dwarfeng.springtelqos.stack.command.Context;
-import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.stack.command.Command;
+import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
 
 /**
@@ -14,17 +14,19 @@ import org.apache.commons.cli.CommandLine;
  */
 public class QuitCommand extends CliCommand {
 
-    public static final QuitCommand INSTANCE = new QuitCommand();
-
-    private static final String DESCRIPTION = "退出";
-    private static final String CMD_LINE_SYNTAX = Constants.COMMAND_QUIT;
+    public static final Command INSTANCE = new QuitCommand();
 
     private QuitCommand() {
-        super(Constants.COMMAND_QUIT, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(Constants.COMMAND_IDENTITY_QUIT);
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+    protected DescriptionProvider provideDescriptionProvider() {
+        return ctx -> "退出";
+    }
+
+    @Override
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         context.sendMessage("Bye");
         context.quit();
     }

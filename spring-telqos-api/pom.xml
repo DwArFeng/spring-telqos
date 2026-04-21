@@ -58,11 +58,6 @@
             <artifactId>curator-recipes</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Dutil 组件 -->
-        <dependency>
-            <groupId>com.dwarfeng</groupId>
-            <artifactId>dutil-basic</artifactId>
-        </dependency>
         <!-- 程序自身组件 -->
         <dependency>
             <groupId>com.dwarfeng</groupId>

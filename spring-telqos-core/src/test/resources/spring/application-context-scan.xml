@@ -9,5 +9,10 @@
         http://www.springframework.org/schema/context/spring-context.xsd"
 >
 
+    <!--扫描指令的实现包。 -->
     <context:component-scan base-package="com.dwarfeng.springtelqos.impl.command"/>
+    <!--扫描配置类所在的包。 -->
+    <context:component-scan base-package="com.dwarfeng.springtelqos.node.configuration"/>
+    <!--扫描 aop 增强所在的包。 -->
+    <context:component-scan base-package="com.dwarfeng.subgrade.sdk.interceptor.analyse"/>
 </beans>

@@ -106,7 +106,7 @@ spring-telqos 是一款基于 Spring 框架的 telnet QOS 服务框架，它提�
 package com.example.telqos;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-import com.dwarfeng.springtelqos.stack.command.Context;
+import com.dwarfeng.springtelqos.stack.command.Command.Context;
 import com.dwarfeng.springtelqos.stack.exception.TelqosException;
 import org.apache.commons.cli.CommandLine;
 import org.springframework.stereotype.Component;
@@ -985,7 +985,7 @@ list-all      # 包含非法字符 '-'
    package com.example.telqos;
    
    import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-   import com.dwarfeng.springtelqos.stack.command.Context;
+   import com.dwarfeng.springtelqos.stack.command.Command.Context;
    import com.dwarfeng.springtelqos.stack.exception.TelqosException;
    import org.apache.commons.cli.CommandLine;
    import org.springframework.stereotype.Component;
@@ -1019,7 +1019,7 @@ list-all      # 包含非法字符 '-'
    package com.example.telqos;
    
    import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-   import com.dwarfeng.springtelqos.stack.command.Context;
+   import com.dwarfeng.springtelqos.stack.command.Command.Context;
    import com.dwarfeng.springtelqos.stack.exception.TelqosException;
    import org.apache.commons.cli.CommandLine;
    import org.springframework.stereotype.Component;

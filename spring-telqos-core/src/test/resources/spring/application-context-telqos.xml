@@ -11,10 +11,11 @@
 
     <telqos:config>
         <telqos:connection-setting charset="GBK"/>
-        <telqos:task-pool pool-size="20" rejection-policy="ABORT"/>
         <telqos:command>
             <telqos:command-impl ref="helloWorldCommand"/>
             <telqos:command-impl package-scan="com.dwarfeng.springtelqos.impl.command"/>
         </telqos:command>
     </telqos:config>
+    <telqos:handler/>
+    <telqos:qos/>
 </beans>

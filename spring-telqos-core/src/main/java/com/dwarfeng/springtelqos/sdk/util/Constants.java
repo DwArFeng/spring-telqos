@@ -12,17 +12,24 @@ public final class Constants {
     public static final String COMMAND_IDENTITY_FORMAT = "^[a-zA-Z_][0-9a-zA-Z_]*$";
 
     /**
-     * @since 1.1.15
+     * @since 2.0.0
      */
-    public static final String COMMAND_LIST_COMMAND = "lc";
+    @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})
+    public static final String COMMAND_IDENTITY_LIST_COMMAND = "lc";
 
     /**
-     * @since 1.1.15
+     * @since 2.0.0
      */
-    public static final String COMMAND_MANUAL = "man";
+    @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})
+    public static final String COMMAND_IDENTITY_MANUAL = "man";
 
     /**
-     * @since 1.1.15
+     * @since 2.0.0
      */
-    public static final String COMMAND_QUIT = "quit";
+    @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})
+    public static final String COMMAND_IDENTITY_QUIT = "quit";
+
+    private Constants() {
+        throw new IllegalStateException("禁止实例化");
+    }
 }

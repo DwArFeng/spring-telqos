@@ -11,4 +11,8 @@
 
     <!--扫描集成包。 -->
     <context:component-scan base-package="com.dwarfeng.springtelqos.api.integration"/>
+    <!--扫描配置类所在的包。 -->
+    <context:component-scan base-package="com.dwarfeng.springtelqos.api.configuration"/>
+    <!--扫描 aop 增强所在的包。 -->
+    <context:component-scan base-package="com.dwarfeng.subgrade.sdk.interceptor.analyse"/>
 </beans>

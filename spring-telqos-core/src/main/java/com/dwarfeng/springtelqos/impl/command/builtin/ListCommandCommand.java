@@ -1,9 +1,10 @@
 package com.dwarfeng.springtelqos.impl.command.builtin;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
+import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
-import com.dwarfeng.springtelqos.stack.command.Context;
-import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.stack.command.Command;
+import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
@@ -12,35 +13,49 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 列出所有指令的命令。
+ * 列出所有指令的指令。
  *
  * @author DwArFeng
  * @since 1.2.0
  */
 public class ListCommandCommand extends CliCommand {
 
-    public static final ListCommandCommand INSTANCE = new ListCommandCommand();
+    public static final Command INSTANCE = new ListCommandCommand();
 
-    private static final String DESCRIPTION = "列出指令";
-    private static final String CMD_LINE_SYNTAX = Constants.COMMAND_LIST_COMMAND + " [-p prefix|--prefix prefix]";
+    // region 指令选项
+
+    private static final String COMMAND_SUB_OPTION_PREFIX = "p";
+
+    // endregion
 
     private ListCommandCommand() {
-        super(Constants.COMMAND_LIST_COMMAND, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(Constants.COMMAND_IDENTITY_LIST_COMMAND);
     }
 
     @Override
-    protected List<Option> buildOptions() {
+    protected DescriptionProvider provideDescriptionProvider() {
+        return context -> "列出指令";
+    }
+
+    @Override
+    protected CliSyntaxProvider provideCliSyntaxProvider() {
+        return context -> Constants.COMMAND_IDENTITY_LIST_COMMAND + " [" +
+                CliCommandUtil.concatOptionPrefix(COMMAND_SUB_OPTION_PREFIX) + " prefix]";
+    }
+
+    @Override
+    protected List<Option> provideOptions() {
         List<Option> list = new ArrayList<>();
-        list.add(Option.builder("p").longOpt("prefix").optionalArg(true).type(String.class)
-                .argName("prefix").hasArg(true).desc("列出包含指定前缀的命令").build());
+        list.add(Option.builder(COMMAND_SUB_OPTION_PREFIX).optionalArg(true).type(String.class).hasArg(true)
+                .desc("列出包含指定前缀的指令").build());
         return list;
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         List<String> identities = context.getCommandIdentities();
-        if (cmd.hasOption("p")) {
-            String prefix = cmd.getOptionValue("p");
+        if (cmd.hasOption(COMMAND_SUB_OPTION_PREFIX)) {
+            String prefix = cmd.getOptionValue(COMMAND_SUB_OPTION_PREFIX);
             identities = identities.stream().filter(s -> s.startsWith(prefix)).collect(Collectors.toList());
         }
         int index = 0;

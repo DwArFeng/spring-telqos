@@ -3,8 +3,8 @@ package com.dwarfeng.springtelqos.api.integration.system;
 import com.dwarfeng.dutil.basic.num.NumberUtil;
 import com.dwarfeng.dutil.basic.num.unit.DataSize;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-import com.dwarfeng.springtelqos.stack.command.Context;
-import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
+import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.Strings;
@@ -22,9 +22,14 @@ import java.util.List;
  */
 public class MemoryCommand extends CliCommand {
 
-    private static final String IDENTITY = "memory";
-    private static final String DESCRIPTION = "内存监视";
-    private static final String CMD_LINE_SYNTAX = "memory [-u unit]";
+    @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})
+    public static final String IDENTITY = "memory";
+
+    // region 指令选项
+
+    private static final String COMMAND_SUB_OPTION_UNIT = "u";
+
+    // endregion
 
     private static final List<DataSize> DATA_SIZES = Collections.unmodifiableList(Arrays.asList(
             DataSize.EIB, DataSize.PIB, DataSize.TIB, DataSize.GIB, DataSize.MIB, DataSize.KIB, DataSize.BYTE
@@ -34,60 +39,67 @@ public class MemoryCommand extends CliCommand {
     ));
 
     public MemoryCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(IDENTITY);
     }
 
     @Override
-    protected List<Option> buildOptions() {
+    protected DescriptionProvider provideDescriptionProvider() {
+        return ctx -> "内存监视";
+    }
+
+    @Override
+    protected CliSyntaxProvider provideCliSyntaxProvider() {
+        return context -> context.getIdentity() + " [" + CliCommandUtil.concatOptionPrefix(COMMAND_SUB_OPTION_UNIT) +
+                " unit]";
+    }
+
+    @Override
+    protected List<Option> provideOptions() {
         List<Option> list = new ArrayList<>();
-        list.add(Option.builder("u").optionalArg(true).hasArg(true).desc("显示单位").build());
+        list.add(Option.builder(COMMAND_SUB_OPTION_UNIT).optionalArg(true).hasArg(true).desc("显示单位").build());
         return list;
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
-        try {
-            Runtime runtime = Runtime.getRuntime();
-            long freeMemory = runtime.freeMemory();
-            long maxMemory = runtime.maxMemory();
-            long totalMemory = runtime.totalMemory();
-            StringBuilder stringBuilder = new StringBuilder();
-            if (cmd.hasOption("u")) {
-                String unit = cmd.getOptionValue("u");
-                int index = -1;
-                for (int i = 0; i < DATA_SIZE_LABELS.size(); i++) {
-                    String testUnit = DATA_SIZE_LABELS.get(i);
-                    if (Strings.CI.equals(unit, testUnit)) {
-                        index = i;
-                        break;
-                    }
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
+        Runtime runtime = Runtime.getRuntime();
+        long freeMemory = runtime.freeMemory();
+        long maxMemory = runtime.maxMemory();
+        long totalMemory = runtime.totalMemory();
+        StringBuilder stringBuilder = new StringBuilder();
+        if (cmd.hasOption(COMMAND_SUB_OPTION_UNIT)) {
+            String unit = cmd.getOptionValue(COMMAND_SUB_OPTION_UNIT);
+            int index = -1;
+            for (int i = 0; i < DATA_SIZE_LABELS.size(); i++) {
+                String testUnit = DATA_SIZE_LABELS.get(i);
+                if (Strings.CI.equals(unit, testUnit)) {
+                    index = i;
+                    break;
                 }
-                if (index < 0) {
-                    stringBuilder.append("-u 后接单位不合法，可用的单位如下:").append(System.lineSeparator());
-                    for (int i = 0; i < DATA_SIZE_LABELS.size(); i++) {
-                        if (i != 0) {
-                            stringBuilder.append(", ");
-                        }
-                        stringBuilder.append(DATA_SIZE_LABELS.get(i));
+            }
+            if (index < 0) {
+                stringBuilder.append("-u 后接单位不合法，可用的单位如下:").append(System.lineSeparator());
+                for (int i = 0; i < DATA_SIZE_LABELS.size(); i++) {
+                    if (i != 0) {
+                        stringBuilder.append(", ");
                     }
-                } else {
-                    renderUnitValue(stringBuilder, "JVM 最大内存:", maxMemory, index);
-                    stringBuilder.append(System.lineSeparator());
-                    renderUnitValue(stringBuilder, "JVM 分配内存:", totalMemory, index);
-                    stringBuilder.append(System.lineSeparator());
-                    renderUnitValue(stringBuilder, "JVM 可用内存:", freeMemory, index);
+                    stringBuilder.append(DATA_SIZE_LABELS.get(i));
                 }
             } else {
-                renderUnitValue(stringBuilder, "JVM 最大内存:", maxMemory, humanReadable(maxMemory));
+                renderUnitValue(stringBuilder, "JVM 最大内存:", maxMemory, index);
                 stringBuilder.append(System.lineSeparator());
-                renderUnitValue(stringBuilder, "JVM 分配内存:", totalMemory, humanReadable(totalMemory));
+                renderUnitValue(stringBuilder, "JVM 分配内存:", totalMemory, index);
                 stringBuilder.append(System.lineSeparator());
-                renderUnitValue(stringBuilder, "JVM 可用内存:", freeMemory, humanReadable(freeMemory));
+                renderUnitValue(stringBuilder, "JVM 可用内存:", freeMemory, index);
             }
-            context.sendMessage(stringBuilder.toString());
-        } catch (Exception e) {
-            throw new TelqosException(e);
+        } else {
+            renderUnitValue(stringBuilder, "JVM 最大内存:", maxMemory, humanReadable(maxMemory));
+            stringBuilder.append(System.lineSeparator());
+            renderUnitValue(stringBuilder, "JVM 分配内存:", totalMemory, humanReadable(totalMemory));
+            stringBuilder.append(System.lineSeparator());
+            renderUnitValue(stringBuilder, "JVM 可用内存:", freeMemory, humanReadable(freeMemory));
         }
+        context.sendMessage(stringBuilder.toString());
     }
 
     private void renderUnitValue(StringBuilder stringBuilder, String prefix, long byteSize, int index) {
