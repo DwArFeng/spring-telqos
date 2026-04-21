@@ -1,4 +1,4 @@
-# Wiki en_US - Project Knowledge Base
+# Wiki en-US - Project Knowledge Base
 
 Wiki is a project knowledge base. It provides project documents, designs,
 specifications and other content to help project members or users quickly understand the project.

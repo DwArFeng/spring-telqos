@@ -4,6 +4,10 @@
 
 ### 功能构建
 
+- Wiki 更新。
+  - docs/wiki/en-US/README.md。
+  - docs/wiki/zh-CN/README.md。
+
 - 命令注册机制优化。
   - 将内置命令迁移至 `com.dwarfeng.springtelqos.impl.command.builtin` 包，并新增包级开发规约说明。
   - 在服务启动阶段改为反射扫描 builtin 包动态注册内置命令，统一多种配置路线下的内置命令可用性。
