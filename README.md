@@ -48,6 +48,8 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
 2. 在 Spring 中添加如下配置。
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
+   <!-- 以下注释用于抑制 idea 中 .md 的警告，实际并无错误，在使用时可以连同本注释一起删除。 -->
+   <!--suppress SpringBeanConstructorArgInspection, SpringXmlModelInspection, SpringPlaceholdersInspection -->
    <beans
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
@@ -81,7 +83,7 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
    ```
    注：该文件中的所有属性均支持 `Spring place-holder expression`。
 
-3. 编写自定义指令类，继承 `Command`。  
+3. 编写自定义指令类，继承 `Command`。
 
    `spring-telqos` 中提供了多种 `Command` 接口的抽象实现，合理地继承这些抽象实现能够提高开发的速度。
 
