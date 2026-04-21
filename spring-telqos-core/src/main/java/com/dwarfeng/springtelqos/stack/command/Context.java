@@ -60,6 +60,7 @@ public interface Context {
 
     /**
      * 接收用户的输入信息，并在输入之前一直阻塞。
+     *
      * <p>
      * 请注意：{@link Command#execute(Context)} 调用该方法时不能捕获 ConnectionTerminatedException 异常，必须抛出。
      *

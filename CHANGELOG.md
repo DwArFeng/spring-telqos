@@ -4,6 +4,11 @@
 
 ### 功能构建
 
+- `spring-telqos-core` 子模块类优化注释、文档注释格式、代码换行格式。
+  - com.dwarfeng.springtelqos.impl.service.TelqosServiceImpl。
+  - com.dwarfeng.springtelqos.sdk.command.AbstractCommand。
+  - com.dwarfeng.springtelqos.stack.command.Context。
+
 - 依赖升级。
   - 升级 `log4j2` 依赖版本为 `2.25.4` 以规避漏洞。
   - 升级 `spring-terminator` 依赖版本为 `1.1.0.a` 以规避漏洞。

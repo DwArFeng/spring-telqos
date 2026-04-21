@@ -4,6 +4,7 @@ import com.dwarfeng.springtelqos.stack.command.Command;
 
 /**
  * 抽象指令。
+ *
  * <p>
  * 指令的抽象实现。
  *

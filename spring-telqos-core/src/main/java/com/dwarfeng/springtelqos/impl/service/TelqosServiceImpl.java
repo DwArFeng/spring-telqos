@@ -114,15 +114,15 @@ public class TelqosServiceImpl implements TelqosService, InitializingBean, Dispo
         // 新建负责处理客户端 i/o 事件、task 任务、监听任务组。
         workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
 
-        // 启动 NIO 服务的辅助启动类
+        // 启动 NIO 服务的辅助启动类。
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup);
 
-        // 配置 Channel
+        // 配置 Channel。
         bootstrap.channel(NioServerSocketChannel.class);
         bootstrap.childHandler(new TelqosChannelInitializer());
 
-        // 是否启用心跳保活机制
+        // 是否启用心跳保活机制。
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
         // 绑定服务端口监听。
