@@ -56,6 +56,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
     private final TelqosConfig config;
 
     private final Map<String, Command> commandMap = new HashMap<>();
+    private final Set<String> builtinCommandRuntimeIdentities = new HashSet<>();
     private final Map<String, StringBuilder> commandBufferMap = new HashMap<>();
     private final Map<String, Channel> channelMap = new HashMap<>();
     private final Map<String, InteractionInfo> interactionMap = new HashMap<>();
@@ -176,6 +177,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
                 throw new IllegalArgumentException("非法的指令标识符: " + identity);
             }
             commandMap.put(identity, command);
+            builtinCommandRuntimeIdentities.add(identity);
         }
     }
 
@@ -286,6 +288,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
 
     private void unregisterCommands() {
         commandMap.clear();
+        builtinCommandRuntimeIdentities.clear();
     }
 
     private void kick(String address) {
@@ -777,7 +780,10 @@ public class TelqosHandlerImpl implements TelqosHandler {
             lock.lock();
             try {
                 ArrayList<String> list = new ArrayList<>(commandMap.keySet());
-                list.sort(String::compareTo);
+                Comparator<String> runtimeIdentityComparator = Comparator
+                        .comparing((String id) -> builtinCommandRuntimeIdentities.contains(id) ? 0 : 1)
+                        .thenComparing(Comparator.naturalOrder());
+                list.sort(runtimeIdentityComparator);
                 return list;
             } finally {
                 lock.unlock();

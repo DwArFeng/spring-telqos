@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- Telqos 处理器功能优化。
+  - `TelqosHandlerImpl` 中指令执行器上下文内部实现的列出指令的运行时标识方法返回的结果列表排序方法优化。
+
 - 新增命名策略。
   - 新增 `com.dwarfeng.springtelqos.stack.naming.NamingStrategy` 接口，实现指令标识符映射。
   - 新增 `com.dwarfeng.springtelqos.stack.struct.TelqosConfig` 中相关的配置项。
