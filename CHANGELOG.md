@@ -4,6 +4,11 @@
 
 ### 功能构建
 
+- 更新 README.md。
+
+- Wiki 更新。
+  - docs/wiki/zh-CN/Introduction.md。
+
 - 优化 `spring-telqos-api` 模块的预设集成指令，使其支持包扫描机制。
   - com.dwarfeng.springtelqos.api.integration.dubbo.DubboCommand。
   - com.dwarfeng.springtelqos.api.integration.log4j2.Log4j2Command。

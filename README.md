@@ -41,7 +41,7 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
 
 ## 使用方式
 
-以下的操作步骤可以通过启动 `test` 源目录中的 `com.dwarfeng.springtelqos.impl.service.Example` 观察实际效果。
+以下的操作步骤可以通过启动 `test` 源目录中的 `com.dwarfeng.springtelqos.node.example.Example`（core 模块）或 `com.dwarfeng.springtelqos.api.example.Example`（api 模块）观察实际效果。
 
 1. 添加依赖。
 
@@ -62,23 +62,20 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
    
        <telqos:config>
            <telqos:connection-setting port="${telqos.port}" charset="${telqos.charset}"/>
-           <telqos:task-pool ref="executor"/>
            <telqos:command>
-               <telqos:command-impl ref="shutdownCommand"/>
-               <telqos:command-impl ref="dubboCommand"/>
-               <telqos:command-impl ref="memoryCommand"/>
+               <telqos:command-impl command-ref="dubboCommand"/>
+               <telqos:command-impl command-ref="memoryCommand"/>
+               <telqos:command-impl command-ref="log4j2Command"/>
            </telqos:command>
        </telqos:config>
-   
-       <bean name="shutdownCommand" class="com.dwarfeng.springtelqos.api.integration.springterminator.ShutdownCommand">
-           <!--suppress SpringXmlModelInspection -->
-           <property name="terminator" ref="terminator"/>
-           <property name="restartEnabled" value="false"/>
-       </bean>
+       <telqos:handler/>
+       <telqos:qos/>
    
        <bean name="dubboCommand" class="com.dwarfeng.springtelqos.api.integration.dubbo.DubboCommand"/>
    
        <bean name="memoryCommand" class="com.dwarfeng.springtelqos.api.integration.system.MemoryCommand"/>
+   
+       <bean name="log4j2Command" class="com.dwarfeng.springtelqos.api.integration.log4j2.Log4j2Command"/>
    </beans>
    ```
    注：该文件中的所有属性均支持 `Spring place-holder expression`。
