@@ -89,7 +89,7 @@ spring-telqos 是一款基于 Spring 框架的 telnet QOS 服务框架，它提�
     <telqos:config>
         <telqos:connection-setting/>
         <telqos:command>
-            <telqos:command-impl ref="myCommand"/>
+            <telqos:command-impl command-ref="myCommand"/>
         </telqos:command>
     </telqos:config>
 
@@ -248,12 +248,12 @@ Banner 可以是项目资源文件或文件系统路径：
 >
 
     <!-- 使用 classpath 资源。 -->
-    <telqos:config service-id="telqosService1" config-id="telqosConfig1">
+    <telqos:config>
         <telqos:connection-setting banner-url="classpath:telqos/my-banner.txt"/>
     </telqos:config>
 
     <!-- 使用文件系统路径 -->
-    <telqos:config service-id="telqosService2" config-id="telqosConfig2">
+    <telqos:config>
         <telqos:connection-setting banner-url="file:/path/to/banner.txt"/>
     </telqos:config>
 </beans>
@@ -286,87 +286,73 @@ Banner 可以是项目资源文件或文件系统路径：
 >
 
     <!-- 只允许本地连接。 -->
-    <telqos:config service-id="telqosService1" config-id="telqosConfig1">
+    <telqos:config>
         <telqos:connection-setting whitelist-regex="127\.0\.0\.1|::1"/>
     </telqos:config>
 
     <!-- 禁止特定 IP 段。 -->
-    <telqos:config service-id="telqosService2" config-id="telqosConfig2">
+    <telqos:config>
         <telqos:connection-setting blacklist-regex="192\.168\.1\..*"/>
     </telqos:config>
 </beans>
 ```
 
-### 任务池配置
+### 线程池与服务装配配置（2.0）
 
-`task-pool` 元素用于配置指令执行的任务池。您可以选择引用外部线程池或直接配置线程池参数。
+2.0 命名空间不再提供 `task-pool` 元素。线程池通过 `telqos:handler` 的 `executor-ref` 属性引用。
 
-#### 引用外部线程池
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
-        xmlns="http://www.springframework.org/schema/beans"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://dwarfeng.com/schema/spring-telqos
-        http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd"
->
-
-    <telqos:config>
-        <telqos:task-pool ref="executor"/>
-    </telqos:config>
-
-    <!--suppress SpringXmlModelInspection -->
-    <bean name="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <!--suppress SpringXmlModelInspection -->
-        <property name="corePoolSize" value="10"/>
-        <!--suppress SpringXmlModelInspection -->
-        <property name="maxPoolSize" value="20"/>
-        <!--suppress SpringXmlModelInspection -->
-        <property name="queueCapacity" value="100"/>
-    </bean>
-</beans>
-```
-
-#### 直接配置线程池参数
+#### 最小可用配置
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:task="http://www.springframework.org/schema/task"
         xmlns:telqos="http://dwarfeng.com/schema/spring-telqos"
         xmlns="http://www.springframework.org/schema/beans"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task.xsd
         http://dwarfeng.com/schema/spring-telqos
         http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd"
 >
+    <task:executor
+            id="executor"
+            pool-size="20-40"
+            queue-capacity="100"
+            keep-alive="120"
+            rejection-policy="CALLER_RUNS"
+    />
 
     <telqos:config>
-        <telqos:task-pool pool-size="20" queue-capacity="100" keep-alive="60" rejection-policy="ABORT"/>
+        <telqos:connection-setting port="22000" charset="GBK"/>
     </telqos:config>
+
+    <telqos:handler/>
+    <telqos:qos/>
 </beans>
 ```
 
-**参数说明**：
+#### handler 与 qos 常用属性
 
-| 参数名                | 类型        | 说明                                                        |
-|:-------------------|:----------|:----------------------------------------------------------|
-| `pool-size`        | `Integer` | 线程池核心线程数和最大线程数                                            |
-| `queue-capacity`   | `Integer` | 任务队列容量                                                    |
-| `keep-alive`       | `Integer` | 线程空闲保持时间（秒）                                               |
-| `rejection-policy` | `String`  | 拒绝策略，可选值：`ABORT`、`CALLER_RUNS`、`DISCARD`、`DISCARD_OLDEST` |
+| 元素               | 属性             | 说明                                                              |
+|:-----------------|:---------------|:----------------------------------------------------------------|
+| `telqos:handler` | `handler-name` | Handler bean 名称，默认 `telqosHandlerImpl`                          |
+| `telqos:handler` | `config-ref`   | 引用 `telqos:config` 导出的配置 bean，默认 `telqosConfig`                 |
+| `telqos:handler` | `executor-ref` | 引用 `ThreadPoolTaskExecutor` bean，默认 `executor`                  |
+| `telqos:qos`     | `service-name` | QOS 服务 bean 名称，默认 `telqosQosService`                            |
+| `telqos:qos`     | `handler-ref`  | 引用 Handler bean，默认 `telqosHandlerImpl`                          |
+| `telqos:qos`     | `sem-ref`      | 引用 `ServiceExceptionMapper` bean，默认 `mapServiceExceptionMapper` |
+| `telqos:qos`     | `auto-start`   | 容器启动时是否自动启动服务，默认 `true`                                         |
 
 ### 指令注册
 
 `command` 元素用于注册自定义指令。框架提供了三种注册方式：
 
-#### 使用 ref 引用
+#### 使用 command-ref 引用
 
-通过 Spring bean 的引用名称注册指令：
+通过 Spring bean 的引用名称注册指令（`command-ref`）：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -382,7 +368,7 @@ Banner 可以是项目资源文件或文件系统路径：
 
     <telqos:config>
         <telqos:command>
-            <telqos:command-impl ref="myCommand"/>
+            <telqos:command-impl command-ref="myCommand"/>
         </telqos:command>
     </telqos:config>
 
@@ -705,7 +691,7 @@ public class MyCommand extends CliCommand {
 
     <telqos:config>
         <telqos:command>
-            <telqos:command-impl ref="myCommand"/>
+            <telqos:command-impl command-ref="myCommand"/>
         </telqos:command>
     </telqos:config>
 
@@ -949,32 +935,27 @@ quit
 
 ### 指令命名规范
 
-- 指令标识只能包含字母（`a-z`，`A-Z`）、数字（`0-9`）和下划线（`_`）。
-- 指令标识不能以数字开头。
-- 指令标识应该简洁明了，易于记忆。
-- 避免使用过长的标识符。
+指令标识需满足 `sdk.util.Constants.COMMAND_IDENTITY_FORMAT`：
+
+- 首字符必须是字母（`a-z`、`A-Z`）或下划线（`_`）。
+- 后续字符可使用字母、数字、下划线。
+- 支持使用 `:`、`.`、`-` 进行分段，且分隔符后必须跟随至少一个合法片段。
 
 **推荐**：
 
 ```
 memory
-uptime
-shutdown
-```
-
-**不推荐**：
-
-```
-HelloWorldCommand
-getConfigurationValue
-very_long_command_name
+ops:status
+module.user-list
+api_v2:reload
 ```
 
 **错误示例**：
 
 ```
-123start      # 以数字开头
-list-all      # 包含非法字符 '-'
+123start      # 首字符不能是数字
+abc..def      # 分段分隔不合法
+abc*def       # 包含非法字符 '*'
 ```
 
 ### 错误处理建议
@@ -1113,7 +1094,7 @@ list-all      # 包含非法字符 '-'
 1. 检查指令类是否正确注册到 Spring 容器。
 2. 检查 `package-scan` 配置的包路径是否正确。
 3. 检查指令类是否使用了 `@TelqosCommand` 或 `@Component` 注解。
-4. 检查指令的 `getIdentify()` 返回值是否符合规范（只能包含字母、数字和下划线，且不能以数字开头）。
+4. 检查指令的 `getIdentify()` 返回值是否符合规范（支持分段分隔符 `:`、`.`、`-`，且首字符不能为数字）。
 
 ### Banner 不显示问题
 

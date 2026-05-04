@@ -7,6 +7,7 @@
 - 更新 README.md。
 
 - Wiki 更新。
+  - docs/wiki/zh-CN/UsageGuide.md。
   - docs/wiki/zh-CN/Introduction.md。
 
 - 优化 `spring-telqos-api` 模块的预设集成指令，使其支持包扫描机制。
