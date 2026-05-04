@@ -225,7 +225,11 @@
                     </xsd:complexType>
                 </xsd:element>
             </xsd:all>
-            <xsd:attribute name="config-name" type="xsd:token" default="telqosConfig">
+            <xsd:attribute
+                    name="config-name"
+                    type="xsd:token"
+                    default="#{T(com.dwarfeng.springtelqos.sdk.util.Constants).XSD_DEFAULT_TELQOS_CONFIG_NAME}"
+            >
                 <xsd:annotation>
                     <xsd:documentation>
                         <![CDATA[配置的 bean 名称，默认为 telqosConfig。]]>
@@ -252,7 +256,11 @@
             </xsd:appinfo>
         </xsd:annotation>
         <xsd:complexType>
-            <xsd:attribute name="handler-name" type="xsd:token" default="telqosHandler">
+            <xsd:attribute
+                    name="handler-name"
+                    type="xsd:token"
+                    default="#{T(com.dwarfeng.springtelqos.sdk.util.Constants).XSD_DEFAULT_TELQOS_HANDLER_NAME}"
+            >
                 <xsd:annotation>
                     <xsd:documentation>
                         <![CDATA[Handler 的 bean 名称，默认为 telqosHandler。]]>
@@ -264,7 +272,27 @@
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:attribute>
-            <xsd:attribute name="executor-ref" type="xsd:string" default="executor">
+            <xsd:attribute
+                    name="executor-ref"
+                    type="xsd:string"
+                    default="#{T(com.dwarfeng.springtelqos.sdk.util.Constants).XSD_DEFAULT_THREAD_POOL_TASK_EXECUTOR_NAME}"
+            >
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[TelqosConfig bean 引用，默认为 telqosConfig。]]>
+                    </xsd:documentation>
+                    <xsd:appinfo>
+                        <tool:annotation kind="ref">
+                            <tool:expected-type type="com.dwarfeng.springtelqos.stack.struct.TelqosConfig"/>
+                        </tool:annotation>
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute
+                    name="config-ref"
+                    type="xsd:string"
+                    default="#{T(com.dwarfeng.springtelqos.sdk.util.Constants).XSD_DEFAULT_TELQOS_CONFIG_NAME}"
+            >
                 <xsd:annotation>
                     <xsd:documentation>
                         <![CDATA[ThreadPoolTaskExecutor bean 引用，默认为 executor。]]>
@@ -274,18 +302,6 @@
                             <tool:expected-type
                                     type="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"
                             />
-                        </tool:annotation>
-                    </xsd:appinfo>
-                </xsd:annotation>
-            </xsd:attribute>
-            <xsd:attribute name="config-ref" type="xsd:string" default="telqosConfig">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <![CDATA[TelqosConfig bean 引用，默认为 telqosConfig。]]>
-                    </xsd:documentation>
-                    <xsd:appinfo>
-                        <tool:annotation kind="ref">
-                            <tool:expected-type type="com.dwarfeng.springtelqos.stack.struct.TelqosConfig"/>
                         </tool:annotation>
                     </xsd:appinfo>
                 </xsd:annotation>
@@ -305,7 +321,11 @@
             </xsd:appinfo>
         </xsd:annotation>
         <xsd:complexType>
-            <xsd:attribute name="service-name" type="xsd:token" default="telqosQosService">
+            <xsd:attribute
+                    name="service-name"
+                    type="xsd:token"
+                    default="#{T(com.dwarfeng.springtelqos.sdk.util.Constants).XSD_DEFAULT_TELQOS_QOS_SERVICE_NAME}"
+            >
                 <xsd:annotation>
                     <xsd:documentation>
                         <![CDATA[TelqosQos 服务的 bean 名称，默认为 telqosQosService。]]>
@@ -317,7 +337,11 @@
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:attribute>
-            <xsd:attribute name="handler-ref" type="xsd:string" default="telqosHandler">
+            <xsd:attribute
+                    name="handler-ref"
+                    type="xsd:string"
+                    default="#{T(com.dwarfeng.springtelqos.sdk.util.Constants).XSD_DEFAULT_TELQOS_HANDLER_NAME}"
+            >
                 <xsd:annotation>
                     <xsd:documentation>
                         <![CDATA[TelqosHandler 的 bean 引用，默认为 telqosHandler。]]>
@@ -329,7 +353,11 @@
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:attribute>
-            <xsd:attribute name="sem-ref" type="xsd:string" default="mapServiceExceptionMapper">
+            <xsd:attribute
+                    name="sem-ref"
+                    type="xsd:string"
+                    default="#{T(com.dwarfeng.springtelqos.sdk.util.Constants).XSD_DEFAULT_SERVICE_EXCEPTION_MAPPER_NAME}"
+            >
                 <xsd:annotation>
                     <xsd:documentation>
                         <![CDATA[ServiceExceptionMapper bean 引用，默认为 mapServiceExceptionMapper。]]>
@@ -341,7 +369,11 @@
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:attribute>
-            <xsd:attribute name="auto-start" type="xsd:string" default="true">
+            <xsd:attribute
+                    name="auto-start"
+                    type="xsd:string"
+                    default="#{T(com.dwarfeng.springtelqos.sdk.util.Constants).XSD_DEFAULT_TELQOS_QOS_SERVICE_AUTO_START_VALUE}"
+            >
                 <xsd:annotation>
                     <xsd:documentation>
                         <![CDATA[是否在容器启动时自动启动 TelqosQos 服务，默认为 true。]]>

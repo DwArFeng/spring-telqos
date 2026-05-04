@@ -23,16 +23,16 @@ public class SpringTelqosQosDefinitionParser implements BeanDefinitionParser {
 
     @Override
     public BeanDefinition parse(Element element, @Nonnull ParserContext parserContext) {
-        String serviceName = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String serviceName = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, element.getAttribute("service-name")
         );
-        String handlerRef = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String handlerRef = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, element.getAttribute("handler-ref")
         );
-        String semRef = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String semRef = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, element.getAttribute("sem-ref")
         );
-        String autoStart = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String autoStart = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, element.getAttribute("auto-start")
         );
 

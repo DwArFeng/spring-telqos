@@ -4,6 +4,11 @@
 
 ### 功能构建
 
+- 优化 xsd 配置项解析机制。
+  - 将更多的 xsd 配置常量定义在 `com.dwarfeng.springtelqos.sdk.util.Constants` 中。
+  - 调整 `META-INF/spring-telqos.xsd` 中的默认值，使用 SpEL 表达式引用 `Constants` 中的常量。
+  - 在 `com.dwarfeng.springtelqos.sdk.util.BeanDefinitionParserUtil` 中增加必要的工具方法。
+
 - 优化 xsd 配置项名称。
   - 将 `telqos:config:config-id` 配置项更名为 `telqos:config:config-name`。
   - 将 `telqos:config:command-impl:id` 配置项更名为 `telqos:config:command-impl:command-name`。

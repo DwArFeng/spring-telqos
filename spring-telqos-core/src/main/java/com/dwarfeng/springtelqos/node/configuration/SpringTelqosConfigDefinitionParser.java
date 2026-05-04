@@ -33,7 +33,7 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
 
     @Override
     public BeanDefinition parse(Element element, @Nonnull ParserContext parserContext) {
-        String configName = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String configName = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, element.getAttribute("config-name")
         );
 
@@ -117,16 +117,16 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
     }
 
     private Set<BeanReference> parseCommandImpl(Element commandImplElement, ParserContext parserContext) {
-        String commandName = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String commandName = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, commandImplElement.getAttribute("command-name")
         );
-        String clazz = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String clazz = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, commandImplElement.getAttribute("class")
         );
-        String commandRef = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String commandRef = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, commandImplElement.getAttribute("command-ref")
         );
-        String packageScan = BeanDefinitionParserUtil.mayResolvePlaceholder(
+        String packageScan = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, commandImplElement.getAttribute("package-scan")
         );
 

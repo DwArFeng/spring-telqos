@@ -59,6 +59,36 @@ public final class Constants {
     @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})
     public static final String COMMAND_IDENTITY_QUIT = "quit";
 
+    /**
+     * @since 2.0.0
+     */
+    public static final String XSD_DEFAULT_TELQOS_CONFIG_NAME = "telqosConfig";
+
+    /**
+     * @since 2.0.0
+     */
+    public static final String XSD_DEFAULT_TELQOS_HANDLER_NAME = "telqosHandler";
+
+    /**
+     * @since 2.0.0
+     */
+    public static final String XSD_DEFAULT_THREAD_POOL_TASK_EXECUTOR_NAME = "executor";
+
+    /**
+     * @since 2.0.0
+     */
+    public static final String XSD_DEFAULT_TELQOS_QOS_SERVICE_NAME = "telqosService";
+
+    /**
+     * @since 2.0.0
+     */
+    public static final String XSD_DEFAULT_SERVICE_EXCEPTION_MAPPER_NAME = "mapServiceExceptionMapper";
+
+    /**
+     * @since 2.0.0
+     */
+    public static final String XSD_DEFAULT_TELQOS_QOS_SERVICE_AUTO_START_VALUE = "true";
+
     private Constants() {
         throw new IllegalStateException("禁止实例化");
     }
