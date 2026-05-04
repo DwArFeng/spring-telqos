@@ -140,7 +140,7 @@
                                     </xsd:appinfo>
                                 </xsd:annotation>
                                 <xsd:complexType>
-                                    <xsd:attribute name="id" type="xsd:token">
+                                    <xsd:attribute name="command-name" type="xsd:token">
                                         <xsd:annotation>
                                             <xsd:documentation>
                                                 <![CDATA[Command 的 bean id。]]>
@@ -164,7 +164,7 @@
                                             </xsd:appinfo>
                                         </xsd:annotation>
                                     </xsd:attribute>
-                                    <xsd:attribute name="ref" type="xsd:string">
+                                    <xsd:attribute name="command-ref" type="xsd:string">
                                         <xsd:annotation>
                                             <xsd:documentation>
                                                 <![CDATA[Command 的 bean 引用名称。]]>
@@ -225,10 +225,10 @@
                     </xsd:complexType>
                 </xsd:element>
             </xsd:all>
-            <xsd:attribute name="config-id" type="xsd:token" default="telqosConfig">
+            <xsd:attribute name="config-name" type="xsd:token" default="telqosConfig">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[配置的 bean id，默认是 telqosConfig。]]>
+                        <![CDATA[配置的 bean 名称，默认为 telqosConfig。]]>
                     </xsd:documentation>
                     <xsd:appinfo>
                         <tool:annotation>
@@ -252,10 +252,10 @@
             </xsd:appinfo>
         </xsd:annotation>
         <xsd:complexType>
-            <xsd:attribute name="handler-name" type="xsd:token" default="telqosHandlerImpl">
+            <xsd:attribute name="handler-name" type="xsd:token" default="telqosHandler">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[Handler 的 bean 名称，默认 telqosHandlerImpl。]]>
+                        <![CDATA[Handler 的 bean 名称，默认为 telqosHandler。]]>
                     </xsd:documentation>
                     <xsd:appinfo>
                         <tool:annotation>
@@ -264,28 +264,28 @@
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:attribute>
-            <xsd:attribute name="config-ref" type="xsd:string" default="telqosConfig">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <![CDATA[TelqosConfig bean 引用，默认 telqosConfig。]]>
-                    </xsd:documentation>
-                    <xsd:appinfo>
-                        <tool:annotation kind="ref">
-                            <tool:expected-type type="com.dwarfeng.springtelqos.stack.struct.TelqosConfig"/>
-                        </tool:annotation>
-                    </xsd:appinfo>
-                </xsd:annotation>
-            </xsd:attribute>
             <xsd:attribute name="executor-ref" type="xsd:string" default="executor">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[ThreadPoolTaskExecutor bean 引用，默认 executor。]]>
+                        <![CDATA[ThreadPoolTaskExecutor bean 引用，默认为 executor。]]>
                     </xsd:documentation>
                     <xsd:appinfo>
                         <tool:annotation kind="ref">
                             <tool:expected-type
                                     type="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"
                             />
+                        </tool:annotation>
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="config-ref" type="xsd:string" default="telqosConfig">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[TelqosConfig bean 引用，默认为 telqosConfig。]]>
+                    </xsd:documentation>
+                    <xsd:appinfo>
+                        <tool:annotation kind="ref">
+                            <tool:expected-type type="com.dwarfeng.springtelqos.stack.struct.TelqosConfig"/>
                         </tool:annotation>
                     </xsd:appinfo>
                 </xsd:annotation>
@@ -308,7 +308,7 @@
             <xsd:attribute name="service-name" type="xsd:token" default="telqosQosService">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[TelqosQos 服务的 bean id，默认 telqosQosService。]]>
+                        <![CDATA[TelqosQos 服务的 bean 名称，默认为 telqosQosService。]]>
                     </xsd:documentation>
                     <xsd:appinfo>
                         <tool:annotation>
@@ -317,26 +317,14 @@
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:attribute>
-            <xsd:attribute name="auto-start" type="xsd:string" default="true">
+            <xsd:attribute name="handler-ref" type="xsd:string" default="telqosHandler">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[是否在容器启动时自动启动 TelqosQos 服务，默认 true。]]>
+                        <![CDATA[TelqosHandler 的 bean 引用，默认为 telqosHandler。]]>
                     </xsd:documentation>
                     <xsd:appinfo>
-                        <tool:annotation>
-                            <tool:expected-type type="java.lang.Boolean"/>
-                        </tool:annotation>
-                    </xsd:appinfo>
-                </xsd:annotation>
-            </xsd:attribute>
-            <xsd:attribute name="handler-name" type="xsd:token" default="telqosHandlerImpl">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <![CDATA[TelqosHandler 的 bean 名称，默认 telqosHandlerImpl。]]>
-                    </xsd:documentation>
-                    <xsd:appinfo>
-                        <tool:annotation>
-                            <tool:expected-type type="java.lang.String"/>
+                        <tool:annotation kind="ref">
+                            <tool:expected-type type="com.dwarfeng.springtelqos.stack.handler.TelqosHandler"/>
                         </tool:annotation>
                     </xsd:appinfo>
                 </xsd:annotation>
@@ -344,11 +332,23 @@
             <xsd:attribute name="sem-ref" type="xsd:string" default="mapServiceExceptionMapper">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[ServiceExceptionMapper bean 引用，默认 mapServiceExceptionMapper。]]>
+                        <![CDATA[ServiceExceptionMapper bean 引用，默认为 mapServiceExceptionMapper。]]>
                     </xsd:documentation>
                     <xsd:appinfo>
                         <tool:annotation kind="ref">
                             <tool:expected-type type="com.dwarfeng.subgrade.stack.exception.ServiceExceptionMapper"/>
+                        </tool:annotation>
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="auto-start" type="xsd:string" default="true">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[是否在容器启动时自动启动 TelqosQos 服务，默认为 true。]]>
+                    </xsd:documentation>
+                    <xsd:appinfo>
+                        <tool:annotation>
+                            <tool:expected-type type="java.lang.Boolean"/>
                         </tool:annotation>
                     </xsd:appinfo>
                 </xsd:annotation>

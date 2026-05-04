@@ -12,11 +12,11 @@
     <telqos:config>
         <telqos:connection-setting port="${telqos.port}" charset="${telqos.charset}"/>
         <telqos:command>
-            <telqos:command-impl ref="dubboCommand"/>
-            <telqos:command-impl ref="memoryCommand"/>
-            <telqos:command-impl ref="log4j2Command"/>
-            <telqos:command-impl ref="uptimeCommand"/>
-            <telqos:command-impl ref="jmxRemoteCommand"/>
+            <telqos:command-impl command-ref="dubboCommand"/>
+            <telqos:command-impl command-ref="memoryCommand"/>
+            <telqos:command-impl command-ref="log4j2Command"/>
+            <telqos:command-impl command-ref="uptimeCommand"/>
+            <telqos:command-impl command-ref="jmxRemoteCommand"/>
         </telqos:command>
         <telqos:naming-strategy value="#{T(com.dwarfeng.springtelqos.impl.naming.TestNamingStrategy).INSTANCE}"/>
     </telqos:config>

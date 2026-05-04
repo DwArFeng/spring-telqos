@@ -2,7 +2,6 @@ package com.dwarfeng.springtelqos.node.configuration;
 
 import com.dwarfeng.springtelqos.impl.handler.TelqosHandlerImpl;
 import com.dwarfeng.springtelqos.sdk.util.BeanDefinitionParserUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -27,22 +26,12 @@ public class SpringTelqosHandlerDefinitionParser implements BeanDefinitionParser
         String handlerName = BeanDefinitionParserUtil.mayResolvePlaceholder(
                 parserContext, element.getAttribute("handler-name")
         );
-        String configRef = BeanDefinitionParserUtil.mayResolvePlaceholder(
-                parserContext, element.getAttribute("config-ref")
-        );
         String executorRef = BeanDefinitionParserUtil.mayResolvePlaceholder(
                 parserContext, element.getAttribute("executor-ref")
         );
-
-        if (StringUtils.isEmpty(handlerName)) {
-            handlerName = "telqosHandlerImpl";
-        }
-        if (StringUtils.isEmpty(configRef)) {
-            configRef = "telqosConfig";
-        }
-        if (StringUtils.isEmpty(executorRef)) {
-            executorRef = "executor";
-        }
+        String configRef = BeanDefinitionParserUtil.mayResolvePlaceholder(
+                parserContext, element.getAttribute("config-ref")
+        );
 
         BeanDefinitionParserUtil.makeSureBeanNameNotDuplicated(parserContext, handlerName);
 

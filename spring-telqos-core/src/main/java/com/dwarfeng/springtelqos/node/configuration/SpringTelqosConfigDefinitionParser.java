@@ -33,10 +33,11 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
 
     @Override
     public BeanDefinition parse(Element element, @Nonnull ParserContext parserContext) {
-        String configId = BeanDefinitionParserUtil.mayResolvePlaceholder(
-                parserContext, element.getAttribute("config-id")
+        String configName = BeanDefinitionParserUtil.mayResolvePlaceholder(
+                parserContext, element.getAttribute("config-name")
         );
-        BeanDefinitionParserUtil.makeSureBeanNameNotDuplicated(parserContext, configId);
+
+        BeanDefinitionParserUtil.makeSureBeanNameNotDuplicated(parserContext, configName);
 
         Element connectionSettingElement = (Element) element
                 .getElementsByTagNameNS(TELQOS_NAMESPACE_URL, "connection-setting").item(0);
@@ -91,7 +92,7 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
         if (Objects.nonNull(namingStrategyElement)) {
             telqosConfigBuilderBeanDefinition.getPropertyValues().add(
                     "namingStrategy",
-                    BeanDefinitionParserUtil.mayResolve(
+                    BeanDefinitionParserUtil.mayResolvePlaceholder(
                             parserContext, namingStrategyElement.getAttribute("value")
                     )
             );
@@ -99,7 +100,7 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
         telqosConfigBuilderBeanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
         telqosConfigBuilderBeanDefinition.setLazyInit(false);
         String telqosConfigBuilderBeanName = BeanDefinitionParserUtil.parseAvailableBeanName(
-                parserContext, configId + "ConfigBuilder"
+                parserContext, configName + "ConfigBuilder"
         );
         parserContext.getRegistry().registerBeanDefinition(
                 telqosConfigBuilderBeanName, telqosConfigBuilderBeanDefinition
@@ -110,27 +111,27 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
         telqosConfigBeanDefinition.setFactoryMethodName("build");
         telqosConfigBeanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
         telqosConfigBeanDefinition.setLazyInit(false);
-        parserContext.getRegistry().registerBeanDefinition(configId, telqosConfigBeanDefinition);
+        parserContext.getRegistry().registerBeanDefinition(configName, telqosConfigBeanDefinition);
 
         return null;
     }
 
     private Set<BeanReference> parseCommandImpl(Element commandImplElement, ParserContext parserContext) {
-        String id = BeanDefinitionParserUtil.mayResolvePlaceholder(
-                parserContext, commandImplElement.getAttribute("id")
+        String commandName = BeanDefinitionParserUtil.mayResolvePlaceholder(
+                parserContext, commandImplElement.getAttribute("command-name")
         );
         String clazz = BeanDefinitionParserUtil.mayResolvePlaceholder(
                 parserContext, commandImplElement.getAttribute("class")
         );
-        String ref = BeanDefinitionParserUtil.mayResolvePlaceholder(
-                parserContext, commandImplElement.getAttribute("ref")
+        String commandRef = BeanDefinitionParserUtil.mayResolvePlaceholder(
+                parserContext, commandImplElement.getAttribute("command-ref")
         );
         String packageScan = BeanDefinitionParserUtil.mayResolvePlaceholder(
                 parserContext, commandImplElement.getAttribute("package-scan")
         );
 
-        if (StringUtils.isNotEmpty(ref)) {
-            return Collections.singleton(new RuntimeBeanReference(ref));
+        if (StringUtils.isNotEmpty(commandRef)) {
+            return Collections.singleton(new RuntimeBeanReference(commandRef));
         } else if (StringUtils.isNotEmpty(packageScan)) {
             CommandClassPathBeanDefinitionScanner scanner = new CommandClassPathBeanDefinitionScanner(
                     parserContext.getRegistry(), parserContext.getReaderContext().getEnvironment()
@@ -143,12 +144,12 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
             }
             return beanReferenceSet;
         } else {
-            BeanDefinitionParserUtil.makeSureBeanNameNotDuplicated(parserContext, id);
+            BeanDefinitionParserUtil.makeSureBeanNameNotDuplicated(parserContext, commandName);
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(clazz);
             builder.setScope(BeanDefinition.SCOPE_SINGLETON);
             builder.setLazyInit(false);
-            parserContext.getRegistry().registerBeanDefinition(id, builder.getBeanDefinition());
-            return Collections.singleton(new RuntimeBeanReference(id));
+            parserContext.getRegistry().registerBeanDefinition(commandName, builder.getBeanDefinition());
+            return Collections.singleton(new RuntimeBeanReference(commandName));
         }
     }
 }

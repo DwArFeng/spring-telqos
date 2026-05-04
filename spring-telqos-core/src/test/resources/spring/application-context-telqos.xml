@@ -12,7 +12,7 @@
     <telqos:config>
         <telqos:connection-setting charset="GBK"/>
         <telqos:command>
-            <telqos:command-impl ref="helloWorldCommand"/>
+            <telqos:command-impl command-ref="helloWorldCommand"/>
             <telqos:command-impl package-scan="com.dwarfeng.springtelqos.impl.command"/>
         </telqos:command>
         <telqos:naming-strategy value="#{T(com.dwarfeng.springtelqos.impl.naming.TestNamingStrategy).INSTANCE}"/>

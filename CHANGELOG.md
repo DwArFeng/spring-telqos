@@ -4,6 +4,12 @@
 
 ### 功能构建
 
+- 优化 xsd 配置项名称。
+  - 将 `telqos:config:config-id` 配置项更名为 `telqos:config:config-name`。
+  - 将 `telqos:config:command-impl:id` 配置项更名为 `telqos:config:command-impl:command-name`。
+  - 将 `telqos:config:command-impl:ref` 配置项更名为 `telqos:config:command-impl:command-ref`。
+  - 将 `telqos:qos:handler-name` 配置项更名为 `telqos:qos:handler-ref`。
+
 - Telqos 处理器功能优化。
   - `TelqosHandlerImpl` 中指令执行器上下文内部实现的列出指令的运行时标识方法返回的结果列表排序方法优化。
 
