@@ -1,6 +1,7 @@
 package com.dwarfeng.springtelqos.api.integration.dubbo;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
+import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
 import com.dwarfeng.springtelqos.stack.command.CommandDescriptor;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
@@ -21,6 +22,7 @@ import java.util.List;
  * @author DwArFeng
  * @since 1.1.0
  */
+@TelqosCommand
 public class DubboCommand extends CliCommand {
 
     @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})

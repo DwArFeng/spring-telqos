@@ -4,6 +4,13 @@
 
 ### 功能构建
 
+- 优化 `spring-telqos-api` 模块的预设集成指令，使其支持包扫描机制。
+  - com.dwarfeng.springtelqos.api.integration.dubbo.DubboCommand。
+  - com.dwarfeng.springtelqos.api.integration.log4j2.Log4j2Command。
+  - com.dwarfeng.springtelqos.api.integration.system.JmxRemoteCommand。
+  - com.dwarfeng.springtelqos.api.integration.system.MemoryCommand。
+  - com.dwarfeng.springtelqos.api.integration.system.UptimeCommand。
+
 - 优化 xsd 配置项解析机制。
   - 将更多的 xsd 配置常量定义在 `com.dwarfeng.springtelqos.sdk.util.Constants` 中。
   - 调整 `META-INF/spring-telqos.xsd` 中的默认值，使用 SpEL 表达式引用 `Constants` 中的常量。

@@ -1,6 +1,7 @@
 package com.dwarfeng.springtelqos.api.integration.system;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
+import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
 
@@ -14,6 +15,7 @@ import java.time.format.DateTimeFormatter;
  * @author DwArFeng
  * @since 1.1.15
  */
+@TelqosCommand
 public class UptimeCommand extends CliCommand {
 
     @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})

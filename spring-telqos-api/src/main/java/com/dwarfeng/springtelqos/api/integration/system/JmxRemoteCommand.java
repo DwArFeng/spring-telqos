@@ -1,6 +1,7 @@
 package com.dwarfeng.springtelqos.api.integration.system;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
+import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
 import com.dwarfeng.springtelqos.stack.command.CommandDescriptor;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
@@ -30,6 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author DwArFeng
  * @since 1.1.15
  */
+@TelqosCommand
 public class JmxRemoteCommand extends CliCommand {
 
     @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})

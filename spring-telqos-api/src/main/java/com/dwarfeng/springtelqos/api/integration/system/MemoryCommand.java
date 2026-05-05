@@ -3,6 +3,7 @@ package com.dwarfeng.springtelqos.api.integration.system;
 import com.dwarfeng.dutil.basic.num.NumberUtil;
 import com.dwarfeng.dutil.basic.num.unit.DataSize;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
+import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
@@ -20,6 +21,7 @@ import java.util.List;
  * @author DwArFeng
  * @since 1.1.1
  */
+@TelqosCommand
 public class MemoryCommand extends CliCommand {
 
     @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})

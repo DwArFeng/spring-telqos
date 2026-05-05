@@ -1,6 +1,7 @@
 package com.dwarfeng.springtelqos.api.integration.log4j2;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
+import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
 import com.dwarfeng.springtelqos.stack.command.CommandDescriptor;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author DwArFeng
  * @since 1.1.9
  */
+@TelqosCommand
 public class Log4j2Command extends CliCommand {
 
     @SuppressWarnings({"SpellCheckingInspection", "GrazieInspectionRunner", "RedundantSuppression"})
