@@ -78,18 +78,18 @@ git checkout version-tag-here
 mvn clean source:jar install
 ```
 
-### spring-terminator
+### subgrade
 
 使用 git 进行源码下载。
 
 ```shell
-git clone git@github.com:DwArFeng/spring-terminator.git
+git clone git@github.com:DwArFeng/subgrade.git
 ```
 
 对于中国用户，可以使用 gitee 进行高速下载。
 
 ```shell
-git clone git@gitee.com:dwarfeng/spring-terminator.git
+git clone git@gitee.com:dwarfeng/subgrade.git
 ```
 
 进入项目根目录，查看该项目所有的版本：
