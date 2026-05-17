@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- Wiki 编写。
+  - docs/wiki/zh-CN/QuickStart.md。
+
 - 优化 `spring-telqos-api` 子模块中测试文件中的 telqos 配置项。
   - src/test/resources/spring/application-context-telqos.xml。
 
