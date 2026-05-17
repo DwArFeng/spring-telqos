@@ -71,4 +71,5 @@ buildNumber.properties
 #################
 ## Configuration Files
 #################
+/spring-telqos-core/conf
 /spring-telqos-api/conf
