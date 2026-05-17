@@ -2,6 +2,7 @@ package com.dwarfeng.springtelqos.sdk.configuration;
 
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultBeanNameGenerator;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.TypeFilter;
@@ -23,6 +24,7 @@ public final class CommandClassPathBeanDefinitionScanner extends ClassPathBeanDe
     public CommandClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry, Environment environment) {
         super(registry, false, environment);
         super.addIncludeFilter(CommandTypeFilter.INSTANCE);
+        super.setBeanNameGenerator(DefaultBeanNameGenerator.INSTANCE);
     }
 
     @Override
