@@ -10,7 +10,10 @@
 >
 
     <telqos:config>
-        <telqos:connection-setting charset="GBK"/>
+        <telqos:connection-setting
+                port="${telqos.port}" charset="${telqos.charset}"
+                whitelist-regex="${telqos.whitelist_regex}" blacklist-regex="${telqos.blacklist_regex}"
+        />
         <telqos:command>
             <telqos:command-impl command-ref="helloWorldCommand"/>
             <telqos:command-impl package-scan="com.dwarfeng.springtelqos.impl.command"/>

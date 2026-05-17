@@ -4,6 +4,10 @@
 
 ### 功能构建
 
+- 优化 `spring-telqos-core` 子模块中测试文件中的 telqos 配置项。
+  - src/test/resources/spring/application-context-telqos.xml。
+  - src/test/resources/telqos/connection.properties。
+
 - 优化 xsd 配置项解析机制。
   - 优化 `telqos:command-impl` 的 `package-scan` 解析逻辑，使多包扫描时支持不同包同类名的指令实现类共存。
 
