@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- 优化 `spring-telqos-api` 子模块中测试文件中的 telqos 配置项。
+  - src/test/resources/spring/application-context-telqos.xml。
+
 - 优化 `spring-telqos-core` 子模块中测试文件中的 telqos 配置项。
   - src/test/resources/spring/application-context-telqos.xml。
   - src/test/resources/telqos/connection.properties。
