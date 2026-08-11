@@ -2,6 +2,7 @@ package com.dwarfeng.springtelqos.node.configuration;
 
 import com.dwarfeng.springtelqos.impl.service.TelqosQosServiceImpl;
 import com.dwarfeng.springtelqos.sdk.util.BeanDefinitionParserUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -10,8 +11,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
-
-import javax.annotation.Nonnull;
 
 /**
  * Telqos Qos 元素的 BeanDefinitionParser。
@@ -22,7 +21,7 @@ import javax.annotation.Nonnull;
 public class SpringTelqosQosDefinitionParser implements BeanDefinitionParser {
 
     @Override
-    public BeanDefinition parse(Element element, @Nonnull ParserContext parserContext) {
+    public BeanDefinition parse(Element element, @NotNull ParserContext parserContext) {
         String serviceName = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, element.getAttribute("service-name")
         );

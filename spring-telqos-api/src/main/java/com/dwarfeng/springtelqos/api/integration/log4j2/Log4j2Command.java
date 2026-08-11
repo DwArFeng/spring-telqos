@@ -1,5 +1,7 @@
 package com.dwarfeng.springtelqos.api.integration.log4j2;
 
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessageKey;
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessages;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
@@ -41,7 +43,7 @@ public class Log4j2Command extends CliCommand {
 
     @Override
     protected DescriptionProvider provideDescriptionProvider() {
-        return ctx -> "Log4j2 命令";
+        return ctx -> ApiMessages.message(ApiMessageKey.COMMAND_LOG4J2_DESCRIPTION);
     }
 
     @Override
@@ -59,7 +61,8 @@ public class Log4j2Command extends CliCommand {
     @Override
     protected List<Option> provideOptions() {
         List<Option> list = new ArrayList<>();
-        list.add(Option.builder(COMMAND_OPTION_RECONFIGURE).desc("重新配置 Log4j2").build());
+        list.add(Option.builder(COMMAND_OPTION_RECONFIGURE)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_LOG4J2_RECONFIGURE_OPTION)).get());
         return list;
     }
 
@@ -83,6 +86,6 @@ public class Log4j2Command extends CliCommand {
 
     private void handleReconfigure(CommandExecutor.Context context) throws Exception {
         Configurator.reconfigure();
-        context.sendMessage("Log4j2 已重新配置!");
+        context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_LOG4J2_RECONFIGURED));
     }
 }

@@ -2,7 +2,7 @@ package com.dwarfeng.springtelqos.stack.naming;
 
 import com.dwarfeng.springtelqos.stack.exception.NamingStrategyException;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 命名策略。
@@ -25,5 +25,5 @@ public interface NamingStrategy {
      * @return 基于指令标识策略最终转换得到的指令标识。
      * @throws NamingStrategyException 命名策略异常。
      */
-    String toCommandIdentity(@Nonnull ToCommandIdentityInfo info) throws NamingStrategyException;
+    String toCommandIdentity(@NotNull ToCommandIdentityInfo info) throws NamingStrategyException;
 }

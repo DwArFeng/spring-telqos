@@ -1,5 +1,7 @@
 package com.dwarfeng.springtelqos.stack.exception;
 
+import java.io.Serial;
+
 /**
  * 指令执行器异常。
  *
@@ -8,6 +10,7 @@ package com.dwarfeng.springtelqos.stack.exception;
  */
 public class CommandExecutorException extends CommandException {
 
+    @Serial
     private static final long serialVersionUID = -5104330174671143920L;
 
     public CommandExecutorException() {

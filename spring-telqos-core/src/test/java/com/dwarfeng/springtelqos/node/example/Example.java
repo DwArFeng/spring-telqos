@@ -1,6 +1,6 @@
 package com.dwarfeng.springtelqos.node.example;
 
-import com.dwarfeng.dutil.basic.io.CT;
+import com.dwarfeng.dutil.basic.sdk.io.CT;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Scanner;
@@ -13,9 +13,9 @@ import java.util.Scanner;
  */
 public class Example {
 
-    public static void main(String[] args) {
+    static void main() {
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "classpath:spring/application-context*.xml"
+                "classpath:com/dwarfeng/springtelqos/node/spring/application-context*.xml"
         );
         ctx.registerShutdownHook();
         ctx.start();
@@ -24,9 +24,9 @@ public class Example {
 
         // 显示欢迎信息。
         CT.trace("开发者您好!");
-        CT.trace("这是一个示例, 用于演示 spring-telqos-api 的 Telqos 集成功能");
+        CT.trace("这是一个示例, 用于演示 spring-telqos 的 Telqos 核心功能");
         CT.trace("您可以使用 telnet 客户端工具访问本机 ${telqos.port} 端口以体验本示例的功能");
-        CT.trace("您可以测试 dubbo、memory、log4j2、uptime、jmx-remote 等命令");
+        CT.trace("您可以测试 list、manual、quit 等内置命令");
         System.out.print("本示例的功能体验完成后，请按回车键结束示例...");
         scanner.nextLine();
 

@@ -1,5 +1,6 @@
 package com.dwarfeng.springtelqos.sdk.configuration;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultBeanNameGenerator;
@@ -7,7 +8,6 @@ import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.TypeFilter;
 
-import javax.annotation.Nonnull;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -28,18 +28,18 @@ public final class CommandClassPathBeanDefinitionScanner extends ClassPathBeanDe
     }
 
     @Override
-    public void addIncludeFilter(@Nonnull TypeFilter includeFilter) {
+    public void addIncludeFilter(@NotNull TypeFilter includeFilter) {
         throw new UnsupportedOperationException("不支持的操作");
     }
 
     @Override
-    public void addExcludeFilter(@Nonnull TypeFilter excludeFilter) {
+    public void addExcludeFilter(@NotNull TypeFilter excludeFilter) {
         throw new UnsupportedOperationException("不支持的操作");
     }
 
     @Override
     protected void postProcessBeanDefinition(
-            @Nonnull AbstractBeanDefinition beanDefinition, @Nonnull String beanName
+            @NotNull AbstractBeanDefinition beanDefinition, @NotNull String beanName
     ) {
         scannedBeanNames.add(beanName);
     }

@@ -1,5 +1,7 @@
 package com.dwarfeng.springtelqos.api.integration.system;
 
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessageKey;
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessages;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
@@ -34,7 +36,7 @@ public class UptimeCommand extends CliCommand {
 
     @Override
     protected DescriptionProvider provideDescriptionProvider() {
-        return ctx -> "系统运行时间";
+        return ctx -> ApiMessages.message(ApiMessageKey.COMMAND_UPTIME_DESCRIPTION);
     }
 
     @SuppressWarnings({"ExtractMethodRecommender", "RedundantSuppression"})

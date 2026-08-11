@@ -1,7 +1,9 @@
 package com.dwarfeng.springtelqos.api.integration.system;
 
-import com.dwarfeng.dutil.basic.num.NumberUtil;
-import com.dwarfeng.dutil.basic.num.unit.DataSize;
+import com.dwarfeng.dutil.basic.sdk.number.NumberUtil;
+import com.dwarfeng.dutil.basic.stack.number.unit.DataSize;
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessageKey;
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessages;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
@@ -11,8 +13,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,12 +33,10 @@ public class MemoryCommand extends CliCommand {
 
     // endregion
 
-    private static final List<DataSize> DATA_SIZES = Collections.unmodifiableList(Arrays.asList(
+    private static final List<DataSize> DATA_SIZES = List.of(
             DataSize.EIB, DataSize.PIB, DataSize.TIB, DataSize.GIB, DataSize.MIB, DataSize.KIB, DataSize.BYTE
-    ));
-    private static final List<String> DATA_SIZE_LABELS = Collections.unmodifiableList(Arrays.asList(
-            "EiB", "PiB", "TiB", "GiB", "MiB", "KiB", "B"
-    ));
+    );
+    private static final List<String> DATA_SIZE_LABELS = List.of("EiB", "PiB", "TiB", "GiB", "MiB", "KiB", "B");
 
     public MemoryCommand() {
         super(IDENTITY);
@@ -46,7 +44,7 @@ public class MemoryCommand extends CliCommand {
 
     @Override
     protected DescriptionProvider provideDescriptionProvider() {
-        return ctx -> "内存监视";
+        return ctx -> ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_DESCRIPTION);
     }
 
     @Override
@@ -58,7 +56,8 @@ public class MemoryCommand extends CliCommand {
     @Override
     protected List<Option> provideOptions() {
         List<Option> list = new ArrayList<>();
-        list.add(Option.builder(COMMAND_SUB_OPTION_UNIT).optionalArg(true).hasArg(true).desc("显示单位").build());
+        list.add(Option.builder(COMMAND_SUB_OPTION_UNIT).optionalArg(true).hasArg(true)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_UNIT_OPTION)).get());
         return list;
     }
 
@@ -80,7 +79,8 @@ public class MemoryCommand extends CliCommand {
                 }
             }
             if (index < 0) {
-                stringBuilder.append("-u 后接单位不合法，可用的单位如下:").append(System.lineSeparator());
+                stringBuilder.append(ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_INVALID_UNIT))
+                        .append(System.lineSeparator());
                 for (int i = 0; i < DATA_SIZE_LABELS.size(); i++) {
                     if (i != 0) {
                         stringBuilder.append(", ");
@@ -88,18 +88,21 @@ public class MemoryCommand extends CliCommand {
                     stringBuilder.append(DATA_SIZE_LABELS.get(i));
                 }
             } else {
-                renderUnitValue(stringBuilder, "JVM 最大内存:", maxMemory, index);
+                renderUnitValue(stringBuilder, ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_MAX), maxMemory, index);
                 stringBuilder.append(System.lineSeparator());
-                renderUnitValue(stringBuilder, "JVM 分配内存:", totalMemory, index);
+                renderUnitValue(stringBuilder, ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_TOTAL), totalMemory, index);
                 stringBuilder.append(System.lineSeparator());
-                renderUnitValue(stringBuilder, "JVM 可用内存:", freeMemory, index);
+                renderUnitValue(stringBuilder, ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_FREE), freeMemory, index);
             }
         } else {
-            renderUnitValue(stringBuilder, "JVM 最大内存:", maxMemory, humanReadable(maxMemory));
+            renderUnitValue(stringBuilder, ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_MAX), maxMemory,
+                    humanReadable(maxMemory));
             stringBuilder.append(System.lineSeparator());
-            renderUnitValue(stringBuilder, "JVM 分配内存:", totalMemory, humanReadable(totalMemory));
+            renderUnitValue(stringBuilder, ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_TOTAL), totalMemory,
+                    humanReadable(totalMemory));
             stringBuilder.append(System.lineSeparator());
-            renderUnitValue(stringBuilder, "JVM 可用内存:", freeMemory, humanReadable(freeMemory));
+            renderUnitValue(stringBuilder, ApiMessages.message(ApiMessageKey.COMMAND_MEMORY_FREE), freeMemory,
+                    humanReadable(freeMemory));
         }
         context.sendMessage(stringBuilder.toString());
     }

@@ -1,5 +1,7 @@
 package com.dwarfeng.springtelqos.api.integration.dubbo;
 
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessageKey;
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessages;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
@@ -9,9 +11,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.dubbo.common.extension.ExtensionLoader;
-import org.apache.dubbo.qos.command.BaseCommand;
-import org.apache.dubbo.qos.command.CommandContext;
+import org.apache.dubbo.qos.api.BaseCommand;
+import org.apache.dubbo.qos.api.CommandContext;
+import org.apache.dubbo.rpc.model.ApplicationModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +44,6 @@ public class DubboCommand extends CliCommand {
 
     // endregion
 
-    private static final BaseCommand DUBBO_COMMAND_ONLINE =
-            ExtensionLoader.getExtensionLoader(BaseCommand.class).getExtension("online");
-    private static final BaseCommand DUBBO_COMMAND_OFFLINE =
-            ExtensionLoader.getExtensionLoader(BaseCommand.class).getExtension("offline");
-    private static final BaseCommand DUBBO_COMMAND_LS =
-            ExtensionLoader.getExtensionLoader(BaseCommand.class).getExtension("ls");
-
     private static final String OK_MESSAGE = "OK";
 
     public DubboCommand() {
@@ -57,7 +52,7 @@ public class DubboCommand extends CliCommand {
 
     @Override
     protected DescriptionProvider provideDescriptionProvider() {
-        return ctx -> "分布式服务上线/下线";
+        return ctx -> ApiMessages.message(ApiMessageKey.COMMAND_DUBBO_DESCRIPTION);
     }
 
     @Override
@@ -79,9 +74,12 @@ public class DubboCommand extends CliCommand {
     @Override
     protected List<Option> provideOptions() {
         List<Option> list = new ArrayList<>();
-        list.add(Option.builder(COMMAND_OPTION_ONLINE).optionalArg(true).hasArg(true).desc("上线服务").build());
-        list.add(Option.builder(COMMAND_OPTION_OFFLINE).optionalArg(true).hasArg(true).desc("下线服务").build());
-        list.add(Option.builder(COMMAND_OPTION_LIST).optionalArg(true).hasArg(false).desc("列出服务").build());
+        list.add(Option.builder(COMMAND_OPTION_ONLINE).optionalArg(true).hasArg(true)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_DUBBO_ONLINE_OPTION)).get());
+        list.add(Option.builder(COMMAND_OPTION_OFFLINE).optionalArg(true).hasArg(true)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_DUBBO_OFFLINE_OPTION)).get());
+        list.add(Option.builder(COMMAND_OPTION_LIST).optionalArg(true).hasArg(false)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_DUBBO_LIST_OPTION)).get());
         return list;
     }
 
@@ -112,26 +110,33 @@ public class DubboCommand extends CliCommand {
         String optionValue = cmd.getOptionValue("online");
         if (StringUtils.isEmpty(optionValue)) optionValue = ".*";
         String[] args = new String[]{optionValue};
-        CommandContext commandContext = new CommandContext("online", args, false);
-        String result = DUBBO_COMMAND_ONLINE.execute(commandContext, args);
-        if (!result.equals(OK_MESSAGE)) context.sendMessage(result);
+        String result = executeQosCommand("online", args);
+        if (!OK_MESSAGE.equals(result)) context.sendMessage(result);
     }
 
     private void handleOffline(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         String optionValue = cmd.getOptionValue("offline");
         if (StringUtils.isEmpty(optionValue)) optionValue = ".*";
         String[] args = new String[]{optionValue};
-        CommandContext commandContext = new CommandContext("offline", args, false);
-        String result = DUBBO_COMMAND_OFFLINE.execute(commandContext, args);
-        if (!result.equals(OK_MESSAGE)) context.sendMessage(result);
+        String result = executeQosCommand("offline", args);
+        if (!OK_MESSAGE.equals(result)) context.sendMessage(result);
     }
 
     private void handleLs(CommandExecutor.Context context) throws Exception {
         String[] args = new String[0];
-        CommandContext commandContext = new CommandContext("ls", args, false);
-        String result = DUBBO_COMMAND_LS.execute(commandContext, args);
+        String result = executeQosCommand("ls", args);
         // 去除多余的换行符。
-        result = result.substring(0, result.length() - System.lineSeparator().length());
+        String lineSeparator = System.lineSeparator();
+        if (result != null && result.endsWith(lineSeparator)) {
+            result = result.substring(0, result.length() - lineSeparator.length());
+        }
         context.sendMessage(result);
+    }
+
+    private String executeQosCommand(String commandName, String[] args) {
+        BaseCommand command = ApplicationModel.defaultModel().getExtensionLoader(BaseCommand.class)
+                .getExtension(commandName);
+        CommandContext commandContext = new CommandContext(commandName, args, false);
+        return command.execute(commandContext, args);
     }
 }

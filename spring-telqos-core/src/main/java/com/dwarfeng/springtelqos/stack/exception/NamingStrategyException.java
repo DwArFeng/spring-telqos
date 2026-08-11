@@ -1,6 +1,8 @@
 package com.dwarfeng.springtelqos.stack.exception;
 
-import com.dwarfeng.subgrade.stack.exception.HandlerException;
+import com.dwarfeng.subgrade.basic.stack.exception.HandlerException;
+
+import java.io.Serial;
 
 /**
  * 命名策略异常。
@@ -10,6 +12,7 @@ import com.dwarfeng.subgrade.stack.exception.HandlerException;
  */
 public class NamingStrategyException extends HandlerException {
 
+    @Serial
     private static final long serialVersionUID = 8178270731820159354L;
 
     public NamingStrategyException() {

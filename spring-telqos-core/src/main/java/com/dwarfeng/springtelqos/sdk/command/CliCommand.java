@@ -1,12 +1,15 @@
 package com.dwarfeng.springtelqos.sdk.command;
 
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessageKey;
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessages;
 import com.dwarfeng.springtelqos.stack.command.CommandDescriptor;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.*;
+import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.help.TextHelpAppendable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -178,16 +181,15 @@ public abstract class CliCommand extends AbstractCommand {
         protected String doGetManual() throws Exception {
             String cliSyntax = lazyGetCliSyntaxProvider().provideCliSyntax(context);
             Options options = lazyGetOptions();
-            HelpFormatter helpFormatter = new HelpFormatter();
-            try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
-                helpFormatter.printHelp(
-                        pw, HelpFormatter.DEFAULT_WIDTH, cliSyntax, getDescription(),
-                        options, HelpFormatter.DEFAULT_LEFT_PAD, HelpFormatter.DEFAULT_DESC_PAD, null
-                );
+            try (StringWriter sw = new StringWriter()) {
+                TextHelpAppendable helpAppendable = new TextHelpAppendable(sw);
+                HelpFormatter helpFormatter = HelpFormatter.builder()
+                        .setHelpAppendable(helpAppendable).setShowSince(false).get();
+                helpFormatter.printHelp(cliSyntax, getDescription(), options, null, false);
                 return sw.toString();
             } catch (Exception e) {
                 LOGGER.warn("生成详细帮助时发生异常，异常信息如下", e);
-                return "发生错误，无法显示详细帮助";
+                return CoreMessages.message(CoreMessageKey.COMMAND_MANUAL_UNAVAILABLE);
             }
         }
     }
@@ -209,7 +211,7 @@ public abstract class CliCommand extends AbstractCommand {
                 cmd = parser.parse(options, option2Args(context.getOption()));
             } catch (Exception e) {
                 LOGGER.warn("解析指令选项时发生异常，异常信息如下", e);
-                context.sendMessage("指令选项不正确，请检查指令选项: " + context.getOption());
+                context.sendMessage(CoreMessages.message(CoreMessageKey.COMMAND_OPTION_INVALID, context.getOption()));
                 return;
             }
             executeWithCmd(context, cmd);

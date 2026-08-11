@@ -1,6 +1,8 @@
 package com.dwarfeng.springtelqos.stack.exception;
 
-import com.dwarfeng.subgrade.stack.exception.HandlerException;
+import com.dwarfeng.subgrade.basic.stack.exception.HandlerException;
+
+import java.io.Serial;
 
 /**
  * Telqos 异常。
@@ -10,6 +12,7 @@ import com.dwarfeng.subgrade.stack.exception.HandlerException;
  */
 public class TelqosException extends HandlerException {
 
+    @Serial
     private static final long serialVersionUID = -3687454851223175408L;
 
     public TelqosException() {

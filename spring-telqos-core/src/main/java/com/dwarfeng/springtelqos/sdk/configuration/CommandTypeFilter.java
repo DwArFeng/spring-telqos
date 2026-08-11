@@ -1,13 +1,13 @@
 package com.dwarfeng.springtelqos.sdk.configuration;
 
 import com.dwarfeng.springtelqos.stack.command.Command;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 
 /**
@@ -24,7 +24,7 @@ final class CommandTypeFilter implements TypeFilter {
     private final AssignableTypeFilter assignableTypeFilter = new AssignableTypeFilter(Command.class);
 
     @Override
-    public boolean match(@Nonnull MetadataReader metadataReader, @Nonnull MetadataReaderFactory metadataReaderFactory)
+    public boolean match(@NotNull MetadataReader metadataReader, @NotNull MetadataReaderFactory metadataReaderFactory)
             throws IOException {
         return annotationTypeFilter.match(metadataReader, metadataReaderFactory) &&
                 assignableTypeFilter.match(metadataReader, metadataReaderFactory);

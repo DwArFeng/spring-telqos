@@ -1,7 +1,7 @@
 package com.dwarfeng.springtelqos.stack.service;
 
-import com.dwarfeng.subgrade.stack.exception.ServiceException;
-import com.dwarfeng.subgrade.stack.service.Service;
+import com.dwarfeng.subgrade.basic.stack.exception.ServiceException;
+import com.dwarfeng.subgrade.basic.stack.service.Service;
 
 /**
  * Telqos QoS 服务。

@@ -1,5 +1,7 @@
 package com.dwarfeng.springtelqos.api.integration.system;
 
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessageKey;
+import com.dwarfeng.springtelqos.api.internal.i18n.ApiMessages;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
 import com.dwarfeng.springtelqos.sdk.util.CliCommandUtil;
@@ -71,7 +73,7 @@ public class JmxRemoteCommand extends CliCommand {
 
     @Override
     protected DescriptionProvider provideDescriptionProvider() {
-        return ctx -> "JMX 远程管理操作";
+        return ctx -> ApiMessages.message(ApiMessageKey.COMMAND_JMX_DESCRIPTION);
     }
 
     @Override
@@ -92,10 +94,14 @@ public class JmxRemoteCommand extends CliCommand {
     @Override
     protected List<Option> provideOptions() {
         List<Option> list = new ArrayList<>();
-        list.add(Option.builder(COMMAND_OPTION_START).desc("启动 JMX 远程管理").build());
-        list.add(Option.builder(COMMAND_OPTION_STOP).desc("停止 JMX 远程管理").build());
-        list.add(Option.builder(COMMAND_OPTION_STATUS).desc("查看 JMX 远程管理状态").build());
-        list.add(Option.builder(COMMAND_SUB_OPTION_PORT).desc("JMX 远程管理端口号").hasArg().type(Number.class).build());
+        list.add(Option.builder(COMMAND_OPTION_START)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_JMX_START_OPTION)).get());
+        list.add(Option.builder(COMMAND_OPTION_STOP)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_JMX_STOP_OPTION)).get());
+        list.add(Option.builder(COMMAND_OPTION_STATUS)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_JMX_STATUS_OPTION)).get());
+        list.add(Option.builder(COMMAND_SUB_OPTION_PORT)
+                .desc(ApiMessages.message(ApiMessageKey.COMMAND_JMX_PORT_OPTION)).hasArg().type(Number.class).get());
         return list;
     }
 
@@ -135,14 +141,15 @@ public class JmxRemoteCommand extends CliCommand {
         // 检查系统属性是否已启用 JMX 远程管理。
         if (isSystemPropertyEnabled()) {
             String portStr = System.getProperty(SYS_PROP_JMX_PORT);
-            context.sendMessage("JMX 远程管理已通过系统属性 " + SYS_PROP_JMX_PORT + " = " + portStr + " 启用");
-            context.sendMessage("由于 JMX 远程管理已通过系统属性启用, 本指令将不会执行任何操作");
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_SYSTEM_PROPERTY_ENABLED,
+                    SYS_PROP_JMX_PORT, portStr));
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_NO_ACTION));
             return;
         }
 
         // 检查是否已经启动。
         if (Objects.nonNull(connectorServer) && connectorServer.isActive()) {
-            context.sendMessage("JMX 远程管理已经在运行中, 端口: " + currentPort);
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_ALREADY_RUNNING, currentPort));
             return;
         }
 
@@ -167,10 +174,11 @@ public class JmxRemoteCommand extends CliCommand {
             // 保存当前主机和端口。
             currentPort = port;
 
-            context.sendMessage("JMX 远程管理启动成功");
-            context.sendMessage("  端口: " + port);
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_STARTED));
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_PORT, port));
             @SuppressWarnings({"SpellCheckingInspection", "RedundantSuppression"})
-            String jmxServiceUrlDescription = "  服务地址: service:jmx:rmi:///jndi/rmi://:" + port + "/jmxrmi";
+            String jmxServiceUrlDescription = ApiMessages.message(ApiMessageKey.COMMAND_JMX_SERVICE_URL,
+                    "service:jmx:rmi:///jndi/rmi://:" + port + "/jmxrmi");
             context.sendMessage(jmxServiceUrlDescription);
         } catch (Exception e) {
             // 清理资源。
@@ -202,14 +210,15 @@ public class JmxRemoteCommand extends CliCommand {
         // 检查系统属性是否已启用 JMX 远程管理。
         if (isSystemPropertyEnabled()) {
             String portStr = System.getProperty(SYS_PROP_JMX_PORT);
-            context.sendMessage("JMX 远程管理已通过系统属性 " + SYS_PROP_JMX_PORT + " = " + portStr + " 启用");
-            context.sendMessage("由于 JMX 远程管理已通过系统属性启用, 本指令将不会执行任何操作");
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_SYSTEM_PROPERTY_ENABLED,
+                    SYS_PROP_JMX_PORT, portStr));
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_NO_ACTION));
             return;
         }
 
         // 检查是否已经启动。
         if (Objects.isNull(connectorServer) || !connectorServer.isActive()) {
-            context.sendMessage("JMX 远程管理未启动");
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_NOT_STARTED));
             return;
         }
 
@@ -222,7 +231,7 @@ public class JmxRemoteCommand extends CliCommand {
                 UnicastRemoteObject.unexportObject(rmiRegistry, true);
             }
 
-            context.sendMessage("JMX 远程管理已停止");
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_STOPPED));
         } finally {
             // 清理资源。
             connectorServer = null;
@@ -246,27 +255,31 @@ public class JmxRemoteCommand extends CliCommand {
             String portStr = System.getProperty(SYS_PROP_JMX_PORT);
             try {
                 int port = Integer.parseInt(portStr.trim());
-                context.sendMessage("JMX 远程管理状态: 已通过系统属性启用");
-                context.sendMessage("  系统属性: " + SYS_PROP_JMX_PORT + " = " + portStr);
-                context.sendMessage("  端口: " + port);
+                context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_STATUS_SYSTEM_PROPERTY));
+                context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_SYSTEM_PROPERTY,
+                        SYS_PROP_JMX_PORT, portStr));
+                context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_PORT, port));
                 @SuppressWarnings({"SpellCheckingInspection", "RedundantSuppression"})
-                String jmxServiceUrlDescription = "  服务地址: service:jmx:rmi:///jndi/rmi://:" + port + "/jmxrmi";
+                String jmxServiceUrlDescription = ApiMessages.message(ApiMessageKey.COMMAND_JMX_SERVICE_URL,
+                        "service:jmx:rmi:///jndi/rmi://:" + port + "/jmxrmi");
                 context.sendMessage(jmxServiceUrlDescription);
             } catch (NumberFormatException e) {
-                context.sendMessage("JMX 远程管理状态: 已通过系统属性启用");
-                context.sendMessage("  系统属性: " + SYS_PROP_JMX_PORT + " = " + portStr + " (无效的端口号)");
+                context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_STATUS_SYSTEM_PROPERTY));
+                context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_SYSTEM_PROPERTY_INVALID,
+                        SYS_PROP_JMX_PORT, portStr));
             }
             return;
         }
 
         // 如果系统属性不存在，检查命令管理的连接器服务器。
         if (Objects.isNull(connectorServer) || !connectorServer.isActive()) {
-            context.sendMessage("JMX 远程管理未启动");
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_NOT_STARTED));
         } else {
-            context.sendMessage("JMX 远程管理状态: 运行中");
-            context.sendMessage("  端口: " + currentPort);
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_STATUS_RUNNING));
+            context.sendMessage(ApiMessages.message(ApiMessageKey.COMMAND_JMX_PORT, currentPort));
             @SuppressWarnings({"SpellCheckingInspection", "RedundantSuppression"})
-            String jmxServiceUrlDescription = "  服务地址: service:jmx:rmi:///jndi/rmi//:" + currentPort + "/jmxrmi";
+            String jmxServiceUrlDescription = ApiMessages.message(ApiMessageKey.COMMAND_JMX_SERVICE_URL,
+                    "service:jmx:rmi:///jndi/rmi//:" + currentPort + "/jmxrmi");
             context.sendMessage(jmxServiceUrlDescription);
         }
     }
@@ -279,13 +292,13 @@ public class JmxRemoteCommand extends CliCommand {
     private int parsePort(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         // 优先级 1: 命令行参数。
         if (cmd.hasOption(COMMAND_SUB_OPTION_PORT)) {
-            Number portNumber = (Number) cmd.getParsedOptionValue(COMMAND_SUB_OPTION_PORT);
+            Number portNumber = cmd.getParsedOptionValue(COMMAND_SUB_OPTION_PORT);
             if (Objects.nonNull(portNumber)) {
                 return portNumber.intValue();
             }
         }
         // 优先级 2: 询问用户。
-        String promptMessage = "请输入端口号（输入空格使用默认值 " + DEFAULT_PORT + "）:";
+        String promptMessage = ApiMessages.message(ApiMessageKey.COMMAND_JMX_PORT_PROMPT, DEFAULT_PORT);
         context.sendMessage(promptMessage);
         String userInput = context.receiveMessage();
         // 如果用户输入为空，使用默认值。
@@ -293,7 +306,7 @@ public class JmxRemoteCommand extends CliCommand {
             try {
                 return Integer.parseInt(userInput.trim());
             } catch (NumberFormatException e) {
-                throw new Exception("无效的端口号: " + userInput, e);
+                throw new Exception(ApiMessages.message(ApiMessageKey.COMMAND_JMX_INVALID_PORT, userInput), e);
             }
         }
         // 优先级 3: 默认值。

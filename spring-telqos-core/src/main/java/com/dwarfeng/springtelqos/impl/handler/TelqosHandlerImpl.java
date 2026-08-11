@@ -1,5 +1,8 @@
 package com.dwarfeng.springtelqos.impl.handler;
 
+import com.dwarfeng.springtelqos.base.sdk.i18n.MessageContext;
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessageKey;
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessages;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
 import com.dwarfeng.springtelqos.sdk.util.TelqosExceptionHelper;
 import com.dwarfeng.springtelqos.stack.command.Command;
@@ -8,8 +11,8 @@ import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import com.dwarfeng.springtelqos.stack.handler.TelqosHandler;
 import com.dwarfeng.springtelqos.stack.naming.ToCommandIdentityInfo;
 import com.dwarfeng.springtelqos.stack.struct.TelqosConfig;
-import com.dwarfeng.subgrade.sdk.interceptor.analyse.BehaviorAnalyse;
-import com.dwarfeng.subgrade.stack.exception.HandlerException;
+import com.dwarfeng.subgrade.aop.sdk.interceptor.analyse.BehaviorAnalyse;
+import com.dwarfeng.subgrade.basic.stack.exception.HandlerException;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioIoHandler;
@@ -22,13 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
@@ -48,6 +47,8 @@ public class TelqosHandlerImpl implements TelqosHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(TelqosHandlerImpl.class);
 
     private static final String PACKAGE_NAME_BUILTIN_COMMAND = "com.dwarfeng.springtelqos.impl.command.builtin";
+
+    private static final Locale CLIENT_MESSAGE_LOCALE = Locale.SIMPLIFIED_CHINESE;
 
     private final ApplicationContext ctx;
 
@@ -144,7 +145,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
             URL url = resources.nextElement();
             String protocol = url.getProtocol();
             if ("file".equals(protocol)) {
-                String filePath = URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8.name());
+                String filePath = URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8);
                 collectClassNamesFromFile(classNames, PACKAGE_NAME_BUILTIN_COMMAND, filePath);
             } else if ("jar".equals(protocol)) {
                 collectClassNamesFromJar(classNames, packagePath, url);
@@ -162,10 +163,9 @@ public class TelqosHandlerImpl implements TelqosHandler {
                 throw new IllegalArgumentException("内置指令类的 INSTANCE 字段不是静态字段: " + className);
             }
             Object instance = instanceField.get(null);
-            if (!(instance instanceof Command)) {
+            if (!(instance instanceof Command command)) {
                 throw new IllegalArgumentException("内置指令类的 INSTANCE 字段不是 Command 类型: " + className);
             }
-            Command command = (Command) instance;
             String identity = command.getIdentity();
             if (Objects.isNull(identity)) {
                 throw new IllegalArgumentException("内置指令 command.getIdentity() 不能为 null: " + className);
@@ -292,10 +292,14 @@ public class TelqosHandlerImpl implements TelqosHandler {
     }
 
     private void kick(String address) {
+        MessageContext.run(CLIENT_MESSAGE_LOCALE, () -> doKick(address));
+    }
+
+    private void doKick(String address) {
         if (!channelMap.containsKey(address)) return;
         Channel channel = channelMap.get(address);
-        channel.writeAndFlush(ChannelUtil.line("服务端主动与您中断连接"));
-        channel.writeAndFlush(ChannelUtil.line("再见!"));
+        channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_SERVER_DISCONNECTED)));
+        channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_GOODBYE)));
         channel.close();
     }
 
@@ -364,6 +368,10 @@ public class TelqosHandlerImpl implements TelqosHandler {
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String commandLine) {
+            MessageContext.run(CLIENT_MESSAGE_LOCALE, () -> channelRead0Internal(ctx, commandLine));
+        }
+
+        private void channelRead0Internal(ChannelHandlerContext ctx, String commandLine) {
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
@@ -414,7 +422,9 @@ public class TelqosHandlerImpl implements TelqosHandler {
                         if (!commandLineParseResult.isValidFlag()) {
                             String[] invalidDescriptions = commandLineParseResult.getInvalidDescriptions();
                             int total = invalidDescriptions.length;
-                            channel.writeAndFlush(ChannelUtil.line("输入的指令不合法，共 " + total + " 处错误"));
+                            channel.writeAndFlush(ChannelUtil.line(
+                                    CoreMessages.message(CoreMessageKey.HANDLER_INVALID_COMMAND, total)
+                            ));
                             for (int i = 0; i < total; i++) {
                                 channel.writeAndFlush(ChannelUtil.line(
                                         String.format("%d/%d: %s", i + 1, total, invalidDescriptions[i])
@@ -429,9 +439,11 @@ public class TelqosHandlerImpl implements TelqosHandler {
                         Command command = commandMap.get(runtimeIdentity);
                         // Command 不存在时执行拒绝动作。
                         if (Objects.isNull(command)) {
-                            channel.writeAndFlush(ChannelUtil.line("未知的指令: " + runtimeIdentity));
+                            channel.writeAndFlush(ChannelUtil.line(
+                                    CoreMessages.message(CoreMessageKey.HANDLER_UNKNOWN_COMMAND, runtimeIdentity)
+                            ));
                             channel.writeAndFlush(
-                                    ChannelUtil.line("输入 " + Constants.COMMAND_IDENTITY_LIST_COMMAND + " 查看所有指令")
+                                    ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_LIST_COMMAND_HINT))
                             );
                             channel.writeAndFlush(ChannelUtil.line(""));
                             return;
@@ -448,7 +460,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
                         interactionInfo.getCondition().signalAll();
                         break;
                     case BUSY:
-                        channel.writeAndFlush(ChannelUtil.line("系统正忙，请稍候"));
+                        channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_SYSTEM_BUSY)));
                         break;
                 }
             } finally {
@@ -476,7 +488,9 @@ public class TelqosHandlerImpl implements TelqosHandler {
 
             if (identityInvalid(identity)) {
                 commandLineParseResult.setValidFlag(false);
-                commandLineParseResult.setInvalidDescriptions(new String[]{"非法的指令标识符: " + identity});
+                commandLineParseResult.setInvalidDescriptions(new String[]{
+                        CoreMessages.message(CoreMessageKey.HANDLER_INVALID_IDENTITY, identity)
+                });
             } else {
                 commandLineParseResult.setValidFlag(true);
                 commandLineParseResult.setInvalidDescriptions(new String[0]);
@@ -487,6 +501,13 @@ public class TelqosHandlerImpl implements TelqosHandler {
 
         @Override
         public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+            MessageContext.call(CLIENT_MESSAGE_LOCALE, () -> {
+                handlerAddedInternal(ctx);
+                return null;
+            });
+        }
+
+        private void handlerAddedInternal(ChannelHandlerContext ctx) throws Exception {
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
@@ -496,15 +517,15 @@ public class TelqosHandlerImpl implements TelqosHandler {
 
                 if (!checkAddress(address)) {
                     LOGGER.info("设备 {} 尝试访问本服务，由于黑/白名单规则被禁止", address);
-                    channel.writeAndFlush(ChannelUtil.line("该服务设置了黑/白名单，您所在的设备禁止访问此服务"));
-                    channel.writeAndFlush(ChannelUtil.line("再见!"));
+                    channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_ACCESS_DENIED)));
+                    channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_GOODBYE)));
                     channel.close();
                     return;
                 }
 
                 mayReplaceExistsChannel(address);
 
-                channel.writeAndFlush(ChannelUtil.line("欢迎您 " + address));
+                channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_WELCOME, address)));
                 channel.writeAndFlush(ChannelUtil.line(""));
                 channel.writeAndFlush(ChannelUtil.line(""));
                 buildUpChannelInfo(address, channel);
@@ -515,9 +536,10 @@ public class TelqosHandlerImpl implements TelqosHandler {
         }
 
         private void showBanner(Channel channel) throws Exception {
-            Resource resource = ctx.getResource(config.getBannerUrl());
             try (
-                    InputStreamReader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8);
+                    InputStreamReader reader = new InputStreamReader(
+                            resolveBannerInputStream(), StandardCharsets.UTF_8
+                    );
                     Scanner scanner = new Scanner(reader)
             ) {
                 while (scanner.hasNextLine()) {
@@ -525,6 +547,19 @@ public class TelqosHandlerImpl implements TelqosHandler {
                 }
             }
             channel.flush();
+        }
+
+        private InputStream resolveBannerInputStream() throws IOException {
+            String bannerUrl = config.getBannerUrl();
+            if (TelqosConfig.Builder.DEFAULT_BANNER_URL.equals(bannerUrl)) {
+                String resourcePath = bannerUrl.substring("classpath:".length());
+                InputStream inputStream = TelqosHandlerImpl.class.getModule().getResourceAsStream(resourcePath);
+                if (Objects.isNull(inputStream)) {
+                    throw new FileNotFoundException("Banner resource not found: " + resourcePath);
+                }
+                return inputStream;
+            }
+            return ctx.getResource(bannerUrl).getInputStream();
         }
 
         private boolean checkAddress(String address) {
@@ -549,8 +584,8 @@ public class TelqosHandlerImpl implements TelqosHandler {
         private void mayReplaceExistsChannel(String address) {
             if (channelMap.containsKey(address)) {
                 Channel channel = channelMap.get(address);
-                channel.writeAndFlush(ChannelUtil.line("此设备 (" + address + ") 在其它进程登录，此进程将停止"));
-                channel.writeAndFlush(ChannelUtil.line("再见!"));
+                channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_DUPLICATE_LOGIN, address)));
+                channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_GOODBYE)));
                 channel.close();
                 sweepUpChannelInfo(address);
                 LOGGER.info("设备 {} 在其它进程登录，其它登录进程停止", address);
@@ -559,6 +594,10 @@ public class TelqosHandlerImpl implements TelqosHandler {
 
         @Override
         public void handlerRemoved(ChannelHandlerContext ctx) {
+            MessageContext.run(CLIENT_MESSAGE_LOCALE, () -> handlerRemovedInternal(ctx));
+        }
+
+        private void handlerRemovedInternal(ChannelHandlerContext ctx) {
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
@@ -574,14 +613,18 @@ public class TelqosHandlerImpl implements TelqosHandler {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
+            MessageContext.run(CLIENT_MESSAGE_LOCALE, () -> exceptionCaughtInternal(ctx, e));
+        }
+
+        private void exceptionCaughtInternal(ChannelHandlerContext ctx, Throwable e) {
             Channel channel = ctx.channel();
             String address = ChannelUtil.getAddress(channel);
 
             LOGGER.warn("设备 {} 在通讯时发生异常，将中断连接，异常信息如下:", address, e);
             lock.lock();
             try {
-                channel.writeAndFlush(ChannelUtil.line("不小心发生异常了，将中断连接, 请留意服务端日志"));
-                channel.writeAndFlush(ChannelUtil.line("再见!"));
+                channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_UNEXPECTED_EXCEPTION)));
+                channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_GOODBYE)));
             } catch (Exception ex) {
                 LOGGER.warn("向设备 {} 发送消息时发生异常，异常信息如下:", address, ex);
             } finally {
@@ -627,6 +670,10 @@ public class TelqosHandlerImpl implements TelqosHandler {
 
         @Override
         public void run() {
+            MessageContext.run(CLIENT_MESSAGE_LOCALE, this::runInternal);
+        }
+
+        private void runInternal() {
             // 执行指令，将结果通过反序列化器输出，并妥善处理异常。
             try {
                 // 变量记录、输出日志。
@@ -674,7 +721,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
                         identity, runtimeIdentity, address, option, interactionInfo, channel
                 ));
                 commandExecutor.execute();
-                channel.writeAndFlush(ChannelUtil.line("OK"));
+                channel.writeAndFlush(ChannelUtil.line(CoreMessages.message(CoreMessageKey.HANDLER_OK)));
                 channel.writeAndFlush(ChannelUtil.line(""));
             } catch (Exception e) {
                 LOGGER.warn("执行指令时发生异常，异常信息如下", e);
@@ -707,7 +754,8 @@ public class TelqosHandlerImpl implements TelqosHandler {
      * @author DwArFeng
      * @since 2.0.0
      */
-    private static final class CommandDescriptorContextImpl implements CommandDescriptor.Context {
+    @SuppressWarnings("ClassCanBeRecord")
+    private static class CommandDescriptorContextImpl implements CommandDescriptor.Context {
 
         private final String identity;
         private final String runtimeIdentity;
@@ -839,7 +887,7 @@ public class TelqosHandlerImpl implements TelqosHandler {
                 }
 
                 if (interactionInfo.isTermination()) {
-                    throw new IOException("连接已中断");
+                    throw new IOException(CoreMessages.message(CoreMessageKey.HANDLER_CONNECTION_INTERRUPTED));
                 }
 
                 interactionInfo.setInteractionStatus(InteractionStatus.BUSY);

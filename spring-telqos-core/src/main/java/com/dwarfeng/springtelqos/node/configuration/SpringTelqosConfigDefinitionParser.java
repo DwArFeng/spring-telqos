@@ -4,6 +4,7 @@ import com.dwarfeng.springtelqos.sdk.configuration.CommandClassPathBeanDefinitio
 import com.dwarfeng.springtelqos.sdk.util.BeanDefinitionParserUtil;
 import com.dwarfeng.springtelqos.stack.struct.TelqosConfig;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -32,7 +32,7 @@ public class SpringTelqosConfigDefinitionParser implements BeanDefinitionParser 
     private static final String TELQOS_NAMESPACE_URL = "http://dwarfeng.com/schema/spring-telqos";
 
     @Override
-    public BeanDefinition parse(Element element, @Nonnull ParserContext parserContext) {
+    public BeanDefinition parse(Element element, @NotNull ParserContext parserContext) {
         String configName = (String) BeanDefinitionParserUtil.mayResolveSpel(
                 parserContext, element.getAttribute("config-name")
         );

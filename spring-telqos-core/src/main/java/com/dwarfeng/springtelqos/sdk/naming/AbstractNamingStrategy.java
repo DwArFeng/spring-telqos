@@ -3,7 +3,7 @@ package com.dwarfeng.springtelqos.sdk.naming;
 import com.dwarfeng.springtelqos.stack.exception.NamingStrategyException;
 import com.dwarfeng.springtelqos.stack.naming.NamingStrategy;
 import com.dwarfeng.springtelqos.stack.naming.ToCommandIdentityInfo;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 命名策略的抽象实现。
@@ -14,7 +14,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public abstract class AbstractNamingStrategy implements NamingStrategy {
 
     @Override
-    public String toCommandIdentity(@NonNull ToCommandIdentityInfo info) throws NamingStrategyException {
+    public String toCommandIdentity(@NotNull ToCommandIdentityInfo info) throws NamingStrategyException {
         try {
             return doToCommandIdentity(info);
         } catch (NamingStrategyException e) {
@@ -24,7 +24,7 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
         }
     }
 
-    protected abstract String doToCommandIdentity(@NonNull ToCommandIdentityInfo info) throws Exception;
+    protected abstract String doToCommandIdentity(@NotNull ToCommandIdentityInfo info) throws Exception;
 
     @Override
     public String toString() {

@@ -1,11 +1,11 @@
 package com.dwarfeng.springtelqos.stack.struct;
 
-import com.dwarfeng.dutil.basic.prog.Buildable;
+import com.dwarfeng.dutil.basic.stack.builder.Buildable;
 import com.dwarfeng.springtelqos.stack.command.Command;
 import com.dwarfeng.springtelqos.stack.naming.NamingStrategy;
 import com.dwarfeng.springtelqos.stack.naming.ToCommandIdentityInfo;
 import com.dwarfeng.springtelqos.stack.util.TelqosConfigUtil;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +16,8 @@ import java.util.Collections;
  * @author DwArFeng
  * @since 2.0.0
  */
+// 该类为带有参数校验逻辑的配置类，不宜改写为 Record。
+@SuppressWarnings("ClassCanBeRecord")
 public final class TelqosConfig {
 
     /**
@@ -142,7 +144,7 @@ public final class TelqosConfig {
         public static final String DEFAULT_WHITELIST_REGEX = "";
         public static final String DEFAULT_BLACKLIST_REGEX = "";
         public static final String DEFAULT_CHARSET = "UTF-8";
-        public static final String DEFAULT_BANNER_URL = "classpath:telqos/banner.txt";
+        public static final String DEFAULT_BANNER_URL = "classpath:com/dwarfeng/springtelqos/node/telqos/banner.txt";
         public static final Collection<Command> DEFAULT_COMMANDS = Collections.emptySet();
         public static final NamingStrategy DEFAULT_NAMING_STRATEGY = DefaultNamingStrategy.INSTANCE;
 
@@ -228,8 +230,8 @@ public final class TelqosConfig {
         public static final DefaultNamingStrategy INSTANCE = new DefaultNamingStrategy();
 
         @Override
-        public String toCommandIdentity(@NonNull ToCommandIdentityInfo info) {
-            return info.getCommandInfo().getIdentify();
+        public String toCommandIdentity(@NotNull ToCommandIdentityInfo info) {
+            return info.commandInfo().identify();
         }
 
         @Override

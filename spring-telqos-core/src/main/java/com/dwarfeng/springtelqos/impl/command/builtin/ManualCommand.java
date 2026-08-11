@@ -1,5 +1,7 @@
 package com.dwarfeng.springtelqos.impl.command.builtin;
 
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessageKey;
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessages;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
 import com.dwarfeng.springtelqos.stack.command.Command;
@@ -23,7 +25,7 @@ public class ManualCommand extends CliCommand {
 
     @Override
     protected DescriptionProvider provideDescriptionProvider() {
-        return context -> "显示指令的详细信息";
+        return context -> CoreMessages.message(CoreMessageKey.COMMAND_MANUAL_DESCRIPTION);
     }
 
     @Override
@@ -40,7 +42,7 @@ public class ManualCommand extends CliCommand {
         }
         String manual = context.getCommandManual(runtimeIdentity);
         if (StringUtils.isEmpty(manual)) {
-            context.sendMessage("未能找到指令 " + runtimeIdentity + " 的详细帮助");
+            context.sendMessage(CoreMessages.message(CoreMessageKey.COMMAND_MANUAL_NOT_FOUND, runtimeIdentity));
             return;
         }
         context.sendMessage(manual);

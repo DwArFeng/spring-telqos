@@ -1,12 +1,15 @@
 package com.dwarfeng.springtelqos.sdk.util;
 
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessageKey;
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessages;
 import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -46,7 +49,7 @@ public final class CliCommandUtil {
      * @param commandOption 指定的选项。
      * @return 拼接前缀之后的选项。
      */
-    public static String concatOptionPrefix(@Nonnull String commandOption) {
+    public static String concatOptionPrefix(@NotNull String commandOption) {
         if (commandOption.contains("-")) {
             return "--" + commandOption;
         }
@@ -59,7 +62,7 @@ public final class CliCommandUtil {
      * @param patterns 指定的 CLI 指令语法模式。
      * @return 拼接之后的 CLI 指令语法说明。
      */
-    public static String cliSyntax(@Nonnull String... patterns) {
+    public static String cliSyntax(@NotNull String... patterns) {
         StringJoiner sj = new StringJoiner(System.lineSeparator());
         for (String pattern : patterns) {
             sj.add(pattern);
@@ -83,7 +86,7 @@ public final class CliCommandUtil {
      * @return 分析结果。
      */
     public static Pair<String, Integer> analyseCommand(
-            @Nonnull CommandLine commandLine, @Nonnull String... commandOptions
+            @NotNull CommandLine commandLine, @NotNull String... commandOptions
     ) {
         int i = 0;
         String subCmd = null;
@@ -102,8 +105,8 @@ public final class CliCommandUtil {
      * @param patterns 选项模式。
      * @return 选项不匹配的提示信息。
      */
-    public static String optionMismatchMessage(@Nonnull String... patterns) {
-        StringJoiner sj = new StringJoiner(", ", "下列选项必须且只能含有一个: ", "");
+    public static String optionMismatchMessage(@NotNull String... patterns) {
+        StringJoiner sj = new StringJoiner(", ", CoreMessages.message(CoreMessageKey.CLI_OPTION_MISMATCH), "");
         for (String pattern : patterns) {
             sj.add(concatOptionPrefix(pattern));
         }
@@ -125,9 +128,10 @@ public final class CliCommandUtil {
      * @throws Exception 处理过程中发生的异常。
      */
     public static <T> CropResult cropData(
-            @Nonnull CommandExecutor.Context context, @Nonnull List<T> originData, @Nonnull String bannerMessage
+            @NotNull CommandExecutor.Context context, @NotNull List<T> originData, @NotNull String bannerMessage
     ) throws Exception {
-        final CropDataQuitPromptProvider quitPromptProvider = command -> "输入 " + command + " 退出";
+        final CropDataQuitPromptProvider quitPromptProvider = command ->
+                CoreMessages.message(CoreMessageKey.CLI_CROP_QUIT_PROMPT, command);
         return cropData(context, originData, bannerMessage, quitPromptProvider);
     }
 
@@ -143,12 +147,13 @@ public final class CliCommandUtil {
      * @throws Exception 处理过程中发生的异常。
      */
     public static <T> CropResult cropData(
-            @Nonnull CommandExecutor.Context context, @Nonnull List<T> originData, @Nonnull String bannerMessage,
-            @Nonnull CropDataQuitPromptProvider quitPromptProvider
+            @NotNull CommandExecutor.Context context, @NotNull List<T> originData, @NotNull String bannerMessage,
+            @NotNull CropDataQuitPromptProvider quitPromptProvider
     ) throws Exception {
-        final CropDataCropAllPromptProvider cropAllPromptProvider = command -> "输入 " + command + " 查看所有数据";
+        final CropDataCropAllPromptProvider cropAllPromptProvider = command ->
+                CoreMessages.message(CoreMessageKey.CLI_CROP_ALL_PROMPT, command);
         final CropDataCropRangePromptProvider cropRangePromptProvider = (argNameBegin, argNameEnd, separator) ->
-                "输入 " + argNameBegin + separator + argNameEnd + " 查看指定范围的数据(开始于 0)";
+                CoreMessages.message(CoreMessageKey.CLI_CROP_RANGE_PROMPT, argNameBegin, argNameEnd, separator);
         return cropData(
                 context, originData, bannerMessage, cropAllPromptProvider, cropRangePromptProvider, quitPromptProvider
         );
@@ -168,10 +173,10 @@ public final class CliCommandUtil {
      * @throws Exception 处理过程中发生的异常。
      */
     public static <T> CropResult cropData(
-            @Nonnull CommandExecutor.Context context, @Nonnull List<T> originData, @Nonnull String bannerMessage,
-            @Nonnull CropDataCropAllPromptProvider cropAllPromptProvider,
-            @Nonnull CropDataCropRangePromptProvider cropRangePromptProvider,
-            @Nonnull CropDataQuitPromptProvider quitPromptProvider
+            @NotNull CommandExecutor.Context context, @NotNull List<T> originData, @NotNull String bannerMessage,
+            @NotNull CropDataCropAllPromptProvider cropAllPromptProvider,
+            @NotNull CropDataCropRangePromptProvider cropRangePromptProvider,
+            @NotNull CropDataQuitPromptProvider quitPromptProvider
     ) throws Exception {
         int beginIndex;
         int endIndex;
@@ -197,7 +202,7 @@ public final class CliCommandUtil {
             } else {
                 String[] split = StringUtils.split(message, CROP_DATA_CROP_RANGE_SEPARATOR);
                 if (split.length != 2) {
-                    context.sendMessage("输入格式错误");
+                    context.sendMessage(CoreMessages.message(CoreMessageKey.CLI_INPUT_FORMAT_INVALID));
                     context.sendMessage("");
                     continue;
                 }
@@ -205,14 +210,17 @@ public final class CliCommandUtil {
                     beginIndex = Integer.parseInt(split[0]);
                     endIndex = Integer.parseInt(split[1]);
                 } catch (NumberFormatException e) {
-                    context.sendMessage("输入格式错误");
+                    context.sendMessage(CoreMessages.message(CoreMessageKey.CLI_INPUT_FORMAT_INVALID));
                     context.sendMessage("");
                     continue;
                 }
                 if (beginIndex < 0 || endIndex > originData.size() || beginIndex >= endIndex) {
-                    String errorMessage = "输入范围错误，" + CROP_DATA_CROP_RANGE_ARG_NAME_BEGIN + " 和 " +
-                            CROP_DATA_CROP_RANGE_ARG_NAME_END + " 均应介于 [0, " + originData.size() + "] 之间，且 " +
-                            CROP_DATA_CROP_RANGE_ARG_NAME_BEGIN + " 应小于 " + CROP_DATA_CROP_RANGE_ARG_NAME_END;
+                    String errorMessage = CoreMessages.message(
+                            CoreMessageKey.CLI_INPUT_RANGE_INVALID,
+                            CROP_DATA_CROP_RANGE_ARG_NAME_BEGIN,
+                            CROP_DATA_CROP_RANGE_ARG_NAME_END,
+                            originData.size()
+                    );
                     context.sendMessage(errorMessage);
                     context.sendMessage("");
                     continue;
@@ -273,32 +281,10 @@ public final class CliCommandUtil {
      * @author DwArFeng
      * @since 2.0.0
      */
-    public static final class CropResult {
-
-        private final int beginIndex;
-        private final int endIndex;
-        private final boolean exitFlag;
-
-        public CropResult(int beginIndex, int endIndex, boolean exitFlag) {
-            this.beginIndex = beginIndex;
-            this.endIndex = endIndex;
-            this.exitFlag = exitFlag;
-        }
-
-        public int getBeginIndex() {
-            return beginIndex;
-        }
-
-        public int getEndIndex() {
-            return endIndex;
-        }
-
-        public boolean isExitFlag() {
-            return exitFlag;
-        }
+    public record CropResult(int beginIndex, int endIndex, boolean exitFlag) {
 
         @Override
-        public String toString() {
+        public @NotNull String toString() {
             return "CropResult{" +
                     "beginIndex=" + beginIndex +
                     ", endIndex=" + endIndex +

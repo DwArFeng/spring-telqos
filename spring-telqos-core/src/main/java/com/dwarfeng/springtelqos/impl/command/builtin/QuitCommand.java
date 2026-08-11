@@ -1,5 +1,7 @@
 package com.dwarfeng.springtelqos.impl.command.builtin;
 
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessageKey;
+import com.dwarfeng.springtelqos.core.internal.i18n.CoreMessages;
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
 import com.dwarfeng.springtelqos.sdk.util.Constants;
 import com.dwarfeng.springtelqos.stack.command.Command;
@@ -22,7 +24,7 @@ public class QuitCommand extends CliCommand {
 
     @Override
     protected DescriptionProvider provideDescriptionProvider() {
-        return ctx -> "退出";
+        return ctx -> CoreMessages.message(CoreMessageKey.COMMAND_QUIT_DESCRIPTION);
     }
 
     @Override
