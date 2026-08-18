@@ -14,6 +14,11 @@
 - [Use with Maven](./UseWithMaven.md) - 通过 Maven 使用本项目。
 - [Usage Guide](./UsageGuide.md) - 使用指南，详细介绍如何配置框架、开发自定义指令以及框架的高级用法。
 
+## 配置参考
+
+- [Spring Telqos Namespace Reference](./SpringTelqosNamespaceReference.md) - Spring Telqos 命名空间参考，
+  详细说明 XML 配置元素、属性、默认值与装配关系。
+
 ## 版本黑名单
 
 - [Version Blacklist](./VersionBlacklist.md) - 版本黑名单，列出了本项目的版本黑名单，请注意避免使用这些版本。

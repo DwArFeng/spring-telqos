@@ -4,6 +4,9 @@
 
 ### 功能构建
 
+- Wiki 编写。
+  - docs/wiki/zh-CN/SpringTelqosNamespaceReference.md。
+
 - 优化部分示例的控制台输出方法。
   - com.dwarfeng.springtelqos.api.example.Example。
   - com.dwarfeng.springtelqos.node.example.Example。
