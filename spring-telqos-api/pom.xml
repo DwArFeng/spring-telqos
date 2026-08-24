@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.dwarfeng</groupId>
         <artifactId>spring-telqos</artifactId>
-        <version>3.0.0.a-SNAPSHOT</version>
+        <version>3.0.0.a</version>
     </parent>
 
     <artifactId>spring-telqos-api</artifactId>

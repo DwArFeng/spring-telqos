@@ -10,7 +10,7 @@
 
     <groupId>com.dwarfeng</groupId>
     <artifactId>spring-telqos</artifactId>
-    <version>3.0.0.a-SNAPSHOT</version>
+    <version>3.0.0.a</version>
     <packaging>pom</packaging>
 
     <name>spring-telqos</name>
