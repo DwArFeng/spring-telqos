@@ -7,7 +7,7 @@
 spring-telqos 是一款基于 Spring 框架的 telnet QOS 服务框架，它提供了：
 
 - 通过配置快速搭建 QOS 平台，拥有基础指令。
-- 通过继承 `Command` 接口，实现自定义指令，并通过配置文件轻松注册。
+- 通过实现 `Command` 接口，实现自定义指令，并通过配置文件轻松注册。
 - 自定义 Banner 展示，提升用户体验。
 
 本指南将详细介绍如何配置框架、开发自定义指令，以及框架的高级用法和最佳实践。
@@ -72,7 +72,8 @@ spring-telqos 是一款基于 Spring 框架的 telnet QOS 服务框架，它提�
 
 ### 基本配置
 
-在 Spring 配置文件中添加 telqos 配置。以下是一个最小化配置示例：
+在 Spring 配置文件中添加 telqos 配置。以下示例要求 Spring 容器中已经存在名为 `executor` 的
+`ThreadPoolTaskExecutor` 和名为 `mapServiceExceptionMapper` 的 `ServiceExceptionMapper` Bean：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -92,6 +93,8 @@ spring-telqos 是一款基于 Spring 框架的 telnet QOS 服务框架，它提�
             <telqos:command-impl command-ref="myCommand"/>
         </telqos:command>
     </telqos:config>
+   <telqos:handler/>
+   <telqos:qos/>
 
     <!--suppress SpringXmlModelInspection -->
     <bean name="myCommand" class="com.example.telqos.MyCommand"/>
@@ -106,26 +109,27 @@ spring-telqos 是一款基于 Spring 框架的 telnet QOS 服务框架，它提�
 package com.example.telqos;
 
 import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-import com.dwarfeng.springtelqos.stack.command.Command.Context;
-import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
 import org.apache.commons.cli.CommandLine;
-import org.springframework.stereotype.Component;
 
-@Component
 public class MyCommand extends CliCommand {
 
-    private static final String IDENTITY = "hello";
-    private static final String DESCRIPTION = "输出欢迎信息";
-    private static final String CMD_LINE_SYNTAX = "hello";
+   private static final String IDENTITY = "hello";
+   private static final String DESCRIPTION = "输出欢迎信息";
 
     public MyCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+       super(IDENTITY);
     }
 
-    @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
-        context.sendMessage("Hello, welcome to telqos!");
-    }
+   @Override
+   protected DescriptionProvider provideDescriptionProvider() {
+      return context -> DESCRIPTION;
+   }
+
+   @Override
+   protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
+      context.sendMessage("Hello, welcome to telqos!");
+   }
 }
 ```
 
@@ -230,7 +234,7 @@ quit        # 退出连接
 
 - **属性名**：`banner-url`。
 - **类型**：`String`。
-- **默认值**：`classpath:telqos/banner.txt`。
+- **默认值**：`classpath:com/dwarfeng/springtelqos/node/telqos/banner.txt`。
 - **说明**：Banner 文件的地址，新连接接入时向客户端发送的欢迎文本。
 
 Banner 可以是项目资源文件或文件系统路径：
@@ -247,14 +251,9 @@ Banner 可以是项目资源文件或文件系统路径：
         http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd"
 >
 
-    <!-- 使用 classpath 资源。 -->
+   <!-- 使用 classpath 资源。文件系统资源可将该值改为 file:/path/to/banner.txt。 -->
     <telqos:config>
         <telqos:connection-setting banner-url="classpath:telqos/my-banner.txt"/>
-    </telqos:config>
-
-    <!-- 使用文件系统路径 -->
-    <telqos:config>
-        <telqos:connection-setting banner-url="file:/path/to/banner.txt"/>
     </telqos:config>
 </beans>
 ```
@@ -271,7 +270,7 @@ Banner 可以是项目资源文件或文件系统路径：
 - **属性名**：`whitelist-regex` / `blacklist-regex`。
 - **类型**：`String`。
 - **默认值**：空字符串（表示不启用）。
-- **说明**：使用正则表达式匹配客户端 IP 地址，控制连接访问。
+- **说明**：使用正则表达式匹配包含端口的客户端地址，控制连接访问。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -285,23 +284,19 @@ Banner 可以是项目资源文件或文件系统路径：
         http://dwarfeng.com/schema/spring-telqos/spring-telqos.xsd"
 >
 
-    <!-- 只允许本地连接。 -->
+   <!-- 只允许本地连接，并禁止特定 IP 段。 -->
     <telqos:config>
-        <telqos:connection-setting whitelist-regex="127\.0\.0\.1|::1"/>
-    </telqos:config>
-
-    <!-- 禁止特定 IP 段。 -->
-    <telqos:config>
-        <telqos:connection-setting blacklist-regex="192\.168\.1\..*"/>
+       <telqos:connection-setting
+         whitelist-regex="(?:127\.0\.0\.1|\[0:0:0:0:0:0:0:1\]):\d+"
+         blacklist-regex="192\.168\.1\..*"
+       />
     </telqos:config>
 </beans>
 ```
 
-### 线程池与服务装配配置（2.0）
+#### 服务装配配置
 
-2.0 命名空间不再提供 `task-pool` 元素。线程池通过 `telqos:handler` 的 `executor-ref` 属性引用。
-
-#### 最小可用配置
+以下示例要求 Spring 容器中已经存在名为 `mapServiceExceptionMapper` 的 `ServiceExceptionMapper` Bean。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -336,15 +331,15 @@ Banner 可以是项目资源文件或文件系统路径：
 
 #### handler 与 qos 常用属性
 
-| 元素               | 属性             | 说明                                                              |
-|:-----------------|:---------------|:----------------------------------------------------------------|
-| `telqos:handler` | `handler-name` | Handler bean 名称，默认 `telqosHandlerImpl`                          |
-| `telqos:handler` | `config-ref`   | 引用 `telqos:config` 导出的配置 bean，默认 `telqosConfig`                 |
+| 元素             | 属性           | 说明                                                                 |
+|:-----------------|:---------------|:---------------------------------------------------------------------|
+| `telqos:handler` | `handler-name` | Handler bean 名称，默认 `telqosHandler`                              |
+| `telqos:handler` | `config-ref`   | 引用 `telqos:config` 导出的配置 bean，默认 `telqosConfig`            |
 | `telqos:handler` | `executor-ref` | 引用 `ThreadPoolTaskExecutor` bean，默认 `executor`                  |
-| `telqos:qos`     | `service-name` | QOS 服务 bean 名称，默认 `telqosQosService`                            |
-| `telqos:qos`     | `handler-ref`  | 引用 Handler bean，默认 `telqosHandlerImpl`                          |
+| `telqos:qos`     | `service-name` | QOS 服务 bean 名称，默认 `telqosService`                             |
+| `telqos:qos`     | `handler-ref`  | 引用 Handler bean，默认 `telqosHandler`                              |
 | `telqos:qos`     | `sem-ref`      | 引用 `ServiceExceptionMapper` bean，默认 `mapServiceExceptionMapper` |
-| `telqos:qos`     | `auto-start`   | 容器启动时是否自动启动服务，默认 `true`                                         |
+| `telqos:qos`     | `auto-start`   | 容器启动时是否自动启动服务，默认 `true`                              |
 
 ### 指令注册
 
@@ -379,7 +374,7 @@ Banner 可以是项目资源文件或文件系统路径：
 
 #### 使用 package-scan 扫描
 
-扫描指定包下的所有带 `@TelqosCommand` 注解的类：
+扫描指定包下同时带有 `@TelqosCommand` 注解并实现 `Command` 接口的类：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -430,7 +425,7 @@ public class MyCommand extends CliCommand {
 
     <telqos:config>
         <telqos:command>
-            <telqos:command-impl class="com.example.telqos.MyCommand"/>
+           <telqos:command-impl command-name="myCommand" class="com.example.telqos.MyCommand"/>
         </telqos:command>
     </telqos:config>
 </beans>
@@ -448,35 +443,27 @@ public class MyCommand extends CliCommand {
 public interface Command {
 
     /**
-     * 获取命令的标识。
+     * 获取指令的标识。
      *
-     * @return 命令的标识。
+     * @return 指令的标识。
      */
-    String getIdentify();
+    String getIdentity();
 
     /**
-     * 获取命令的简短描述。
+     * 生成一个新的指令描述器。
      *
-     * @return 命令的简短描述。
+     * @return 新生成的指令描述器。
+     * @throws CommandException 指令异常。
      */
-    String getDescription();
+    CommandDescriptor newCommandDescriptor() throws CommandException;
 
     /**
-     * 获取命令的详细帮助。
+     * 生成一个新的指令执行器。
      *
-     * @return 命令的详细帮助。
+     * @return 新生成的指令执行器。
+     * @throws CommandException 指令异常。
      */
-    String getManual();
-
-    /**
-     * 执行指令。
-     *
-     * @param context 指令上下文。
-     * @throws TelqosException               Telqos 异常。
-     * @throws ConnectionTerminatedException 连接中断异常。
-     */
-    @SuppressWarnings("JavadocReference")
-    void execute(Context context) throws TelqosException, ConnectionTerminatedException;
+    CommandExecutor newCommandExecutor() throws CommandException;
 }
 ```
 
@@ -484,11 +471,10 @@ public interface Command {
 
 框架提供了多个抽象类，您可以根据需求选择合适的实现方式：
 
-| 抽象类               | 说明                                                      | 适用场景                 |
-|:------------------|:--------------------------------------------------------|:---------------------|
-| `AbstractCommand` | 提供 `getIdentify()` 的基础实现                                | 需要完全自定义指令逻辑          |
-| `BasicCommand`    | 提供 `getIdentify()`、`getDescription()`、`getManual()` 的实现 | 需要自定义执行逻辑，但描述和帮助是静态的 |
-| `CliCommand`      | 基于 Apache Commons CLI 的实现，支持命令行选项解析                     | **推荐**，大多数场景下使用      |
+| 抽象类            | 说明                                                      | 适用场景                   |
+|:------------------|:----------------------------------------------------------|:---------------------------|
+| `AbstractCommand` | 提供 `getIdentity()` 以及描述器、执行器创建的异常转换逻辑 | 需要完全自定义指令逻辑     |
+| `CliCommand`      | 基于 Apache Commons CLI 的实现，支持命令行选项解析        | **推荐**，大多数场景下使用 |
 
 ### 使用 CliCommand 实现指令
 
@@ -497,9 +483,10 @@ public interface Command {
 #### 基本实现步骤
 
 1. 继承 `CliCommand` 类。
-2. 在构造函数中调用 `super()`，传入指令标识、描述和命令行语法。
+2. 在构造函数中调用 `super(identity)`，设置指令身份标识。
 3. 实现 `executeWithCmd()` 方法，处理指令逻辑。
-4. 可选实现 `buildOptions()` 方法，定义命令行选项。
+4. 可选覆盖 `provideDescriptionProvider()`、`provideCliSyntaxProvider()` 和 `provideOptions()`，
+   定义描述、语法和命令行选项。
 
 #### 简单指令示例
 
@@ -513,14 +500,18 @@ public class MyCommand extends CliCommand {
 
     private static final String IDENTITY = "hello";
     private static final String DESCRIPTION = "输出欢迎信息";
-    private static final String CMD_LINE_SYNTAX = "hello";
 
     public MyCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(IDENTITY);
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+    protected DescriptionProvider provideDescriptionProvider() {
+       return context -> DESCRIPTION;
+    }
+
+    @Override
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         context.sendMessage("Hello, welcome to telqos!");
     }
 }
@@ -540,49 +531,50 @@ public class FoobarCommand extends CliCommand {
     private static final String COMMAND_OPTION_SET = "set";
     private static final String COMMAND_OPTION_VALUE = "value";
 
-    private static final String[] COMMAND_OPTION_ARRAY = new String[]{
-            COMMAND_OPTION_GET,
-            COMMAND_OPTION_SET
-    };
-
     private static final String IDENTITY = "foobar";
     private static final String DESCRIPTION = "Foobar 操作指令";
     private static final String CMD_LINE_SYNTAX = "foobar [-get|--get] [-set|--set] [-value|--value value]";
 
     public FoobarCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(IDENTITY);
     }
 
     @Override
-    protected List<Option> buildOptions() {
+    protected DescriptionProvider provideDescriptionProvider() {
+        return context -> DESCRIPTION;
+    }
+
+    @Override
+    protected CliSyntaxProvider provideCliSyntaxProvider() {
+        return context -> CMD_LINE_SYNTAX;
+    }
+
+    @Override
+    protected List<Option> provideOptions() {
         List<Option> list = new ArrayList<>();
-        list.add(Option.builder().longOpt(COMMAND_OPTION_GET).desc("获取值").build());
-        list.add(Option.builder().longOpt(COMMAND_OPTION_SET).desc("设置值").build());
+        list.add(Option.builder().longOpt(COMMAND_OPTION_GET).desc("获取值").get());
+        list.add(Option.builder().longOpt(COMMAND_OPTION_SET).desc("设置值").get());
         list.add(Option.builder(COMMAND_OPTION_VALUE).longOpt(COMMAND_OPTION_VALUE)
-                .desc("设置的值").hasArg().type(String.class).build());
+                .desc("设置的值").hasArg().type(String.class).get());
         return list;
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
-        try {
-            if (cmd.hasOption(COMMAND_OPTION_GET)) {
-                // 处理获取操作
-                context.sendMessage("当前值: example");
-            } else if (cmd.hasOption(COMMAND_OPTION_SET)) {
-                // 处理设置操作
-                if (cmd.hasOption(COMMAND_OPTION_VALUE)) {
-                    String value = (String) cmd.getParsedOptionValue(COMMAND_OPTION_VALUE);
-                    context.sendMessage("设置值: " + value);
-                } else {
-                    context.sendMessage("错误: 设置操作需要指定 -value 参数");
-                }
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
+        if (cmd.hasOption(COMMAND_OPTION_GET)) {
+            // 处理获取操作
+            context.sendMessage("当前值: example");
+        } else if (cmd.hasOption(COMMAND_OPTION_SET)) {
+            // 处理设置操作
+            if (cmd.hasOption(COMMAND_OPTION_VALUE)) {
+                String value = (String) cmd.getParsedOptionValue(COMMAND_OPTION_VALUE);
+                context.sendMessage("设置值: " + value);
             } else {
-                context.sendMessage("请指定操作: -get 或 -set");
-                context.sendMessage(CMD_LINE_SYNTAX);
+                context.sendMessage("错误: 设置操作需要指定 -value 参数");
             }
-        } catch (Exception e) {
-            throw new TelqosException(e);
+        } else {
+            context.sendMessage("请指定操作: -get 或 -set");
+            context.sendMessage(CMD_LINE_SYNTAX);
         }
     }
 }
@@ -600,15 +592,18 @@ public class InteractiveCommand extends CliCommand {
 
     private static final String IDENTITY = "interactive";
     private static final String DESCRIPTION = "交互式指令示例";
-    private static final String CMD_LINE_SYNTAX = "interactive";
 
     public InteractiveCommand() {
-        super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+        super(IDENTITY);
     }
 
     @Override
-    protected void executeWithCmd(Context context, CommandLine cmd)
-            throws TelqosException, ConnectionTerminatedException {
+    protected DescriptionProvider provideDescriptionProvider() {
+        return context -> DESCRIPTION;
+    }
+
+    @Override
+    protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
         context.sendMessage("请输入您的姓名:");
         String name = context.receiveMessage();
 
@@ -627,7 +622,7 @@ public class InteractiveCommand extends CliCommand {
 
 #### 使用 @TelqosCommand 注解
 
-`@TelqosCommand` 注解是 `@Component` 的别名，用于自动扫描注册：
+`@TelqosCommand` 是组合了 `@Component` 的 Telqos 指令注解，用于自动扫描注册：
 
 ```java
 package com.example.telqos;
@@ -662,7 +657,7 @@ public class MyCommand extends CliCommand {
 
 #### 使用 @Component 注解
 
-也可以直接使用 Spring 的 `@Component` 注解：
+使用 `command-ref` 注册时，也可以直接使用 Spring 的 `@Component` 注解将指令声明为 bean：
 
 ```java
 package com.example.telqos;
@@ -700,78 +695,97 @@ public class MyCommand extends CliCommand {
 </beans>
 ```
 
-## Context 接口详解
+## CommandExecutor.Context 接口详解
 
-`Context` 接口提供了指令执行时的上下文信息，以及与客户端交互的方法。
+`CommandExecutor.Context` 接口提供了指令执行时的上下文信息，以及与客户端交互的方法。
 
 ```java
-public interface Context {
+interface Context {
+
+    /**
+     * 获取指令的标识。
+     *
+     * @return 指令的标识。
+     * @throws Exception 方法执行过程中发生的任何异常。
+     */
+    String getIdentity() throws Exception;
+
+    /**
+     * 获取指令的运行时标识。
+     *
+     * <p>
+     * 指令的运行时标识是指，在指令被注册后，由指令的标识与命名策略共同作用生成的标识。<br>
+     * 如果命名策略为本征命名策略，则指令的运行时标识与指令的标识相同。
+     *
+     * @return 指令的运行时标识。
+     * @throws Exception 方法执行过程中发生的任何异常。
+     */
+    String getRuntimeIdentity() throws Exception;
 
     /**
      * 获取执行指令的客户端地址。
      *
      * @return 客户端地址。
+     * @throws Exception 方法执行过程中发生的任何异常。
      */
-    String getAddress();
+    String getAddress() throws Exception;
 
     /**
      * 获取指令执行的选项。
      *
      * @return 指令执行的选项。
+     * @throws Exception 方法执行过程中发生的任何异常。
      */
-    String getOption();
+    String getOption() throws Exception;
 
     /**
-     * 列出指令。
+     * 列出指令的运行时标识。
      *
-     * @return 所有指令的标识符组成的列表。
+     * @return 所有指令的标识组成的列表。
+     * @throws Exception 方法执行过程中发生的任何异常。
      */
-    List<String> getCommandIdentities();
+    List<String> getCommandRuntimeIdentities() throws Exception;
 
     /**
      * 获取指令的描述。
      *
-     * @param identity 指定指令的标识符。
+     * @param runtimeIdentity 指定指令的运行时标识符。
      * @return 指令的描述。
+     * @throws Exception 方法执行过程中发生的任何异常。
      */
-    String getCommandDescription(String identity);
+    String getCommandDescription(String runtimeIdentity) throws Exception;
 
     /**
      * 获取指令的详细说明。
      *
-     * @param identity 指定指令的标识符。
+     * @param runtimeIdentity 指定指令的运行时标识符。
      * @return 指令的详细说明。
+     * @throws Exception 方法执行过程中发生的任何异常。
      */
-    String getCommandManual(String identity);
+    String getCommandManual(String runtimeIdentity) throws Exception;
 
     /**
      * 向客户端发送一条信息（换行）。
      *
      * @param message 指定的信息。
-     * @throws TelqosException Telqos 异常。
+     * @throws Exception 方法执行过程中发生的任何异常。
      */
-    @SuppressWarnings("JavadocReference")
-    void sendMessage(String message) throws TelqosException;
+    void sendMessage(String message) throws Exception;
 
     /**
      * 接收用户的输入信息，并在输入之前一直阻塞。
-     * <p>
-     * 请注意：{@link Command#execute(Context)} 调用该方法时不能捕获 ConnectionTerminatedException 异常，必须抛出。
      *
      * @return 用户输入的信息。
-     * @throws TelqosException               Telqos 异常。
-     * @throws ConnectionTerminatedException 在用户输入完成之前连接中断。
+     * @throws Exception 方法执行过程中发生的任何异常。
      */
-    @SuppressWarnings("JavadocReference")
-    String receiveMessage() throws TelqosException, ConnectionTerminatedException;
+    String receiveMessage() throws Exception;
 
     /**
      * 退出。
      *
-     * @throws TelqosException Telqos 异常。
+     * @throws Exception 方法执行过程中发生的任何异常。
      */
-    @SuppressWarnings("JavadocReference")
-    void quit() throws TelqosException;
+    void quit() throws Exception;
 }
 ```
 
@@ -782,7 +796,7 @@ public interface Context {
 `sendMessage(String message)` 方法用于向客户端发送一条消息（自动换行）。
 
 ```java
-private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
+private void doSomeBusiness(CommandExecutor.Context context, CommandLine cmd) throws Exception {
     context.sendMessage("这是一条消息");
 }
 ```
@@ -792,20 +806,20 @@ private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
 `receiveMessage()` 方法用于接收用户的输入信息，在用户输入完成之前一直阻塞。
 
 ```java
-private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
+private void doSomeBusiness(CommandExecutor.Context context, CommandLine cmd) throws Exception {
     String input = context.receiveMessage();
     // 处理用户输入
 }
 ```
 
-**注意**：调用该方法时不能捕获 `ConnectionTerminatedException` 异常，必须抛出。
+连接在输入完成前中断时，该方法会抛出异常。
 
 #### 获取客户端地址
 
 `getAddress()` 方法用于获取执行指令的客户端地址。
 
 ```java
-private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
+private void doSomeBusiness(CommandExecutor.Context context, CommandLine cmd) throws Exception {
     String address = context.getAddress();
     // 例如: "127.0.0.1:52345"
     context.sendMessage("客户端地址: " + address);
@@ -817,7 +831,7 @@ private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
 `getOption()` 方法用于获取指令执行的选项（不包含指令标识本身）。
 
 ```java
-private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
+private void doSomeBusiness(CommandExecutor.Context context, CommandLine cmd) throws Exception {
     // 如果用户输入: "foobar -get -value test"
     String option = context.getOption();
     // option = "-get -value test"
@@ -830,7 +844,7 @@ private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
 `quit()` 方法用于退出当前连接。
 
 ```java
-private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
+private void doSomeBusiness(CommandExecutor.Context context, CommandLine cmd) throws Exception {
     context.sendMessage("正在退出...");
     context.quit();
 }
@@ -840,11 +854,11 @@ private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
 
 #### 列出所有指令标识
 
-`getCommandIdentities()` 方法用于列出所有可用指令的标识符。
+`getCommandRuntimeIdentities()` 方法用于列出所有可用指令的运行时标识符。
 
 ```java
-private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
-    List<String> identities = context.getCommandIdentities();
+private void doSomeBusiness(CommandExecutor.Context context, CommandLine cmd) throws Exception {
+    List<String> identities = context.getCommandRuntimeIdentities();
     for (String identity : identities) {
         context.sendMessage("指令: " + identity);
     }
@@ -853,10 +867,10 @@ private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
 
 #### 获取指令描述
 
-`getCommandDescription(String identity)` 方法用于获取指定指令的描述。
+`getCommandDescription(String runtimeIdentity)` 方法用于获取指定运行时指令的描述。
 
 ```java
-private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
+private void doSomeBusiness(CommandExecutor.Context context, CommandLine cmd) throws Exception {
     String description = context.getCommandDescription("hello");
     context.sendMessage("指令描述: " + description);
 }
@@ -864,10 +878,10 @@ private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
 
 #### 获取指令详细帮助
 
-`getCommandManual(String identity)` 方法用于获取指定指令的详细帮助。
+`getCommandManual(String runtimeIdentity)` 方法用于获取指定运行时指令的详细帮助。
 
 ```java
-private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
+private void doSomeBusiness(CommandExecutor.Context context, CommandLine cmd) throws Exception {
     String manual = context.getCommandManual("hello");
     context.sendMessage(manual);
 }
@@ -884,12 +898,12 @@ private void doSomeBusiness(Context context, CommandLine cmd) throws Exception {
 **用法**：
 
 ```
-lc [-p prefix|--prefix prefix]
+lc [-p prefix]
 ```
 
 **选项**：
 
-- `-p, --prefix`：列出包含指定前缀的命令。
+- `-p`：列出以指定前缀开头的命令。
 
 **示例**：
 
@@ -966,24 +980,22 @@ abc*def       # 包含非法字符 '*'
    package com.example.telqos;
    
    import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-   import com.dwarfeng.springtelqos.stack.command.Command.Context;
+   import com.dwarfeng.springtelqos.sdk.configuration.TelqosCommand;
+   import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
    import com.dwarfeng.springtelqos.stack.exception.TelqosException;
    import org.apache.commons.cli.CommandLine;
-   import org.springframework.stereotype.Component;
    
-   @Component
+   @TelqosCommand
    public class MyCommand extends CliCommand {
    
        private static final String IDENTITY = "hello";
-       private static final String DESCRIPTION = "输出欢迎信息";
-       private static final String CMD_LINE_SYNTAX = "hello";
    
        public MyCommand() {
-           super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+           super(IDENTITY);
        }
-   
+
        @Override
-       protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+       protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
            try {
                // 业务逻辑。
                doSomeBusiness(context, cmd);
@@ -1000,24 +1012,20 @@ abc*def       # 包含非法字符 '*'
    package com.example.telqos;
    
    import com.dwarfeng.springtelqos.sdk.command.CliCommand;
-   import com.dwarfeng.springtelqos.stack.command.Command.Context;
-   import com.dwarfeng.springtelqos.stack.exception.TelqosException;
+   import com.dwarfeng.springtelqos.stack.command.CommandExecutor;
    import org.apache.commons.cli.CommandLine;
-   import org.springframework.stereotype.Component;
    
-   @Component
+   @TelqosCommand
    public class MyCommand extends CliCommand {
    
        private static final String IDENTITY = "hello";
-       private static final String DESCRIPTION = "输出欢迎信息";
-       private static final String CMD_LINE_SYNTAX = "hello";
    
        public MyCommand() {
-           super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+           super(IDENTITY);
        }
-   
+
        @Override
-       protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+       protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
            try {
                // 业务逻辑。
                doSomeBusiness(context, cmd);
@@ -1028,8 +1036,6 @@ abc*def       # 包含非法字符 '*'
        }
    }
    ```
-
-3. **不要捕获 ConnectionTerminatedException**：该异常表示用户中断连接，应该直接抛出。
 
 ### 性能优化建议
 
@@ -1093,8 +1099,8 @@ abc*def       # 包含非法字符 '*'
 
 1. 检查指令类是否正确注册到 Spring 容器。
 2. 检查 `package-scan` 配置的包路径是否正确。
-3. 检查指令类是否使用了 `@TelqosCommand` 或 `@Component` 注解。
-4. 检查指令的 `getIdentify()` 返回值是否符合规范（支持分段分隔符 `:`、`.`、`-`，且首字符不能为数字）。
+3. 使用 `package-scan` 时检查指令类是否使用了 `@TelqosCommand` 注解；使用 `command-ref` 时检查引用的 Bean 是否存在。
+4. 检查指令的 `getIdentity()` 返回值是否符合规范（支持分段分隔符 `:`、`.`、`-`，且首字符不能为数字）。
 
 ### Banner 不显示问题
 

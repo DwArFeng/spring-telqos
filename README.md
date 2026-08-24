@@ -5,7 +5,7 @@
 ## 特性
 
 - 能够轻松地通过配置搭建一个空的 QOS 平台，拥有基础指令。
-- 通过继承 `Command` 接口，实现自己需要的指令，并通过配置文件轻松地注册到 QOS 平台中。
+- 通过实现 `Command` 接口，实现自己需要的指令，并通过配置文件轻松地注册到 QOS 平台中。
 - 自定义 Banner 展示，使得使用该 QOS 平台的人员进入平台后眼前一亮，增加软件的震撼度。
 
 ## 文档
@@ -41,7 +41,8 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
 
 ## 使用方式
 
-以下的操作步骤可以通过启动 `test` 源目录中的 `com.dwarfeng.springtelqos.node.example.Example`（core 模块）或 `com.dwarfeng.springtelqos.api.example.Example`（api 模块）观察实际效果。
+以下操作步骤适用于已经配置名为 `executor` 的 `ThreadPoolTaskExecutor`
+和名为 `mapServiceExceptionMapper` 的 `ServiceExceptionMapper` Bean 的 Spring 应用。
 
 1. 添加依赖。
 
@@ -63,52 +64,44 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
        <telqos:config>
            <telqos:connection-setting port="${telqos.port}" charset="${telqos.charset}"/>
            <telqos:command>
-               <telqos:command-impl command-ref="dubboCommand"/>
-               <telqos:command-impl command-ref="memoryCommand"/>
-               <telqos:command-impl command-ref="log4j2Command"/>
+               <telqos:command-impl command-ref="helloWorldCommand"/>
            </telqos:command>
        </telqos:config>
        <telqos:handler/>
        <telqos:qos/>
    
-       <bean name="dubboCommand" class="com.dwarfeng.springtelqos.api.integration.dubbo.DubboCommand"/>
-   
-       <bean name="memoryCommand" class="com.dwarfeng.springtelqos.api.integration.system.MemoryCommand"/>
-   
-       <bean name="log4j2Command" class="com.dwarfeng.springtelqos.api.integration.log4j2.Log4j2Command"/>
+       <bean name="helloWorldCommand" class="com.example.telqos.HelloWorldCommand"/>
    </beans>
    ```
-   注：该文件中的所有属性均支持 `Spring place-holder expression`。
+   注：Telqos 命名空间中的所有属性均支持 `Spring place-holder expression`。
 
-3. 编写自定义指令类，继承 `Command`。
+3. 编写自定义指令类，继承 `CliCommand`。
 
    `spring-telqos` 中提供了多种 `Command` 接口的抽象实现，合理地继承这些抽象实现能够提高开发的速度。
 
    ```java
-   @Component
    public class HelloWorldCommand extends CliCommand {
    
        private static final String IDENTITY = "hello";
        private static final String DESCRIPTION = "输出 Hello World!";
-       private static final String CMD_LINE_SYNTAX = "hello";
    
        public HelloWorldCommand() {
-           super(IDENTITY, DESCRIPTION, CMD_LINE_SYNTAX);
+           super(IDENTITY);
        }
    
        @Override
-       protected List<Option> buildOptions() {
-           return Collections.emptyList();
+       protected DescriptionProvider provideDescriptionProvider() {
+           return context -> DESCRIPTION;
        }
    
        @Override
-       protected void executeWithCmd(Context context, CommandLine cmd) throws TelqosException {
+       protected void executeWithCmd(CommandExecutor.Context context, CommandLine cmd) throws Exception {
            context.sendMessage("Hello World!");
        }
    }
    ```
 
-4. 在 `ApplicationContext` 中注入`HelloWorldCommand`对象，并启动程序。
+4. 启动 Spring 应用。
 
 5. 打开 telnet 客户端，以 windows 平台举例。
    1. 运行 `powershell`
@@ -142,10 +135,10 @@ wiki 为项目的开发人员为本项目编写的详细文档，包含不同语
       
       
       lc
-      1   hello   输出 Hello World!
-      2   lc      列出指令
-      3   man     显示指令的详细信息
-      4   quit    退出
+      1   lc      列出指令
+      2   man     显示指令的详细信息
+      3   quit    退出
+      4   hello   输出 Hello World!
       ---------------------------
       共 4 条
       OK

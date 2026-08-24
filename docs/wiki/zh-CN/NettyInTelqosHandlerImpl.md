@@ -1,8 +1,8 @@
-# Netty in TelqosServiceImpl - TelqosServiceImpl 中 Netty 使用原理
+# Netty in TelqosHandlerImpl - TelqosHandlerImpl 中 Netty 使用原理
 
 ## 综述
 
-`spring-telqos` 的 telnet 服务由 `TelqosServiceImpl` 提供，底层网络通信基于 Netty 实现。
+`spring-telqos` 的 telnet 服务由 `TelqosHandlerImpl` 提供，底层网络通信基于 Netty 实现。
 
 从代码职责上看，该类做了三件事：
 
@@ -10,27 +10,25 @@
 - 通过 `ChannelPipeline` 把字节流转换为文本命令，并交给业务处理。
 - 管理每个连接的交互状态，使“命令执行”和“用户输入”可以正确协作。
 
-对于不熟悉 Netty 的同学，可以先把它理解为：
-Netty 负责高性能网络 I/O，`TelqosServiceImpl` 在其之上实现了“命令行会话层”。
+对于不熟悉 Netty 的同学，可以先把它理解为： Netty 负责高性能网络 I/O，`TelqosHandlerImpl` 在其之上实现了“命令行会话层”。
 
 ## 总体架构与调用链路
 
-`TelqosServiceImpl` 的核心链路如下：
+`TelqosHandlerImpl` 的核心链路如下：
 
-1. Spring 初始化完成后，调用 `afterPropertiesSet()`。
-2. `afterPropertiesSet()` 内部调用 `internalOnline()`，启动 Netty 服务。
+1. `telqos:qos` 在 `auto-start=true` 时调用 Handler 的 `start()`。
+2. `start()` 内部调用 `internalStart()`，启动 Netty 服务。
 3. 客户端建立连接后，进入 `handlerAdded()`，完成 banner、准入校验、会话建档。
 4. 客户端输入命令后，进入 `channelRead0()`，完成多行拼接和命令解析。
-5. 合法命令被提交到 `telqosConfig.getExecutor()`，由 `CommandExecutionTask` 异步执行。
-6. 指令通过 `Context` 与客户端交互（发送消息、阻塞等待输入、退出连接）。
+5. 合法命令被提交到 Handler 注入的 `executor`，由 `CommandExecutionTask` 异步执行。
+6. 指令通过 `CommandExecutor.Context` 与客户端交互（发送消息、阻塞等待输入、退出连接）。
 7. 连接断开或异常时，执行会话清理，释放相关状态。
 
-这条链路体现了一个重要分层：
-Netty 线程主要处理“收发与分发”，业务线程池处理“命令执行”。
+这条链路体现了一个重要分层：Netty 线程主要处理“收发与分发”，业务线程池处理“命令执行”。
 
-## 服务启动原理（online 过程）
+## 服务启动原理（start 过程）
 
-`internalOnline()` 是服务启动的核心方法，关键步骤如下：
+`start()` 调用的 `internalStart()` 是服务启动的核心方法，关键步骤如下：
 
 1. 创建 `bossGroup` 与 `workerGroup`。
    - `bossGroup`：负责接受新连接。
@@ -40,12 +38,12 @@ Netty 线程主要处理“收发与分发”，业务线程池处理“命令�
 4. 指定子通道初始化器 `TelqosChannelInitializer`。
 5. 设置 `SO_KEEPALIVE=true`，开启 TCP KeepAlive。
 6. 调用 `bind(port).sync().channel()` 绑定端口并阻塞等待绑定完成。
-7. 设置 `onlineFlag=true`，标记服务在线。
+7. 设置 `startedFlag=true`，标记服务已启动。
 
 对应源码中的关键语句如下：
 
 ```java
-private void internalOnline() throws Exception {
+private void internalStart() throws Exception {
     // ...
     bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
     workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
@@ -56,8 +54,8 @@ private void internalOnline() throws Exception {
     bootstrap.childHandler(new TelqosChannelInitializer());
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
-    channel = bootstrap.bind(telqosConfig.getPort()).sync().channel();
-    onlineFlag = true;
+    channel = bootstrap.bind(config.getPort()).sync().channel();
+    startedFlag = true;
 }
 ```
 
@@ -93,7 +91,6 @@ private void internalOnline() throws Exception {
 这里的多行输入指示符来自：
 
 ```java
-
 @SuppressWarnings({"UnusedAssignment", "ProtectedMemberInFinalClass"})
 protected void channelRead0(ChannelHandlerContext ctx, String commandLine) {
     // ...
@@ -140,11 +137,8 @@ protected void channelRead0(ChannelHandlerContext ctx, String commandLine) {
 ```java
 private void interaction(String address, Channel channel, InteractionInfo interactionInfo, String commandLine) {
     // ...
-    telqosConfig.getExecutor().execute(new CommandExecutionTask(
-            interactionInfo, command,
-            address,
-            new ContextImpl(address, option, interactionMap.get(address), channel),
-            commandLine,
+    executor.execute(new CommandExecutionTask(
+            interactionInfo, command, identity, runtimeIdentity, address, option, commandLine,
             channel
     ));
     // ...
@@ -154,24 +148,24 @@ private void interaction(String address, Channel channel, InteractionInfo intera
 这带来两个收益：
 
 - 避免慢命令阻塞 Netty I/O 事件循环。
-- 可以通过 `task-pool` 配置控制并发度与拒绝策略。
+- 可以通过 `telqos:handler` 的 `executor-ref` 所引用线程池控制并发度与拒绝策略。
 
 `CommandExecutionTask#run()` 的处理要点：
 
 1. 记录日志并切换状态为 `BUSY`。
-2. 执行 `command.execute(context)`。
+2. 通过 `command.newCommandExecutor()` 创建执行器，初始化上下文后调用 `execute()`。
 3. 成功时回写 `OK` 和空行。
 4. 捕获普通异常，回写 `Exception` 与堆栈信息。
 5. `finally` 中恢复状态、标记任务完成并唤醒等待方。
 
-`ContextImpl#receiveMessage()` 的原理：
+`CommandExecutorContextImpl#receiveMessage()` 的原理：
 
 1. 切换状态为 `WAITING_MESSAGE`，并清空 `nextMessage`。
 2. 在 `Condition` 上阻塞，等待 I/O 线程投递输入。
-3. 若连接终止标记为真，抛出 `ConnectionTerminatedException`。
+3. 若连接终止标记为真，抛出 `IOException`。
 4. 获取输入后切回 `BUSY`，返回字符串给命令逻辑。
 
-## 连接生命周期管理（接入、断开、异常、下线）
+## 连接生命周期管理（接入、断开、异常、停止）
 
 ### 接入：`handlerAdded()`
 
@@ -195,9 +189,9 @@ private void interaction(String address, Channel channel, InteractionInfo intera
 2. 尝试向客户端发送异常提示。
 3. 关闭连接并清理会话。
 
-### 下线：`internalOffline()`
+### 停止：`internalStop()`
 
-服务下线顺序为：
+服务停止顺序为：
 
 1. 遍历已连接地址并 `kick(address)` 主动通知断开。
 2. 关闭主通道 `channel.close()`。
@@ -208,7 +202,7 @@ private void interaction(String address, Channel channel, InteractionInfo intera
 
 ## 配置项与 Netty 行为映射
 
-以下配置最终都会映射到 `TelqosServiceImpl` 的运行行为：
+以下配置最终都会映射到 `TelqosHandlerImpl` 的运行行为：
 
 - `port`
    - 作用：Netty 监听端口（`bootstrap.bind(port)`）。
@@ -218,15 +212,16 @@ private void interaction(String address, Channel channel, InteractionInfo intera
    - 默认值：`UTF-8`。
 - `banner-url`
    - 作用：连接建立后读取并输出 banner 内容。
-   - 默认值：`classpath:telqos/banner.txt`。
+  - 默认值：`classpath:com/dwarfeng/springtelqos/node/telqos/banner.txt`。
 - `whitelist-regex` / `blacklist-regex`
    - 作用：连接准入控制，`blacklist` 优先拒绝，`whitelist` 再决定是否放行。
    - 默认值：空字符串（不启用）。
-- `task-pool`
-   - 作用：命令执行线程池，对应 `telqosConfig.getExecutor()`。
-   - 默认行为：若未配置，自动创建 `telqosExecutor`。
+- `executor-ref`
+  - 作用：`telqos:handler` 引用的命令执行线程池，对应 `TelqosHandlerImpl` 的 `executor` 字段。
+  - 默认值：`executor`，该名称对应的 `ThreadPoolTaskExecutor` Bean 需要由 Spring 容器提供。
 
-上述默认值来源于 `SpringTelqosDefinitionParser` 对 `connection-setting` 与 `task-pool` 的解析逻辑。
+上述连接配置由 `SpringTelqosConfigDefinitionParser` 解析；Handler 的 `executor-ref` 由
+`SpringTelqosHandlerDefinitionParser` 注入外部提供的 `ThreadPoolTaskExecutor`。
 
 ## 常见问题与排查建议
 
@@ -255,16 +250,16 @@ private void interaction(String address, Channel channel, InteractionInfo intera
 
 ### 5. 命令执行中连接断开导致异常
 
-`receiveMessage()` 在连接终止时会抛出 `ConnectionTerminatedException`。
+`receiveMessage()` 在连接终止时会抛出 `IOException`。
 这是预期机制，命令实现应允许该异常向上抛出。
 
 ## 小结
 
-`TelqosServiceImpl` 对 Netty 的使用并不复杂，但结构非常清晰：
+`TelqosHandlerImpl` 对 Netty 的使用并不复杂，但结构非常清晰：
 
 - Netty 负责连接管理与文本帧收发。
 - telqos 负责命令语义、会话状态机与交互协议。
 - 线程池隔离了网络 I/O 与业务执行，提升了整体稳定性。
 
-理解本文后，再阅读 `TelqosChannelHandler`、`CommandExecutionTask`、`ContextImpl` 三个内部类，
+理解本文后，再阅读 `TelqosChannelHandler`、`CommandExecutionTask`、`CommandExecutorContextImpl` 三个内部类，
 会更容易把握整个 telqos 服务端的运行机制。

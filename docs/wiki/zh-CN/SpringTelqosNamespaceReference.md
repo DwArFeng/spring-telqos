@@ -16,7 +16,7 @@
 | `telqos:handler` | 定义 Telqos 处理器，用于启动底层 telnet 服务。           |
 | `telqos:qos`     | 定义 Telqos QOS 服务，对外提供启动、停止、状态查询能力。 |
 
-最小可用配置通常由一个线程池、一个 `telqos:config`、一个 `telqos:handler` 和一个 `telqos:qos` 组成：
+以下示例展示线程池、`telqos:config`、`telqos:handler` 和 `telqos:qos` 的装配关系：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -50,7 +50,7 @@
 </beans>
 ```
 
-需要注意的是，`telqos:qos` 默认会引用名为 `mapServiceExceptionMapper` 的 `ServiceExceptionMapper` bean。
+该示例省略了 `telqos:qos` 默认引用的 `mapServiceExceptionMapper` Bean。
 如果您的工程中没有使用默认名称，需要通过 `sem-ref` 指向实际的异常映射器。
 
 ## 命名空间声明
@@ -116,13 +116,13 @@
 
 `connection-setting` 是 `telqos:config` 的子元素，用于配置 telnet 连接相关参数。
 
-| 属性              | 类型      | 默认值                        | 说明                                             |
-|:------------------|:----------|:------------------------------|:-------------------------------------------------|
-| `port`            | `Integer` | `23`                          | Telnet 服务监听端口。                            |
-| `charset`         | `String`  | `UTF-8`                       | 服务端与客户端交互使用的字符集。                 |
-| `banner-url`      | `String`  | `classpath:telqos/banner.txt` | 新连接接入时输出的 banner 资源路径。             |
-| `whitelist-regex` | `String`  | 空字符串                      | 连接白名单正则表达式，空字符串表示不启用白名单。 |
-| `blacklist-regex` | `String`  | 空字符串                      | 连接黑名单正则表达式，空字符串表示不启用黑名单。 |
+| 属性              | 类型      | 默认值                                                       | 说明                                             |
+|:------------------|:----------|:-------------------------------------------------------------|:-------------------------------------------------|
+| `port`            | `Integer` | `23`                                                         | Telnet 服务监听端口。                            |
+| `charset`         | `String`  | `UTF-8`                                                      | 服务端与客户端交互使用的字符集。                 |
+| `banner-url`      | `String`  | `classpath:com/dwarfeng/springtelqos/node/telqos/banner.txt` | 新连接接入时输出的 banner 资源路径。             |
+| `whitelist-regex` | `String`  | 空字符串                                                     | 连接白名单正则表达式，空字符串表示不启用白名单。 |
+| `blacklist-regex` | `String`  | 空字符串                                                     | 连接黑名单正则表达式，空字符串表示不启用黑名单。 |
 
 示例：
 
@@ -132,7 +132,7 @@
             port="22000"
             charset="UTF-8"
             banner-url="classpath:telqos/my-banner.txt"
-            whitelist-regex="127\.0\.0\.1|::1"
+            whitelist-regex="(?:127\.0\.0\.1|\[0:0:0:0:0:0:0:1\]):\d+"
             blacklist-regex="192\.168\.1\..*"
     />
 </telqos:config>
@@ -147,7 +147,7 @@
 `banner-url` 使用 Spring Resource 语义，常见写法包括 `classpath:` 和 `file:`。banner 文件建议使用 UTF-8 编码保存，
 客户端实际显示效果仍受 `charset` 配置影响。
 
-黑白名单会匹配客户端地址。黑名单优先判断，若命中黑名单则拒绝连接；白名单为空时不限制来源；
+黑白名单会匹配包含端口的客户端地址。黑名单优先判断，若命中黑名单则拒绝连接；白名单为空时不限制来源；
 白名单非空时，只有匹配白名单的客户端才能连接。
 
 ## command
@@ -341,8 +341,9 @@
 
 ### 2. 启动时找不到 executor
 
-`telqos:handler` 默认通过 `executor-ref="executor"` 引用线程池。如果容器中没有名为 `executor`
-的 `ThreadPoolTaskExecutor`，需要显式声明线程池，或者把 `executor-ref` 改成实际的 bean 名称。
+`telqos:handler` 默认通过 `executor-ref="executor"` 引用线程池。
+如果容器中没有名为 `executor` 的 `ThreadPoolTaskExecutor`，需要显式声明线程池，
+或者把 `executor-ref` 改成实际的 bean 名称。
 
 ### 3. handler 没有使用预期的配置
 

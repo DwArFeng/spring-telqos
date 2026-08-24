@@ -2,11 +2,8 @@
 
 ## 确认系统需求
 
-- CPU：2 核以上。
-- 内存：2G 以上。
-- 硬盘：50G 以上。
-- JDK 8。
-- Maven 3。
+- JDK 25。
+- Maven 3.9.16 及以上版本。
 
 ## telnet 客户端初始化
 
@@ -37,7 +34,8 @@ git clone git@gitee.com:dwarfeng/spring-telqos.git
 
 在下载的源码目录下，定位 `spring-telqos-core/conf/test.telqos` 目录，如不存在可以创建。
 
-随后，将 `spring-telqos-core/src/test/resources/telqos/connection.properties` 文件复制到该目录下。
+随后，将 `spring-telqos-core/src/test/resources/com/dwarfeng/springtelqos/node/telqos/connection.properties`
+文件复制到该目录下。
 
 同时，需要将以下配置项更改为 telqos 服务的实际值。
 
@@ -56,7 +54,8 @@ telqos.blacklist_regex=
 
 在下载的源码目录下，定位 `spring-telqos-api/conf/test.telqos` 目录，如不存在可以创建。
 
-随后，将 `spring-telqos-api/src/test/resources/telqos/connection.properties` 文件复制到该目录下。
+随后，将 `spring-telqos-api/src/test/resources/com/dwarfeng/springtelqos/api/telqos/connection.properties`
+文件复制到该目录下。
 
 同时，需要将以下配置项更改为 telqos 服务的实际值。
 
@@ -75,8 +74,8 @@ telqos.blacklist_regex=
 
 运行 `src/test` 下的示例以观察全部特性。
 
-| 示例类名                                           | 说明      |
-|------------------------------------------------|---------|
+| 示例类名                                       | 说明      |
+|------------------------------------------------|-----------|
 | com.dwarfeng.springtelqos.api.example.Example  | API 示例  |
 | com.dwarfeng.springtelqos.node.example.Example | Core 示例 |
 
